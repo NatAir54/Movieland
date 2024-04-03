@@ -11,4 +11,5 @@ import java.util.List;
 public interface MovieService {
     List<MovieDto> findAll();
     List<MovieDto> findThreeRandom();
+    List<MovieDto> findByGenre(int genreId);
 }

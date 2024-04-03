@@ -49,7 +49,7 @@ class MovieControllerITest {
 
     @Test
     @DisplayName("Integration test for GET /api/v1/movies/random")
-    void findRandom_shouldReturnStatusOkAndContentTypeApplicationJson() {
+    void findThreeRandom_shouldReturnStatusOkAndContentTypeApplicationJson() {
         log.info("Running findRandom_shouldReturnStatusOkAndContentTypeApplicationJson test");
 
         ResponseEntity<List<MovieDto>> responseEntity = testRestTemplate.exchange(
@@ -66,5 +66,53 @@ class MovieControllerITest {
         List<MovieDto> movies = responseEntity.getBody();
         assertNotNull(movies);
         assertEquals(3, movies.size());
+    }
+
+    @Test
+    @DisplayName("Integration test for GET /api/v1/movies/genre/{genreId}")
+    void findByGenre_shouldReturnStatusOkAndContentTypeApplicationJson() {
+        log.info("Running findByGenre_shouldReturnStatusOkAndContentTypeApplicationJson test");
+
+        int genreId = 8;
+
+        ResponseEntity<List<MovieDto>> responseEntity = testRestTemplate.exchange(
+                "/api/v1/movies/genre/{genreId}",
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<>() {
+                },
+                genreId);
+
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        assertTrue(Objects.requireNonNull(responseEntity.getHeaders().getContentType())
+                .isCompatibleWith(MediaType.APPLICATION_JSON));
+
+        List<MovieDto> movies = responseEntity.getBody();
+        assertNotNull(movies);
+        assertEquals(3, movies.size());
+    }
+
+    @Test
+    @DisplayName("Integration test for GET /api/v1/movies/genre/{genreId} with invalid genre ID")
+    void findByInvalidGenreId_shouldReturnEmptyList() {
+        log.info("Running findByInvalidGenreId_shouldReturnEmptyList test");
+
+        int invalidGenreId = -1;
+
+        ResponseEntity<List<MovieDto>> responseEntity = testRestTemplate.exchange(
+                "/api/v1/movies/genre/{genreId}",
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<>() {
+                },
+                invalidGenreId);
+
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        assertTrue(Objects.requireNonNull(responseEntity.getHeaders().getContentType())
+                .isCompatibleWith(MediaType.APPLICATION_JSON));
+
+        List<MovieDto> movies = responseEntity.getBody();
+        assertNotNull(movies);
+        assertTrue(movies.isEmpty());
     }
 }

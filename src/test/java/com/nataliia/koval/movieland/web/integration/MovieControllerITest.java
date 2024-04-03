@@ -64,4 +64,35 @@ class MovieControllerITest {
                 .andExpect(jsonPath("$[0].picturePath").value("https://images-na.ssl-images-amazon.com/images/M/MV5BODU4MjU4NjIwNl5BMl5BanBnXkFtZTgwMDU2MjEyMDE@._V1._SY209_CR0,0,140,209_.jpg"));
     }
 
+    @Test
+    @DisplayName("Test findThreeRandom - should return list of three random movies.")
+    void findThreeRandom_shouldReturnListOfThreeRandomMovies() throws Exception {
+        mockMvc.perform(get(URL + "/random"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(3));
+    }
+
+    @Test
+    @DisplayName("Test findByGenre - should return list of movies by genre.")
+    void findByGenre_shouldReturnListOfMoviesByGenre() throws Exception {
+        int genreId = 1;
+        mockMvc.perform(get(URL + "/genre/" + genreId))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(9));
+    }
+
+    @Test
+    @DisplayName("Test findByGenre with invalid genre ID - should return empty list.")
+    void findByGenre_withInvalidGenreId_shouldReturnEmptyList() throws Exception {
+        int invalidGenreId = -1;
+        mockMvc.perform(get(URL + "/genre/" + invalidGenreId))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(0));
+    }
 }

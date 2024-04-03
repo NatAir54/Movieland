@@ -1,58 +1,92 @@
 package com.nataliia.koval.movieland.web.controller;
 
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 import com.nataliia.koval.movieland.dto.MovieDto;
 import com.nataliia.koval.movieland.service.MovieService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
+@AutoConfigureMockMvc
+@WebMvcTest(MovieController.class)
 class MovieControllerTest {
-    @Mock
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockBean
     private MovieService movieService;
-    @InjectMocks
-    private MovieController movieController;
 
     @BeforeEach
-    void init() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    @DisplayName("Unit test for findAll() method")
-    void findAll_ReturnsListOfMovies() {
-
+    @DisplayName("Find all movies")
+    void findAll_ReturnsListOfMovies() throws Exception {
         List<MovieDto> movies = createMovieDtos();
-
         when(movieService.findAll()).thenReturn(movies);
 
-        List<MovieDto> result = movieController.findAll();
-
-        verify(movieService).findAll();
-        assertEquals(movies, result);
+        mockMvc.perform(get("/api/v1/movies"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isNotEmpty())
+                .andExpect(jsonPath("$.size()").value(movies.size()));
     }
 
     @Test
-    @DisplayName("Unit test for findThreeRandom() method")
-    void findThreeRandom_ReturnsListOfThreeMovies() {
-
+    @DisplayName("Find three random movies")
+    void findThreeRandom_ReturnsListOfThreeRandomMovies() throws Exception {
         List<MovieDto> movies = createMovieDtos();
-
         when(movieService.findThreeRandom()).thenReturn(movies.subList(0, 3));
 
-        List<MovieDto> result = movieController.findThreeRandom();
+        mockMvc.perform(get("/api/v1/movies/random"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.size()").value(3));
+    }
 
-        verify(movieService).findThreeRandom();
-        assertEquals(3, result.size());
+    @Test
+    @DisplayName("Find movies by genre")
+    void findByGenre_ReturnsListOfMoviesByGenre() throws Exception {
+        int genreId = 1;
+        List<MovieDto> movies = createMovieDtos();
+        when(movieService.findByGenre(genreId)).thenReturn(movies);
+
+        mockMvc.perform(get("/api/v1/movies/genre/{genreId}", genreId))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.size()").value(movies.size()));
+    }
+
+    @Test
+    @DisplayName("No movies found for the given genre ID")
+    public void findByGenre_NoMoviesFound_ReturnsEmptyList() throws Exception {
+        int genreId = 50;
+        when(movieService.findByGenre(genreId)).thenReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/api/v1/movies/genre/{genreId}", genreId))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isEmpty());
     }
 
     private List<MovieDto> createMovieDtos() {
