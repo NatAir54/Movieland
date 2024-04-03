@@ -1,0 +1,27 @@
+server:
+  port: ${PORT:3001}
+
+spring:
+  datasource:
+    username: postgres
+    password: postgrsql098
+    url: jdbc:postgresql://localhost:5432/movieland
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+  flyway:
+    enabled: true
+    baselineOnMigrate: true
+  application:
+    name: Movieland
+
+logging:
+  pattern:
+    level: "DEBUG"
+  file:
+    path: "./logs/movieland"
+  logback:
+    rolling-policy:
+      max-file-size: "5MB"
+
