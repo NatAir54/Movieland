@@ -16,6 +16,6 @@ public interface MovieRepository extends JpaRepository<Movie, Integer> {
     @Override
     List<Movie> findAll();
 
-    @Query(value = "SELECT * FROM movie ORDER BY RANDOM() LIMIT :count", nativeQuery = true)
-    List<Movie> findRandomMovies(int count);
+    @Query(value = "SELECT * FROM movie ORDER BY RANDOM() LIMIT 3", nativeQuery = true)
+    List<Movie> findThreeRandom();
 }

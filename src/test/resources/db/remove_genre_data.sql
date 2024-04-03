@@ -1,0 +1,2 @@
+DELETE FROM genre;
+DROP TABLE IF EXISTS genre;

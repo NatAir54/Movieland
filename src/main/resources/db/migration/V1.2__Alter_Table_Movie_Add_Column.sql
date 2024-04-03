@@ -37,5 +37,3 @@ BEGIN
         UPDATE movie SET picture_path = movie_data[i+1] WHERE name_russian = movie_info;
     END LOOP;
 END $$;
-
-ALTER TABLE movie ALTER COLUMN picture_path SET NOT NULL;

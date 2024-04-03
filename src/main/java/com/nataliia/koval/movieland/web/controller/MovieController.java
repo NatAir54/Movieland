@@ -21,7 +21,7 @@ public class MovieController {
     }
 
     @GetMapping("/random")
-    public List<MovieDto> findRandom() {
-        return movieService.findRandom(3);
+    public List<MovieDto> findThreeRandom() {
+        return movieService.findThreeRandom();
     }
 }

@@ -11,8 +11,8 @@ spring:
       ddl-auto: none
     show-sql: true
   flyway:
-    enabled: true
-    baselineOnMigrate: true
+    enabled: false
+    baselineOnMigrate: false
   application:
     name: Movieland
 

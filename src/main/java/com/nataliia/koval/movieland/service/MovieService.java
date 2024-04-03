@@ -10,5 +10,5 @@ import java.util.List;
  */
 public interface MovieService {
     List<MovieDto> findAll();
-    List<MovieDto> findRandom(int count);
+    List<MovieDto> findThreeRandom();
 }

@@ -24,10 +24,9 @@ public class DefaultMovieService implements MovieService {
     }
 
     @Override
-    public List<MovieDto> findRandom(int count) {
-        List<MovieDto> randomMovies = movieRepository.findRandomMovies(count).stream()
+    public List<MovieDto> findThreeRandom() {
+        return movieRepository.findThreeRandom().stream()
                 .map(movieMapper::toMovieDto)
                 .collect(Collectors.toList());
-        return randomMovies;
     }
 }

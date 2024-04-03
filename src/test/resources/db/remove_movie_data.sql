@@ -1,0 +1,2 @@
+DELETE FROM movie;
+DROP TABLE IF EXISTS movie;
