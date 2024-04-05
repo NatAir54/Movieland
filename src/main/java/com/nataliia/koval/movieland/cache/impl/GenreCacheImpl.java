@@ -1,15 +1,16 @@
 package com.nataliia.koval.movieland.cache.impl;
 
 import com.nataliia.koval.movieland.cache.GenreCache;
+import com.nataliia.koval.movieland.cache.ImmutableGenre;
 import com.nataliia.koval.movieland.entity.Genre;
 import com.nataliia.koval.movieland.repository.GenreRepository;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -20,31 +21,28 @@ import java.util.concurrent.locks.ReentrantLock;
 @Component
 public class GenreCacheImpl implements GenreCache {
     private final Lock lock = new ReentrantLock();
+    @Setter
+    private Instant lastUpdate = Instant.EPOCH;
     @Autowired
     private GenreRepository genreRepository;
-    private List<Genre> cache =  new ArrayList<>();
-    private Instant lastUpdate = Instant.EPOCH;
+    private List<ImmutableGenre> cache =  new ArrayList<>();
 
 
-    public List<Genre> retrieveGenresFromCache() {
+    public List<ImmutableGenre> retrieveGenresFromCache() {
         lock.lock();
         try {
             if (isCacheStale()) {
                 updateCache();
                 scheduleCacheUpdate();
             }
-            return Collections.unmodifiableList(cache);
+            return cache;
         } finally {
             lock.unlock();
         }
     }
 
-    public void setLastUpdate(Instant lastUpdate) {
-        this.lastUpdate = lastUpdate;
-    }
-
     void updateCache() {
-        List<Genre> genresFromDatabase = fetchGenresFromDatabase();
+        List<ImmutableGenre> genresFromDatabase = fetchGenresFromDatabase();
 
         lock.lock();
         try {
@@ -70,7 +68,7 @@ public class GenreCacheImpl implements GenreCache {
         scheduler.schedule(scheduler::shutdown, 4, TimeUnit.HOURS);
     }
 
-    private List<Genre> fetchGenresFromDatabase() {
-        return genreRepository.findAll();
+    private List<ImmutableGenre> fetchGenresFromDatabase() {
+        return new ArrayList<>(genreRepository.findAll());
     }
 }

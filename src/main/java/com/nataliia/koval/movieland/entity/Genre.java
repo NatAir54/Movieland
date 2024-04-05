@@ -1,5 +1,6 @@
 package com.nataliia.koval.movieland.entity;
 
+import com.nataliia.koval.movieland.cache.ImmutableGenre;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.GeneratedValue;
@@ -16,7 +17,7 @@ import lombok.*;
 @AllArgsConstructor
 @RequiredArgsConstructor
 @Table(name="genre")
-public class Genre {
+public class Genre implements ImmutableGenre {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "genre_sequence")
     @SequenceGenerator(name = "genre_sequence", sequenceName = "genre_id_seq", allocationSize = 1)

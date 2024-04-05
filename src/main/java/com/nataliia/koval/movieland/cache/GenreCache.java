@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface GenreCache {
 
-    List<Genre> retrieveGenresFromCache();
+    List<ImmutableGenre> retrieveGenresFromCache();
     void setLastUpdate(Instant lastUpdate);
 }

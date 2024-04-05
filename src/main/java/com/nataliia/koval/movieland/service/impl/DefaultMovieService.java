@@ -36,6 +36,8 @@ public class DefaultMovieService implements MovieService {
     public List<MovieDto> findByGenre(int genreId) {
         List<Movie> movies = movieRepository.findByGenre(genreId);
         return movies.isEmpty() ? Collections.emptyList() :
-                movies.stream().map(movieMapper::toMovieDto).collect(Collectors.toList());
+                movies.stream()
+                        .map(movieMapper::toMovieDto)
+                        .collect(Collectors.toList());
     }
 }

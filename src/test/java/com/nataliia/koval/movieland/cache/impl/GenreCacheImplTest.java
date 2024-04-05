@@ -1,6 +1,7 @@
 package com.nataliia.koval.movieland.cache.impl;
 
 import com.nataliia.koval.movieland.entity.Genre;
+import com.nataliia.koval.movieland.cache.ImmutableGenre;
 import com.nataliia.koval.movieland.repository.GenreRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,6 +14,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -53,8 +56,17 @@ public class GenreCacheImplTest {
         Instant lastUpdate = Instant.now().minus(Duration.ofHours(5));
         genreCache.setLastUpdate(lastUpdate);
 
-        List<Genre> retrievedGenres = genreCache.retrieveGenresFromCache();
-        assertEquals(freshGenres, retrievedGenres);
+        List<ImmutableGenre> retrievedGenres = genreCache.retrieveGenresFromCache();
+
+        assertEquals(freshGenres.size(), retrievedGenres.size());
+
+        IntStream.range(0, freshGenres.size())
+                .forEach(i -> {
+                    Genre freshGenre = freshGenres.get(i);
+                    ImmutableGenre retrievedGenre = retrievedGenres.get(i);
+                    assertEquals(freshGenre.getId(), retrievedGenre.getId());
+                    assertEquals(freshGenre.getName(), retrievedGenre.getName());
+                });
     }
 
     @Test
@@ -74,7 +86,7 @@ public class GenreCacheImplTest {
             e.printStackTrace();
         }
 
-        List<Genre> retrievedGenres = genreCache.retrieveGenresFromCache();
+        List<ImmutableGenre> retrievedGenres = genreCache.retrieveGenresFromCache();
         assertEquals(freshGenres, retrievedGenres);
     }
 
@@ -85,7 +97,12 @@ public class GenreCacheImplTest {
         when(genreRepository.findAll()).thenReturn(freshGenres);
 
         genreCache.updateCache();
-        assertEquals(freshGenres, genreCache.retrieveGenresFromCache());
+
+        List<ImmutableGenre> immutableFreshGenres = freshGenres.stream()
+                .map(genre -> (ImmutableGenre) genre)
+                .collect(Collectors.toList());
+
+        assertEquals(immutableFreshGenres, genreCache.retrieveGenresFromCache());
     }
 
     private List<Genre> createGenre() {

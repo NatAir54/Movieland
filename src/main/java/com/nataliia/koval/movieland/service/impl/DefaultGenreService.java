@@ -19,7 +19,7 @@ public class DefaultGenreService implements GenreService {
     @Override
     public List<GenreDto> findAll() {
         return genreCache.retrieveGenresFromCache().stream()
-                .map(genreMapper::toGenreDto)
-                .collect(Collectors.toList());
+            .map(genreMapper::toGenreDto)
+            .collect(Collectors.toList());
     }
 }

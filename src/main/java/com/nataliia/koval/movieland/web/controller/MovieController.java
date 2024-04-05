@@ -3,10 +3,7 @@ package com.nataliia.koval.movieland.web.controller;
 import com.nataliia.koval.movieland.dto.MovieDto;
 import com.nataliia.koval.movieland.service.MovieService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -17,7 +14,10 @@ public class MovieController {
     private final MovieService movieService;
 
     @GetMapping
-    public List<MovieDto> findAll() {
+    public List<MovieDto> findAll(
+            @RequestParam(required = false) String ratingOrder,
+            @RequestParam(required = false) String priceOrder) {
+
         return movieService.findAll();
     }
 
