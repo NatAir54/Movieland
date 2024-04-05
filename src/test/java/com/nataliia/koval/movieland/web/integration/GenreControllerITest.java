@@ -58,6 +58,6 @@ class GenreControllerITest {
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$[0].name").value("драма"))
                 .andExpect(jsonPath("$[1].name").value("криминал"))
-                .andExpect(jsonPath("$[1].name").value("фэнтези"));
+                .andExpect(jsonPath("$[2].name").value("фэнтези"));
     }
 }

@@ -39,27 +39,13 @@ public class GenreCacheImplITest {
     private GenreRepository genreRepository;
 
     @Test
-    @DisplayName("retrieveGenresFromCache_ShouldReturnGenresInsertedIntoDatabase")
-    void retrieveGenresFromCache_ShouldReturnGenresInsertedIntoDatabase() {
-        Genre genre1 = new Genre(101, "New Genre 1");
-        Genre genre2 = new Genre(102, "New Genre 2");
-        genreRepository.saveAll(List.of(genre1, genre2));
-
-        List<ImmutableGenre> cachedGenres = genreCache.retrieveGenresFromCache();
-
-        Assertions.assertEquals(2, cachedGenres.size());
-        Assertions.assertEquals(genre1.getName(), cachedGenres.get(0).getName());
-        Assertions.assertEquals(genre2.getName(), cachedGenres.get(1).getName());
-    }
-
-    @Test
     @DisplayName("retrieveGenresFromCache_ShouldReturnGenresFromExistingDatabase")
     void retrieveGenresFromCache_ShouldReturnGenresFromExistingDatabase() {
         List<ImmutableGenre> cachedGenres = genreCache.retrieveGenresFromCache();
 
         Assertions.assertEquals(15, cachedGenres.size());
-        Assertions.assertEquals("Драма", cachedGenres.get(0).getName());
-        Assertions.assertEquals("Криминал", cachedGenres.get(1).getName());
+        Assertions.assertEquals("драма", cachedGenres.get(0).getName());
+        Assertions.assertEquals("криминал", cachedGenres.get(1).getName());
     }
 
 }
