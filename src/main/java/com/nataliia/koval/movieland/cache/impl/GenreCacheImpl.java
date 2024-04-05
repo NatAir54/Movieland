@@ -2,7 +2,6 @@ package com.nataliia.koval.movieland.cache.impl;
 
 import com.nataliia.koval.movieland.cache.GenreCache;
 import com.nataliia.koval.movieland.cache.ImmutableGenre;
-import com.nataliia.koval.movieland.entity.Genre;
 import com.nataliia.koval.movieland.repository.GenreRepository;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
