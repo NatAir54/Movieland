@@ -3,7 +3,6 @@ package com.nataliia.koval.movieland.cache.impl;
 import com.nataliia.koval.movieland.entity.Genre;
 import com.nataliia.koval.movieland.cache.ImmutableGenre;
 import com.nataliia.koval.movieland.repository.GenreRepository;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
