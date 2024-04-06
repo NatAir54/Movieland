@@ -87,6 +87,7 @@ class MovieControllerITest {
                 .andExpect(jsonPath("$.length()").value(9));
     }
 
+    // TODO create exceptions for cases when id is invalid or doesn't exist
     @Test
     @DisplayName("Test findByGenre with invalid genre ID - should return empty list.")
     void findByGenre_withInvalidGenreId_shouldReturnEmptyList() throws Exception {

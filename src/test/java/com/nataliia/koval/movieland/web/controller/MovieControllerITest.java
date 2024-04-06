@@ -2,6 +2,7 @@ package com.nataliia.koval.movieland.web.controller;
 
 import com.nataliia.koval.movieland.dto.MovieDto;
 import lombok.extern.log4j.Log4j2;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,10 +16,6 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 import java.util.Objects;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @Log4j2
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -38,13 +35,13 @@ class MovieControllerITest {
                 new ParameterizedTypeReference<>() {
                 });
 
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertTrue(Objects.requireNonNull(responseEntity.getHeaders().getContentType())
+        Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        Assertions.assertTrue(Objects.requireNonNull(responseEntity.getHeaders().getContentType())
                 .isCompatibleWith(MediaType.APPLICATION_JSON));
 
         List<MovieDto> movies = responseEntity.getBody();
-        assertNotNull(movies);
-        assertTrue(movies.size() > 0);
+        Assertions.assertNotNull(movies);
+        Assertions.assertFalse(movies.isEmpty());
     }
 
     @Test
@@ -59,13 +56,13 @@ class MovieControllerITest {
                 new ParameterizedTypeReference<>() {
                 });
 
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertTrue(Objects.requireNonNull(responseEntity.getHeaders().getContentType())
+        Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        Assertions.assertTrue(Objects.requireNonNull(responseEntity.getHeaders().getContentType())
                 .isCompatibleWith(MediaType.APPLICATION_JSON));
 
         List<MovieDto> movies = responseEntity.getBody();
-        assertNotNull(movies);
-        assertEquals(3, movies.size());
+        Assertions.assertNotNull(movies);
+        Assertions.assertEquals(3, movies.size());
     }
 
     @Test
@@ -73,7 +70,7 @@ class MovieControllerITest {
     void findByGenre_shouldReturnStatusOkAndContentTypeApplicationJson() {
         log.info("Running findByGenre_shouldReturnStatusOkAndContentTypeApplicationJson test");
 
-        int genreId = 8;
+        int genreId = 1;
 
         ResponseEntity<List<MovieDto>> responseEntity = testRestTemplate.exchange(
                 "/api/v1/movies/genre/{genreId}",
@@ -83,13 +80,13 @@ class MovieControllerITest {
                 },
                 genreId);
 
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertTrue(Objects.requireNonNull(responseEntity.getHeaders().getContentType())
+        Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        Assertions.assertTrue(Objects.requireNonNull(responseEntity.getHeaders().getContentType())
                 .isCompatibleWith(MediaType.APPLICATION_JSON));
 
         List<MovieDto> movies = responseEntity.getBody();
-        assertNotNull(movies);
-        assertEquals(3, movies.size());
+        Assertions.assertNotNull(movies);
+        Assertions.assertEquals(9, movies.size());
     }
 
     @Test
@@ -107,12 +104,12 @@ class MovieControllerITest {
                 },
                 invalidGenreId);
 
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertTrue(Objects.requireNonNull(responseEntity.getHeaders().getContentType())
+        Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        Assertions.assertTrue(Objects.requireNonNull(responseEntity.getHeaders().getContentType())
                 .isCompatibleWith(MediaType.APPLICATION_JSON));
 
         List<MovieDto> movies = responseEntity.getBody();
-        assertNotNull(movies);
-        assertTrue(movies.isEmpty());
+        Assertions.assertNotNull(movies);
+        Assertions.assertTrue(movies.isEmpty());
     }
 }

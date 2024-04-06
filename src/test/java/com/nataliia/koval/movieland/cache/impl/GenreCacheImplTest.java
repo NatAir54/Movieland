@@ -3,6 +3,7 @@ package com.nataliia.koval.movieland.cache.impl;
 import com.nataliia.koval.movieland.entity.Genre;
 import com.nataliia.koval.movieland.cache.ImmutableGenre;
 import com.nataliia.koval.movieland.repository.GenreRepository;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,6 +18,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static java.time.Duration.ofSeconds;
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,34 +30,30 @@ import static org.mockito.Mockito.when;
 public class GenreCacheImplTest {
     @Mock
     private GenreRepository genreRepository;
-
     @InjectMocks
     private GenreCacheImpl genreCache;
 
     @Test
-    @DisplayName("isCacheStale should return true when cache is stale")
-    public void isCacheStale_ShouldReturnTrueWhenCacheIsStale() {
-        Instant lastUpdate = Instant.now().minus(Duration.ofHours(5));
-        genreCache.setLastUpdate(lastUpdate);
-        assertTrue(genreCache.isCacheStale());
+    @DisplayName("needsCacheUpdate should return true when cache is not fresh")
+    public void needsCacheUpdate_ShouldReturnTrueWhenCacheIsNotFresh() {
+        genreCache.setLastUpdate(Instant.now().minus(Duration.ofHours(5)));
+        assertTrue(genreCache.needsCacheUpdate());
     }
 
     @Test
-    @DisplayName("isCacheStale should return false when cache is fresh")
-    public void isCacheStale_ShouldReturnFalseWhenCacheIsFresh() {
-        Instant lastUpdate = Instant.now().minus(Duration.ofHours(2));
-        genreCache.setLastUpdate(lastUpdate);
-        assertFalse(genreCache.isCacheStale());
+    @DisplayName("needsCacheUpdate should return false when cache is fresh")
+    public void needsCacheUpdate_ShouldReturnFalseWhenCacheIsFresh() {
+        genreCache.setLastUpdate(Instant.now().minus(Duration.ofHours(2)));
+        assertFalse(genreCache.needsCacheUpdate());
     }
 
     @Test
-    @DisplayName("retrieveGenresFromCache should update cache and return genres when cache is stale")
-    public void retrieveGenresFromCache_ShouldUpdateCacheAndReturnGenresWhenCacheIsStale() {
+    @DisplayName("retrieveGenresFromCache should update cache and return genres when cache is not fresh")
+    public void retrieveGenresFromCache_ShouldUpdateCacheAndReturnGenresWhenCacheIsNotFresh() {
         List<Genre> freshGenres = createGenre();
         when(genreRepository.findAll()).thenReturn(freshGenres);
 
-        Instant lastUpdate = Instant.now().minus(Duration.ofHours(5));
-        genreCache.setLastUpdate(lastUpdate);
+        genreCache.setLastUpdate(Instant.now().minus(Duration.ofHours(5)));
 
         List<ImmutableGenre> retrievedGenres = genreCache.retrieveGenresFromCache();
 
@@ -70,24 +69,25 @@ public class GenreCacheImplTest {
     }
 
     @Test
-    @DisplayName("scheduleCacheUpdate should update cache periodically")
-    public void scheduleCacheUpdate_ShouldUpdateCachePeriodically() {
+    @DisplayName("scheduleCacheUpdate should trigger cache update periodically")
+    public void scheduleCacheUpdate_ShouldTriggerCacheUpdatePeriodically() {
         List<Genre> freshGenres = createGenre();
         when(genreRepository.findAll()).thenReturn(freshGenres);
 
-        Instant lastUpdate = Instant.now().minus(Duration.ofHours(5));
-        genreCache.setLastUpdate(lastUpdate);
-
         genreCache.scheduleCacheUpdate();
 
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        await().atMost(ofSeconds(5)).untilAsserted(() -> {
+            List<ImmutableGenre> retrievedGenres = genreCache.retrieveGenresFromCache();
+            assertEquals(freshGenres.size(), retrievedGenres.size());
 
-        List<ImmutableGenre> retrievedGenres = genreCache.retrieveGenresFromCache();
-        assertEquals(freshGenres, retrievedGenres);
+            IntStream.range(0, freshGenres.size())
+                    .forEach(i -> {
+                        Genre freshGenre = freshGenres.get(i);
+                        ImmutableGenre retrievedGenre = retrievedGenres.get(i);
+                        assertEquals(freshGenre.getId(), retrievedGenre.getId());
+                        assertEquals(freshGenre.getName(), retrievedGenre.getName());
+                    });
+        });
     }
 
     @Test

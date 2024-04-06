@@ -4,7 +4,6 @@ import com.nataliia.koval.movieland.cache.GenreCache;
 import com.nataliia.koval.movieland.cache.ImmutableGenre;
 import com.nataliia.koval.movieland.repository.GenreRepository;
 import lombok.Setter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -20,21 +19,26 @@ import java.util.concurrent.locks.ReentrantLock;
 @Component
 public class GenreCacheImpl implements GenreCache {
     private final Lock lock = new ReentrantLock();
+    private final GenreRepository genreRepository;
     @Setter
     private Instant lastUpdate = Instant.EPOCH;
-    @Autowired
-    private GenreRepository genreRepository;
     private List<ImmutableGenre> cache =  new ArrayList<>();
+
+    public GenreCacheImpl(GenreRepository genreRepository) {
+        this.genreRepository = genreRepository;
+    }
 
 
     public List<ImmutableGenre> retrieveGenresFromCache() {
+        if (!needsCacheUpdate()) {
+            return new ArrayList<>(cache);
+        }
+
         lock.lock();
         try {
-            if (isCacheStale()) {
-                updateCache();
-                scheduleCacheUpdate();
-            }
-            return cache;
+            updateCache();
+            scheduleCacheUpdate();
+            return new ArrayList<>(cache);
         } finally {
             lock.unlock();
         }
@@ -42,7 +46,6 @@ public class GenreCacheImpl implements GenreCache {
 
     void updateCache() {
         List<ImmutableGenre> genresFromDatabase = fetchGenresFromDatabase();
-
         lock.lock();
         try {
             this.cache = genresFromDatabase;
@@ -52,7 +55,7 @@ public class GenreCacheImpl implements GenreCache {
         }
     }
 
-    boolean isCacheStale() {
+    boolean needsCacheUpdate() {
         lock.lock();
         try {
             return Duration.between(lastUpdate, Instant.now()).compareTo(Duration.ofHours(4)) >= 0;
