@@ -1,8 +1,6 @@
 package com.nataliia.koval.movieland.web.integration;
 
-import com.nataliia.koval.movieland.exception.GenreNotFoundException;
 import com.nataliia.koval.movieland.service.MovieService;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

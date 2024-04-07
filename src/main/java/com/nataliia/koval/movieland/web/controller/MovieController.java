@@ -1,12 +1,8 @@
 package com.nataliia.koval.movieland.web.controller;
 
 import com.nataliia.koval.movieland.dto.MovieDto;
-import com.nataliia.koval.movieland.exception.GenreNotFoundException;
 import com.nataliia.koval.movieland.service.MovieService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

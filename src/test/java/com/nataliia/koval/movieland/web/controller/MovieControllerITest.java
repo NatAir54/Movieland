@@ -1,7 +1,6 @@
 package com.nataliia.koval.movieland.web.controller;
 
 import com.nataliia.koval.movieland.dto.MovieDto;
-import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,10 +16,6 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 import java.util.Objects;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-@Log4j2
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class MovieControllerITest {
     @Autowired
@@ -29,8 +24,6 @@ class MovieControllerITest {
     @Test
     @DisplayName("Integration test for GET /api/v1/movies")
     void findAll_shouldReturnStatusOkAndContentTypeApplicationJson() {
-        log.info("Running findAll_shouldReturnStatusOkAndContentTypeApplicationJson test");
-
         ResponseEntity<List<MovieDto>> responseEntity = testRestTemplate.exchange(
                 "/api/v1/movies",
                 HttpMethod.GET,
@@ -50,8 +43,6 @@ class MovieControllerITest {
     @Test
     @DisplayName("Integration test for GET /api/v1/movies/random")
     void findThreeRandom_shouldReturnStatusOkAndContentTypeApplicationJson() {
-        log.info("Running findRandom_shouldReturnStatusOkAndContentTypeApplicationJson test");
-
         ResponseEntity<List<MovieDto>> responseEntity = testRestTemplate.exchange(
                 "/api/v1/movies/random?randomMoviesNumber=3",
                 HttpMethod.GET,
@@ -71,8 +62,6 @@ class MovieControllerITest {
     @Test
     @DisplayName("Integration test for GET /api/v1/movies/genre/{genreId}")
     void findByGenre_shouldReturnStatusOkAndContentTypeApplicationJson() {
-        log.info("Running findByGenre_shouldReturnStatusOkAndContentTypeApplicationJson test");
-
         int genreId = 1;
 
         ResponseEntity<List<MovieDto>> responseEntity = testRestTemplate.exchange(
