@@ -12,7 +12,11 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.HttpClientErrorException;
+import org.testcontainers.shaded.com.fasterxml.jackson.core.type.TypeReference;
+import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
@@ -107,6 +111,132 @@ class MovieControllerITest {
 
         Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
         Assertions.assertTrue(Objects.requireNonNull(responseEntity.getBody()).contains("Invalid genre ID: " + invalidGenreId));
+    }
+
+    @Test
+    @DisplayName("Integration test for GET /api/v1/movies sorted by rating in ascending order")
+    void findAllSortedByRatingAsc_shouldReturnSortedMoviesByRatingAsc() throws IOException {
+        ResponseEntity<String> responseEntity = testRestTemplate.exchange(
+                "/api/v1/movies?ratingOrder=asc",
+                HttpMethod.GET,
+                null,
+                String.class);
+
+        Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        Assertions.assertTrue(Objects.requireNonNull(responseEntity.getHeaders().getContentType())
+                .isCompatibleWith(MediaType.APPLICATION_JSON));
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<MovieDto> movies = objectMapper.readValue(responseEntity.getBody(), new TypeReference<List<MovieDto>>() {});
+        Assertions.assertNotNull(movies);
+        Assertions.assertFalse(movies.isEmpty());
+
+        double previousRating = Double.MIN_VALUE;
+        for (MovieDto movie : movies) {
+            Assertions.assertTrue(movie.getRating() >= previousRating);
+            previousRating = movie.getRating();
+        }
+    }
+
+    @Test
+    @DisplayName("Integration test for GET /api/v1/movies sorted by rating in descending order")
+    void findAllSortedByRatingDesc_shouldReturnSortedMoviesByRatingDesc() throws IOException {
+        ResponseEntity<String> responseEntity = testRestTemplate.exchange(
+                "/api/v1/movies?ratingOrder=desc",
+                HttpMethod.GET,
+                null,
+                String.class);
+
+        Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        Assertions.assertTrue(Objects.requireNonNull(responseEntity.getHeaders().getContentType())
+                .isCompatibleWith(MediaType.APPLICATION_JSON));
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<MovieDto> movies = objectMapper.readValue(responseEntity.getBody(), new TypeReference<List<MovieDto>>() {});
+        Assertions.assertNotNull(movies);
+        Assertions.assertFalse(movies.isEmpty());
+
+        double previousRating = Double.MAX_VALUE;
+        for (MovieDto movie : movies) {
+            Assertions.assertTrue(movie.getRating() <= previousRating);
+            previousRating = movie.getRating();
+        }
+    }
+
+    @Test
+    @DisplayName("Integration test for GET /api/v1/movies sorted by price in descending order")
+    void findAllSortedByPriceDesc_shouldReturnSortedMoviesByPriceDesc() throws IOException {
+        ResponseEntity<String> responseEntity = testRestTemplate.exchange(
+                "/api/v1/movies?priceOrder=desc",
+                HttpMethod.GET,
+                null,
+                String.class);
+
+        Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        Assertions.assertTrue(Objects.requireNonNull(responseEntity.getHeaders().getContentType())
+                .isCompatibleWith(MediaType.APPLICATION_JSON));
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<MovieDto> movies = objectMapper.readValue(responseEntity.getBody(), new TypeReference<List<MovieDto>>() {});
+        Assertions.assertNotNull(movies);
+        Assertions.assertFalse(movies.isEmpty());
+
+        double previousPrice = Double.MAX_VALUE;
+        for (MovieDto movie : movies) {
+            Assertions.assertTrue(movie.getPrice() <= previousPrice);
+            previousPrice = movie.getPrice();
+        }
+    }
+
+    @Test
+    @DisplayName("Integration test for GET /api/v1/movies sorted by price in ascending order")
+    void findAllSortedByPriceAsc_shouldReturnSortedMoviesByPriceAsc() throws IOException {
+        ResponseEntity<String> responseEntity = testRestTemplate.exchange(
+                "/api/v1/movies?priceOrder=asc",
+                HttpMethod.GET,
+                null,
+                String.class);
+
+        Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        Assertions.assertTrue(Objects.requireNonNull(responseEntity.getHeaders().getContentType())
+                .isCompatibleWith(MediaType.APPLICATION_JSON));
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<MovieDto> movies = objectMapper.readValue(responseEntity.getBody(), new TypeReference<List<MovieDto>>() {});
+        Assertions.assertNotNull(movies);
+        Assertions.assertFalse(movies.isEmpty());
+
+        double previousPrice = Double.MIN_VALUE;
+        for (MovieDto movie : movies) {
+            Assertions.assertTrue(movie.getPrice() >= previousPrice);
+            previousPrice = movie.getPrice();
+        }
+    }
+
+    @Test
+    @DisplayName("Integration test for handling InvalidSortingException with invalid rating sorting order")
+    void handleInvalidSortingException_withInvalidRatingSortingOrder() {
+        try {
+            testRestTemplate.getForEntity(
+                    "/api/v1/movies?ratingOrder=invalid",
+                    String.class);
+        } catch (HttpClientErrorException e) {
+            Assertions.assertEquals(HttpStatus.OK, e.getStatusCode());
+            Assertions.assertTrue(e.getResponseBodyAsString().contains("Invalid sorting order: invalid"));
+        }
+    }
+
+    @Test
+    @DisplayName("Integration test for handling InvalidSortingException with invalid sorting order")
+    void handleInvalidSortingException_withInvalidPriceSortingOrder() {
+        try {
+            testRestTemplate.getForEntity(
+                    "/api/v1/movies?priceOrder=invalid",
+                    String.class);
+        } catch (HttpClientErrorException e) {
+            Assertions.assertEquals(HttpStatus.OK, e.getStatusCode());
+            Assertions.assertTrue(e.getResponseBodyAsString().contains("Invalid sorting order: invalid"));
+        }
     }
 
 }

@@ -16,7 +16,9 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @SpringBootTest
 @Testcontainers
@@ -58,6 +60,11 @@ class GenreControllerITest {
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$[0].name").value("драма"))
                 .andExpect(jsonPath("$[1].name").value("криминал"))
-                .andExpect(jsonPath("$[2].name").value("фэнтези"));
+                .andExpect(jsonPath("$[2].name").value("фэнтези"))
+                .andExpect(jsonPath("$[0].name").value("детектив"))
+                .andExpect(jsonPath("$[1].name").value("мелодрама"))
+                .andExpect(jsonPath("$[2].name").value("биография"))
+                .andExpect(jsonPath("$[1].name").value("комедия"))
+                .andExpect(jsonPath("$[2].name").value("фантастика"));
     }
 }

@@ -108,4 +108,52 @@ class MovieControllerITest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.error_message").value(errorMessage));
     }
+
+    @Test
+    @DisplayName("Find all movies sorted by rating in ascending order")
+    void findAllSortedByRatingAsc() throws Exception {
+        mockMvc.perform(get(URL + "?ratingOrder=asc"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(25))
+                .andExpect(jsonPath("$[0].rating").value(7.6))
+                .andExpect(jsonPath("$[24].rating").value(8.9));
+    }
+
+    @Test
+    @DisplayName("Find all movies sorted by rating in descending order")
+    void findAllSortedByRatingDesc() throws Exception {
+        mockMvc.perform(get(URL + "?ratingOrder=desc"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(25))
+                .andExpect(jsonPath("$[0].rating").value(8.9))
+                .andExpect(jsonPath("$[24].rating").value(7.6));
+    }
+
+    @Test
+    @DisplayName("Find all movies sorted by price in ascending order")
+    void findAllSortedByPriceAsc() throws Exception {
+        mockMvc.perform(get(URL + "?priceOrder=asc"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(25))
+                .andExpect(jsonPath("$[0].price").value(100.0))
+                .andExpect(jsonPath("$[24].price").value(199.99));
+    }
+
+    @Test
+    @DisplayName("Find all movies sorted by price in descending order")
+    void findAllSortedByPriceDesc() throws Exception {
+        mockMvc.perform(get(URL + "?priceOrder=desc"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(25))
+                .andExpect(jsonPath("$[0].price").value(199.99))
+                .andExpect(jsonPath("$[24].price").value(100.0));
+    }
 }

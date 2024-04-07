@@ -2,8 +2,8 @@ package com.nataliia.koval.movieland.cache.integration;
 
 import com.nataliia.koval.movieland.cache.ImmutableGenre;
 import com.nataliia.koval.movieland.cache.impl.GenreCacheImpl;
-import com.nataliia.koval.movieland.entity.Genre;
 import com.nataliia.koval.movieland.repository.GenreRepository;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,6 +17,8 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 
 @SpringBootTest
@@ -46,6 +48,38 @@ public class GenreCacheImplITest {
         Assertions.assertEquals(15, cachedGenres.size());
         Assertions.assertEquals("драма", cachedGenres.get(0).getName());
         Assertions.assertEquals("криминал", cachedGenres.get(1).getName());
+        Assertions.assertEquals("фэнтези", cachedGenres.get(0).getName());
+        Assertions.assertEquals("детектив", cachedGenres.get(1).getName());
+        Assertions.assertEquals("мелодрама", cachedGenres.get(0).getName());
+        Assertions.assertEquals("биография", cachedGenres.get(1).getName());
+        Assertions.assertEquals("комедия", cachedGenres.get(0).getName());
+        Assertions.assertEquals("фантастика", cachedGenres.get(1).getName());
     }
 
+    @Test
+    @SneakyThrows
+    @DisplayName("Test cache update")
+    void testCacheUpdate() {
+        List<ImmutableGenre> initialCachedGenres = genreCache.retrieveGenresFromCache();
+        Thread.sleep(5000);
+        List<ImmutableGenre> updatedCachedGenres = genreCache.retrieveGenresFromCache();
+        Assertions.assertNotSame(initialCachedGenres, updatedCachedGenres);
+    }
+
+    @Test
+    @DisplayName("Test cache consistency")
+    void testCacheConsistency() {
+        List<ImmutableGenre> cachedGenres1 = genreCache.retrieveGenresFromCache();
+        List<ImmutableGenre> cachedGenres2 = genreCache.retrieveGenresFromCache();
+        Assertions.assertEquals(cachedGenres1, cachedGenres2);
+    }
+
+    @Test
+    @DisplayName("Test cache expiry")
+    void testCacheExpiry() {
+        List<ImmutableGenre> initialCachedGenres = genreCache.retrieveGenresFromCache();
+        genreCache.setLastUpdate(Instant.now().minus(Duration.ofHours(5)));
+        List<ImmutableGenre> updatedCachedGenres = genreCache.retrieveGenresFromCache();
+        Assertions.assertNotSame(initialCachedGenres, updatedCachedGenres);
+    }
 }

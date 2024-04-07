@@ -2,7 +2,9 @@ package com.nataliia.koval.movieland.web.controller;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import com.nataliia.koval.movieland.dto.MovieDto;
 import com.nataliia.koval.movieland.exception.GenreNotFoundException;
@@ -19,6 +21,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @AutoConfigureMockMvc
@@ -100,6 +103,82 @@ class MovieControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.error_message").value(errorMessage));
+    }
+
+    @Test
+    @DisplayName("Find all movies - should return list of all movies sorted by rating in descending order.")
+    void findAll_SortedByRatingDescending() throws Exception {
+        List<MovieDto> movies = createMovieDtos();
+        movies.sort(Comparator.comparing(MovieDto::getRating).reversed());
+
+        when(movieService.findAll("desc", null)).thenReturn(movies);
+
+        mockMvc.perform(get("/api/v1/movies?ratingOrder=desc"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.size()").value(movies.size()));
+
+        for (int i = 0; i < movies.size(); i++) {
+            mockMvc.perform(get("/api/v1/movies?ratingOrder=desc"))
+                    .andExpect(jsonPath("$[" + i + "].rating").value(movies.get(i).getRating()));
+        }
+    }
+
+    @Test
+    @DisplayName("Find all movies - should return list of all movies sorted by rating in ascending order.")
+    void findAll_SortedByRatingAscending() throws Exception {
+        List<MovieDto> movies = createMovieDtos();
+        movies.sort(Comparator.comparing(MovieDto::getRating));
+
+        when(movieService.findAll("asc", null)).thenReturn(movies);
+
+        mockMvc.perform(get("/api/v1/movies?ratingOrder=asc"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.size()").value(movies.size()));
+
+        for (int i = 0; i < movies.size(); i++) {
+            mockMvc.perform(get("/api/v1/movies?ratingOrder=asc"))
+                    .andExpect(jsonPath("$[" + i + "].rating").value(movies.get(i).getRating()));
+        }
+    }
+
+    @Test
+    @DisplayName("Find all movies - should return list of all movies sorted by price in descending order.")
+    void findAll_SortedByPriceDescending() throws Exception {
+        List<MovieDto> movies = createMovieDtos();
+        when(movieService.findAll(null, "desc")).thenReturn(movies);
+
+        mockMvc.perform(get("/api/v1/movies?priceOrder=desc"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.size()").value(movies.size()));
+
+        for (int i = 0; i < movies.size(); i++) {
+            mockMvc.perform(get("/api/v1/movies?priceOrder=desc"))
+                    .andExpect(jsonPath("$[" + i + "].rating").value(movies.get(i).getRating()));
+        }
+    }
+
+    @Test
+    @DisplayName("Find all movies - should return list of all movies sorted by price in ascending order.")
+    void findAll_SortedByPriceAscending() throws Exception {
+        List<MovieDto> movies = createMovieDtos();
+        when(movieService.findAll(null, "asc")).thenReturn(movies);
+
+        mockMvc.perform(get("/api/v1/movies?priceOrder=asc"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.size()").value(movies.size()));
+
+        for (int i = 0; i < movies.size(); i++) {
+            mockMvc.perform(get("/api/v1/movies?priceOrder=asc"))
+                    .andExpect(jsonPath("$[" + i + "].rating").value(movies.get(i).getRating()));
+        }
     }
 
     private List<MovieDto> createMovieDtos() {
