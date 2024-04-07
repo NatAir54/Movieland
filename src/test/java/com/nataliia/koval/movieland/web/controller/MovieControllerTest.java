@@ -39,7 +39,7 @@ class MovieControllerTest {
     @DisplayName("Find all movies - should return list of all movies.")
     void findAll_ReturnsListOfMovies() throws Exception {
         List<MovieDto> movies = createMovieDtos();
-        when(movieService.findAll()).thenReturn(movies);
+        when(movieService.findAll(null, null)).thenReturn(movies);
 
         mockMvc.perform(get("/api/v1/movies"))
                 .andExpect(status().isOk())
