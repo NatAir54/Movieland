@@ -61,10 +61,10 @@ class GenreControllerITest {
                 .andExpect(jsonPath("$[0].name").value("драма"))
                 .andExpect(jsonPath("$[1].name").value("криминал"))
                 .andExpect(jsonPath("$[2].name").value("фэнтези"))
-                .andExpect(jsonPath("$[0].name").value("детектив"))
-                .andExpect(jsonPath("$[1].name").value("мелодрама"))
-                .andExpect(jsonPath("$[2].name").value("биография"))
-                .andExpect(jsonPath("$[1].name").value("комедия"))
-                .andExpect(jsonPath("$[2].name").value("фантастика"));
+                .andExpect(jsonPath("$[3].name").value("детектив"))
+                .andExpect(jsonPath("$[4].name").value("мелодрама"))
+                .andExpect(jsonPath("$[5].name").value("биография"))
+                .andExpect(jsonPath("$[6].name").value("комедия"))
+                .andExpect(jsonPath("$[7].name").value("фантастика"));
     }
 }

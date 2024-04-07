@@ -48,12 +48,12 @@ public class GenreCacheImplITest {
         Assertions.assertEquals(15, cachedGenres.size());
         Assertions.assertEquals("драма", cachedGenres.get(0).getName());
         Assertions.assertEquals("криминал", cachedGenres.get(1).getName());
-        Assertions.assertEquals("фэнтези", cachedGenres.get(0).getName());
-        Assertions.assertEquals("детектив", cachedGenres.get(1).getName());
-        Assertions.assertEquals("мелодрама", cachedGenres.get(0).getName());
-        Assertions.assertEquals("биография", cachedGenres.get(1).getName());
-        Assertions.assertEquals("комедия", cachedGenres.get(0).getName());
-        Assertions.assertEquals("фантастика", cachedGenres.get(1).getName());
+        Assertions.assertEquals("фэнтези", cachedGenres.get(2).getName());
+        Assertions.assertEquals("детектив", cachedGenres.get(3).getName());
+        Assertions.assertEquals("мелодрама", cachedGenres.get(4).getName());
+        Assertions.assertEquals("биография", cachedGenres.get(5).getName());
+        Assertions.assertEquals("комедия", cachedGenres.get(6).getName());
+        Assertions.assertEquals("фантастика", cachedGenres.get(7).getName());
     }
 
     @Test

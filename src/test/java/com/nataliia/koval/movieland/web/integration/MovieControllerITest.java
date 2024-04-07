@@ -142,7 +142,7 @@ class MovieControllerITest {
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(25))
                 .andExpect(jsonPath("$[0].price").value(100.0))
-                .andExpect(jsonPath("$[24].price").value(199.99));
+                .andExpect(jsonPath("$[24].price").value(200.6));
     }
 
     @Test
@@ -153,7 +153,7 @@ class MovieControllerITest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(25))
-                .andExpect(jsonPath("$[0].price").value(199.99))
+                .andExpect(jsonPath("$[0].price").value(200.6))
                 .andExpect(jsonPath("$[24].price").value(100.0));
     }
 }
