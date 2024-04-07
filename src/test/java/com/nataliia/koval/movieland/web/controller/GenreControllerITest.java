@@ -16,9 +16,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 import java.util.Objects;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Log4j2
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -44,7 +42,7 @@ class GenreControllerITest {
 
         List<MovieDto> genres = responseEntity.getBody();
         assertNotNull(genres);
-        assertTrue(genres.size() > 0);
+        assertFalse(genres.isEmpty());
     }
 
 }

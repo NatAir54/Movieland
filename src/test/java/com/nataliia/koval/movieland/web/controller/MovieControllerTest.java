@@ -5,6 +5,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.nataliia.koval.movieland.dto.MovieDto;
+import com.nataliia.koval.movieland.exception.GenreNotFoundException;
 import com.nataliia.koval.movieland.service.MovieService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -18,7 +19,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @AutoConfigureMockMvc
@@ -36,7 +36,7 @@ class MovieControllerTest {
     }
 
     @Test
-    @DisplayName("Find all movies")
+    @DisplayName("Find all movies - should return list of all movies.")
     void findAll_ReturnsListOfMovies() throws Exception {
         List<MovieDto> movies = createMovieDtos();
         when(movieService.findAll()).thenReturn(movies);
@@ -50,7 +50,7 @@ class MovieControllerTest {
     }
 
     @Test
-    @DisplayName("Find three random movies")
+    @DisplayName("Find three random movies - should return list of three random movies.")
     void findThreeRandom_ReturnsListOfThreeRandomMovies() throws Exception {
         List<MovieDto> movies = createMovieDtos();
         when(movieService.findThreeRandom()).thenReturn(movies.subList(0, 3));
@@ -63,7 +63,7 @@ class MovieControllerTest {
     }
 
     @Test
-    @DisplayName("Find movies by genre")
+    @DisplayName("Find movies by genre - should return list of movies by genre with valid id.")
     void findByGenre_ReturnsListOfMoviesByGenre() throws Exception {
         int genreId = 1;
         List<MovieDto> movies = createMovieDtos();
@@ -77,16 +77,29 @@ class MovieControllerTest {
     }
 
     @Test
-    @DisplayName("No movies found for the given genre ID")
-    public void findByGenre_NoMoviesFound_ReturnsEmptyList() throws Exception {
-        int genreId = 50;
-        when(movieService.findByGenre(genreId)).thenReturn(Collections.emptyList());
+    @DisplayName("Find movies by genre - should return error message with invalid genre id.")
+    void findByGenre_ReturnsErrorMessageWithInvalidGenreId() throws Exception {
+        int invalidGenreId = -1;
+        String errorMessage = "Invalid genre ID: " + invalidGenreId + ". Genre ID should be a positive number.";
+        when(movieService.findByGenre(invalidGenreId)).thenThrow(new GenreNotFoundException(invalidGenreId));
 
-        mockMvc.perform(get("/api/v1/movies/genre/{genreId}", genreId))
+        mockMvc.perform(get("/api/v1/movies/genre/{genreId}", invalidGenreId))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$").isEmpty());
+                .andExpect(jsonPath("$.error_message").value(errorMessage));
+    }
+
+    @Test
+    @DisplayName("Find movies by genre - should return error message when genre ID does not exist.")
+    void findByGenre_ReturnsErrorMessageWhenGenreIdNotExists() throws Exception {
+        int nonExistingGenreId = 1000;
+        String errorMessage = "Genre with specified id " + nonExistingGenreId + " not found. Check the request details.";
+        when(movieService.findByGenre(nonExistingGenreId)).thenThrow(new GenreNotFoundException(nonExistingGenreId));
+
+        mockMvc.perform(get("/api/v1/movies/genre/{genreId}", nonExistingGenreId))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.error_message").value(errorMessage));
     }
 
     private List<MovieDto> createMovieDtos() {

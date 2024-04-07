@@ -1,8 +1,13 @@
 package com.nataliia.koval.movieland.web.controller;
 
 import com.nataliia.koval.movieland.dto.MovieDto;
+import com.nataliia.koval.movieland.exception.GenreNotFoundException;
 import com.nataliia.koval.movieland.service.MovieService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,9 +21,9 @@ public class MovieController {
     @GetMapping
     public List<MovieDto> findAll(
             @RequestParam(required = false) String ratingOrder,
-            @RequestParam(required = false) String priceOrder) {
-
-        return movieService.findAll();
+            @RequestParam(required = false) String priceOrder
+    ) {
+        return movieService.findAll(ratingOrder, priceOrder);
     }
 
     @GetMapping("/random")
@@ -27,7 +32,9 @@ public class MovieController {
     }
 
     @GetMapping("/genre/{genreId}")
-    public List<MovieDto> findByGenre(@PathVariable("genreId") int genreId) {
-        return movieService.findByGenre(genreId);
+    public ResponseEntity<List<MovieDto>> getMoviesByGenre(@PathVariable int genreId) {
+        List<MovieDto> movies = movieService.findByGenre(genreId);
+        return ResponseEntity.ok(movies);
     }
+
 }

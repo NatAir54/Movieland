@@ -1,6 +1,7 @@
 package com.nataliia.koval.movieland.service.impl;
 
 import com.nataliia.koval.movieland.cache.GenreCache;
+import com.nataliia.koval.movieland.cache.ImmutableGenre;
 import com.nataliia.koval.movieland.dto.GenreDto;
 import com.nataliia.koval.movieland.mapper.GenreMapper;
 import com.nataliia.koval.movieland.service.GenreService;
@@ -18,8 +19,12 @@ public class DefaultGenreService implements GenreService {
 
     @Override
     public List<GenreDto> findAll() {
-        return genreCache.retrieveGenresFromCache().stream()
-            .map(genreMapper::toGenreDto)
-            .collect(Collectors.toList());
+        return mapGenresToDto(genreCache.retrieveGenresFromCache());
+    }
+
+    private List<GenreDto> mapGenresToDto(List<ImmutableGenre> genres) {
+        return genres.stream()
+                .map(genreMapper::toGenreDto)
+                .collect(Collectors.toList());
     }
 }

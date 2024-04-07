@@ -17,6 +17,9 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 import java.util.Objects;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 @Log4j2
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class MovieControllerITest {
@@ -90,26 +93,31 @@ class MovieControllerITest {
     }
 
     @Test
-    @DisplayName("Integration test for GET /api/v1/movies/genre/{genreId} with invalid genre ID")
-    void findByInvalidGenreId_shouldReturnEmptyList() {
-        log.info("Running findByInvalidGenreId_shouldReturnEmptyList test");
+    @DisplayName("Integration test for handling GenreNotFoundException with non-existing genre ID")
+    void handleGenreNotFoundException_withNonExistingGenreId() {
+        int nonExistingGenreId = 1000;
 
-        int invalidGenreId = -1;
-
-        ResponseEntity<List<MovieDto>> responseEntity = testRestTemplate.exchange(
+        ResponseEntity<String> responseEntity = testRestTemplate.getForEntity(
                 "/api/v1/movies/genre/{genreId}",
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<>() {
-                },
+                String.class,
+                nonExistingGenreId);
+
+        Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        Assertions.assertTrue(Objects.requireNonNull(responseEntity.getBody()).contains("Genre with specified id " + nonExistingGenreId + " not found"));
+    }
+
+    @Test
+    @DisplayName("Integration test for handling GenreNotFoundException with invalid genre ID")
+    void handleGenreNotFoundException_withInvalidGenreId() {
+         int invalidGenreId = -1;
+
+        ResponseEntity<String> responseEntity = testRestTemplate.getForEntity(
+                "/api/v1/movies/genre/{genreId}",
+                String.class,
                 invalidGenreId);
 
         Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        Assertions.assertTrue(Objects.requireNonNull(responseEntity.getHeaders().getContentType())
-                .isCompatibleWith(MediaType.APPLICATION_JSON));
-
-        List<MovieDto> movies = responseEntity.getBody();
-        Assertions.assertNotNull(movies);
-        Assertions.assertTrue(movies.isEmpty());
+        Assertions.assertTrue(Objects.requireNonNull(responseEntity.getBody()).contains("Invalid genre ID: " + invalidGenreId));
     }
+
 }

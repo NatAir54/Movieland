@@ -24,4 +24,16 @@ public interface MovieRepository extends JpaRepository<Movie, Integer> {
             "INNER JOIN movie_genre mg ON m.id = mg.movie_id " +
             "WHERE mg.genre_id = :genreId", nativeQuery = true)
     List<Movie> findByGenre(@Param("genreId") int genreId);
+
+    @Query("SELECT m FROM Movie m ORDER BY m.rating DESC")
+    List<Movie> findAllSortedByRatingDesc();
+
+    @Query("SELECT m FROM Movie m ORDER BY m.rating ASC")
+    List<Movie> findAllSortedByRatingAsc();
+
+    @Query("SELECT m FROM Movie m ORDER BY m.price DESC")
+    List<Movie> findAllSortedByPriceDesc();
+
+    @Query("SELECT m FROM Movie m ORDER BY m.price ASC")
+    List<Movie> findAllSortedByPriceAsc();
 }

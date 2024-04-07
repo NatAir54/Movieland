@@ -1,6 +1,8 @@
 package com.nataliia.koval.movieland.web.integration;
 
+import com.nataliia.koval.movieland.exception.GenreNotFoundException;
 import com.nataliia.koval.movieland.service.MovieService;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import static org.junit.Assert.assertThrows;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -42,7 +45,7 @@ class MovieControllerITest {
     private MovieService movieService;
 
     @Test
-    @DisplayName("Test findAll - should return list of all movies.")
+    @DisplayName("Find all movies - should return list of all movies.")
     void findAll_shouldReturnListOfAllMovies() throws Exception {
         mockMvc.perform(get(URL))
                 .andExpect(status().isOk())
@@ -52,7 +55,7 @@ class MovieControllerITest {
     }
 
     @Test
-    @DisplayName("Test findAll - should return correct movie details.")
+    @DisplayName("Find all movies - should return correct movie details.")
     void findAll_shouldReturnCorrectMovieDetails() throws Exception {
         mockMvc.perform(get(URL))
                 .andExpect(status().isOk())
@@ -67,7 +70,7 @@ class MovieControllerITest {
     }
 
     @Test
-    @DisplayName("Test findThreeRandom - should return list of three random movies.")
+    @DisplayName("Find three random movies - should return list of three random movies.")
     void findThreeRandom_shouldReturnListOfThreeRandomMovies() throws Exception {
         mockMvc.perform(get(URL + "/random"))
                 .andExpect(status().isOk())
@@ -77,7 +80,7 @@ class MovieControllerITest {
     }
 
     @Test
-    @DisplayName("Test findByGenre - should return list of movies by genre.")
+    @DisplayName("Find movies by genre - should return list of movies by genre with valid id.")
     void findByGenre_shouldReturnListOfMoviesByGenre() throws Exception {
         int genreId = 1;
         mockMvc.perform(get(URL + "/genre/" + genreId))
@@ -87,15 +90,25 @@ class MovieControllerITest {
                 .andExpect(jsonPath("$.length()").value(9));
     }
 
-    // TODO create exceptions for cases when id is invalid or doesn't exist
     @Test
-    @DisplayName("Test findByGenre with invalid genre ID - should return empty list.")
-    void findByGenre_withInvalidGenreId_shouldReturnEmptyList() throws Exception {
+    @DisplayName("Find movies by genre with invalid genre ID - should return error message with invalid genre id.")
+    void findByGenre_withInvalidGenreId_shouldReturnNotFoundAndEmptyList() throws Exception {
         int invalidGenreId = -1;
+        String errorMessage = "Invalid genre ID: " + invalidGenreId + ". Genre ID should be a positive number.";
         mockMvc.perform(get(URL + "/genre/" + invalidGenreId))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$.length()").value(0));
+                .andExpect(jsonPath("$.error_message").value(errorMessage));
+    }
+
+    @Test
+    @DisplayName("Find movies by genre - should return error message when genre ID does not exist.")
+    void findByGenre_withNonExistentGenreId_shouldThrowGenreNotFoundException() throws Exception {
+        int nonExistentGenreId = 1000;
+        String errorMessage = "Genre with specified id " + nonExistentGenreId + " not found. Check the request details.";
+        mockMvc.perform(get(URL + "/genre/" + nonExistentGenreId))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.error_message").value(errorMessage));
     }
 }
