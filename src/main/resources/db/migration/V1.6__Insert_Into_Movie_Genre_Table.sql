@@ -18,24 +18,24 @@ WHERE (
         OR (m.name_russian = 'Унесённые призраками' AND
             g.name IN ('аниме', 'мультфильм', 'фэнтези', 'приключения', 'семейный'))
         OR (m.name_russian = 'Титаник' AND g.name IN ('драма', 'мелодрама'))
-        OR (m.name_russian = 'Пролетая над гнездом кукушки/One Flew Over the Cuckoo''s Nest' AND g.name = 'драма')
-        OR (m.name_russian = 'Ходячий замок/Hauru no ugoku shiro' AND
+        OR (m.name_russian = 'Пролетая над гнездом кукушки' AND g.name = 'драма')
+        OR (m.name_russian = 'Ходячий замок' AND
             g.name IN ('аниме', 'мультфильм', 'фэнтези', 'приключения'))
-        OR (m.name_russian = 'Гладиатор/Gladiator' AND g.name IN ('боевик', 'драма'))
-        OR (m.name_russian = 'Большой куш/Snatch.' AND g.name IN ('криминал', 'комедия'))
-        OR (m.name_russian = 'Темный рыцарь/The Dark Knight' AND
+        OR (m.name_russian = 'Гладиатор' AND g.name IN ('боевик', 'драма'))
+        OR (m.name_russian = 'Большой куш' AND g.name IN ('криминал', 'комедия'))
+        OR (m.name_russian = 'Темный рыцарь' AND
             g.name IN ('фантастика', 'боевик', 'триллер', 'криминал', 'драма'))
-        OR (m.name_russian = 'Как приручить дракона/How to Train Your Dragon' AND
+        OR (m.name_russian = 'Как приручить дракона' AND
             g.name IN ('мультфильм', 'фэнтези', 'комедия', 'приключения', 'семейный'))
-        OR (m.name_russian = 'Молчание ягнят/The Silence of the Lambs' AND
+        OR (m.name_russian = 'Молчание ягнят' AND
             g.name IN ('триллер', 'криминал', 'детектив', 'драма'))
-        OR (m.name_russian = 'Гран Торино/Gran Torino' AND g.name = 'драма')
-        OR (m.name_russian = 'Хороший, плохой, злой/Il buono, il brutto, il cattivo' AND g.name = 'вестерн')
-        OR (m.name_russian = 'Укрощение строптивого/Il bisbetico domato' AND g.name = 'комедия')
-        OR (m.name_russian = 'Блеф/Bluff storia di truffe e di imbroglioni' AND g.name IN ('комедия', 'криминал'))
-        OR (m.name_russian = 'Джанго освобожденный/Django Unchained' AND
+        OR (m.name_russian = 'Гран Торино' AND g.name = 'драма')
+        OR (m.name_russian = 'Хороший, плохой, злой' AND g.name = 'вестерн')
+        OR (m.name_russian = 'Укрощение строптивого' AND g.name = 'комедия')
+        OR (m.name_russian = 'Блеф' AND g.name IN ('комедия', 'криминал'))
+        OR (m.name_russian = 'Джанго освобожденный' AND
             g.name IN ('драма', 'вестерн', 'приключения', 'комедия'))
-        OR (m.name_russian = 'Танцующий с волками/Dances with Wolves' AND g.name IN ('драма', 'приключения', 'вестерн'))
+        OR (m.name_russian = 'Танцующий с волками' AND g.name IN ('драма', 'приключения', 'вестерн'))
     )
 AND NOT EXISTS (
     SELECT 1

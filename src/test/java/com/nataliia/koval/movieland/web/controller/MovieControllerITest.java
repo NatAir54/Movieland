@@ -84,7 +84,7 @@ class MovieControllerITest {
 
         List<MovieDto> movies = responseEntity.getBody();
         Assertions.assertNotNull(movies);
-        Assertions.assertEquals(9, movies.size());
+        Assertions.assertEquals(16, movies.size());
     }
 
     @Test

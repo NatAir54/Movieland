@@ -84,7 +84,7 @@ class MovieControllerITest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$.length()").value(9));
+                .andExpect(jsonPath("$.length()").value(16));
     }
 
     @Test
