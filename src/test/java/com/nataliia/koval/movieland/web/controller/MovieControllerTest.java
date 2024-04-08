@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
+import com.nataliia.koval.movieland.dto.GenreDto;
 import com.nataliia.koval.movieland.dto.MovieDto;
 import com.nataliia.koval.movieland.exception.GenreNotFoundException;
 import com.nataliia.koval.movieland.service.MovieService;
@@ -20,9 +21,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 @AutoConfigureMockMvc
 @WebMvcTest(MovieController.class)
@@ -205,10 +204,15 @@ class MovieControllerTest {
 
     private List<MovieDto> createMovieDtos() {
         List<MovieDto> movies = new ArrayList<>();
-        movies.add(new MovieDto(1, "Побег из Шоушенка", "The Shawshank Redemption", "1994", 8.9, 123.45, "https://images-na.ssl-images-amazon.com/images/M/MV5BODU4MjU4NjIwNl5BMl5BanBnXkFtZTgwMDU2MjEyMDE@._V1._SY209_CR0,0,140,209_.jpg"));
-        movies.add(new MovieDto(2, "Зеленая миля", "The Green Mile", "1999", 8.9, 134.67, "https://images-na.ssl-images-amazon.com/images/M/MV5BMTUxMzQyNjA5MF5BMl5BanBnXkFtZTYwOTU2NTY3._V1._SY209_CR0,0,140,209_.jpg"));
-        movies.add(new MovieDto(3, "Форрест Гамп", "Forrest Gump", "1994", 8.6, 200.6, "https://images-na.ssl-images-amazon.com/images/M/MV5BNWIwODRlZTUtY2U3ZS00Yzg1LWJhNzYtMmZiYmEyNmU1NjMzXkEyXkFqcGdeQXVyMTQxNzMzNDI@._V1._SY209_CR2,0,140,209_.jpg"));
-        movies.add(new MovieDto(4, "Список Шиндлера", "Schindler's List", "1993", 8.7, 150.5, "https://images-na.ssl-images-amazon.com/images/M/MV5BNDE4OTMxMTctNmRhYy00NWE2LTg3YzItYTk3M2UwOTU5Njg4XkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1._SX140_CR0,0,140,209_.jpg"));
+
+        GenreDto dramaGenre = new GenreDto(1, "драма");
+        Set<GenreDto> genres = new HashSet<>();
+        genres.add(dramaGenre);
+
+        movies.add(new MovieDto(1, "Побег из Шоушенка", "The Shawshank Redemption", "1994", 8.9, 123.45, "https://images-na.ssl-images-amazon.com/images/M/MV5BODU4MjU4NjIwNl5BMl5BanBnXkFtZTgwMDU2MjEyMDE@._V1._SY209_CR0,0,140,209_.jpg", genres));
+        movies.add(new MovieDto(2, "Зеленая миля", "The Green Mile", "1999", 8.9, 134.67, "https://images-na.ssl-images-amazon.com/images/M/MV5BMTUxMzQyNjA5MF5BMl5BanBnXkFtZTYwOTU2NTY3._V1._SY209_CR0,0,140,209_.jpg", genres));
+        movies.add(new MovieDto(3, "Форрест Гамп", "Forrest Gump", "1994", 8.6, 200.6, "https://images-na.ssl-images-amazon.com/images/M/MV5BNWIwODRlZTUtY2U3ZS00Yzg1LWJhNzYtMmZiYmEyNmU1NjMzXkEyXkFqcGdeQXVyMTQxNzMzNDI@._V1._SY209_CR2,0,140,209_.jpg", genres));
+        movies.add(new MovieDto(4, "Список Шиндлера", "Schindler's List", "1993", 8.7, 150.5, "https://images-na.ssl-images-amazon.com/images/M/MV5BNDE4OTMxMTctNmRhYy00NWE2LTg3YzItYTk3M2UwOTU5Njg4XkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1._SX140_CR0,0,140,209_.jpg", genres));
         return movies;
     }
 }
