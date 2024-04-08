@@ -41,8 +41,8 @@ public class GenreCacheImplITest {
     private GenreRepository genreRepository;
 
     @Test
-    @DisplayName("retrieveGenresFromCache_ShouldReturnGenresFromExistingDatabase")
-    void retrieveGenresFromCache_ShouldReturnGenresFromExistingDatabase() {
+    @DisplayName("Cache initialization should initialize cache with genres from the database")
+    void testCacheInitialization() {
         List<ImmutableGenre> cachedGenres = genreCache.retrieveGenresFromCache();
 
         Assertions.assertEquals(15, cachedGenres.size());
@@ -58,28 +58,41 @@ public class GenreCacheImplITest {
 
     @Test
     @SneakyThrows
-    @DisplayName("Test cache update")
+    @DisplayName("Cache should update after the specified interval")
     void testCacheUpdate() {
         List<ImmutableGenre> initialCachedGenres = genreCache.retrieveGenresFromCache();
+
+        // Sleep for the cache update interval plus some buffer time
         Thread.sleep(5000);
+
         List<ImmutableGenre> updatedCachedGenres = genreCache.retrieveGenresFromCache();
+
+        // Ensure that the cache has been updated
         Assertions.assertNotSame(initialCachedGenres, updatedCachedGenres);
     }
 
     @Test
-    @DisplayName("Test cache consistency")
+    @DisplayName("Cache should remain consistent between serial calls within update interval")
     void testCacheConsistency() {
+        // Retrieve genres from the cache multiple times
         List<ImmutableGenre> cachedGenres1 = genreCache.retrieveGenresFromCache();
         List<ImmutableGenre> cachedGenres2 = genreCache.retrieveGenresFromCache();
+
+        // Ensure that the cached genres are consistent between serial calls
         Assertions.assertEquals(cachedGenres1, cachedGenres2);
     }
 
     @Test
-    @DisplayName("Test cache expiry")
+    @DisplayName("Cache should expire and update when last update time is outdated")
     void testCacheExpiry() {
         List<ImmutableGenre> initialCachedGenres = genreCache.retrieveGenresFromCache();
+
+        // Invalidate the cache by setting the last update time to an old timestamp
         genreCache.setLastUpdate(Instant.now().minus(Duration.ofHours(5)));
+
         List<ImmutableGenre> updatedCachedGenres = genreCache.retrieveGenresFromCache();
+
+        // Ensure that the cache has been updated
         Assertions.assertNotSame(initialCachedGenres, updatedCachedGenres);
     }
 }
