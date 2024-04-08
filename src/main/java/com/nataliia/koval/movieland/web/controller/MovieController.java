@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import javax.validation.constraints.Positive;
 
 import java.util.List;
 
@@ -31,13 +32,13 @@ public class MovieController {
     }
 
     @GetMapping("/genre/{genreId}")
-    public ResponseEntity<List<MovieDto>> findByGenreId(@PathVariable String genreId) {
+    public ResponseEntity<List<MovieDto>> findByGenreId(@PathVariable @Positive int genreId) {
         List<MovieDto> movies = movieService.findByGenre(genreId);
         return ResponseEntity.ok(movies);
     }
 
     @GetMapping("/{movieId}")
-    public MovieDto findById(@PathVariable String movieId) {
+    public MovieDto findById(@PathVariable @Positive int movieId) {
         return movieService.findById(movieId);
     }
 }

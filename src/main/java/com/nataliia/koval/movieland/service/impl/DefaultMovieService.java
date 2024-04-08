@@ -35,21 +35,19 @@ public class DefaultMovieService implements MovieService {
     }
 
     @Override
-    public List<MovieDto> findByGenre(String genreId) throws GenreNotFoundException {
-        int parsedGenreId = parseId(genreId, GenreNotFoundException.class);
+    public List<MovieDto> findByGenre(int genreId) {
         return mapMoviesToDto(
-                genreRepository.findById(parsedGenreId)
+                genreRepository.findById(genreId)
                         .map(genre -> movieRepository.findByGenre(genre.getId()))
-                        .orElseThrow(() -> new GenreNotFoundException(parsedGenreId))
+                        .orElseThrow(() -> new GenreNotFoundException(genreId))
         );
     }
 
     @Override
-    public MovieDto findById(String movieId) {
-        int parsedMovieId = parseId(movieId, MovieNotFoundException.class);
-        return movieRepository.findById(parsedMovieId)
+    public MovieDto findById(int movieId) {
+        return movieRepository.findById(movieId)
                 .map(movieMapper::toMovieDto)
-                .orElseThrow(() -> new MovieNotFoundException(parsedMovieId));
+                .orElseThrow(() -> new MovieNotFoundException(movieId));
     }
 
     private List<MovieDto> findAllSorted(String ratingOrder, String priceOrder) {
@@ -62,21 +60,5 @@ public class DefaultMovieService implements MovieService {
         return movies.stream()
                 .map(movieMapper::toMovieDto)
                 .collect(Collectors.toList());
-    }
-
-    private int parseId(String id, Class<? extends RuntimeException> exceptionClass) throws RuntimeException {
-        try {
-            return Integer.parseInt(id);
-        } catch (NumberFormatException e) {
-            throw instantiateException(exceptionClass, id);
-        }
-    }
-
-    private RuntimeException instantiateException(Class<? extends RuntimeException> exceptionClass, String id) {
-        try {
-            return exceptionClass.getDeclaredConstructor(String.class).newInstance(id);
-        } catch (Exception ex) {
-            return new RuntimeException("Error instantiating exception", ex);
-        }
     }
 }

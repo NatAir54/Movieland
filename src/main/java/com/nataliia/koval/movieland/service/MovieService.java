@@ -12,7 +12,7 @@ import java.util.List;
 public interface MovieService {
     List<MovieDto> findAll(String ratingOrder, String priceOrder);
     List<MovieDto> findThreeRandom();
-    List<MovieDto> findByGenre(String genreId) throws GenreNotFoundException;
+    List<MovieDto> findByGenre(int genreId) throws GenreNotFoundException;
 
-    MovieDto findById(String movieId);
+    MovieDto findById(int movieId);
 }

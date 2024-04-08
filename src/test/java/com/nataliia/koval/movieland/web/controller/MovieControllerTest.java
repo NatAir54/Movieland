@@ -44,7 +44,7 @@ class MovieControllerTest {
     }
 
     @Test
-    @DisplayName("Find all movies - should return list of all movies.")
+    @DisplayName("Find all movies - should return list of all movies available.")
     void findAll_ReturnsListOfMovies() throws Exception {
         List<MovieDto> movies = createMovieDtos();
         when(movieService.findAll(null, null)).thenReturn(movies);
@@ -73,7 +73,7 @@ class MovieControllerTest {
     @Test
     @DisplayName("Find movies by genre - should return list of movies by genre with valid id.")
     void findByGenre_ReturnsListOfMoviesByGenre() throws Exception {
-        String genreId = "1";
+        int genreId = 1;
         List<MovieDto> movies = createMovieDtos();
 
         when(movieService.findByGenre(genreId)).thenReturn(movies);
@@ -86,13 +86,12 @@ class MovieControllerTest {
     }
 
     @Test
-    @DisplayName("Find movies by genre - should return error message with negative genre id.")
-    void findByGenre_ReturnsErrorMessageWithNegativeGenreId() throws Exception {
-        String invalidGenreId = "-1";
-        int parsedGenreId = Integer.parseInt(invalidGenreId);
+    @DisplayName("Find movies by genre - should return error message with invalid genre id.")
+    void findByGenre_ReturnsErrorMessageWithInvalidGenreId() throws Exception {
+        int invalidGenreId = -1;
         String errorMessage = "Invalid genre ID: " + invalidGenreId + ". Genre ID should be a positive number.";
 
-        when(movieService.findByGenre(invalidGenreId)).thenThrow(new GenreNotFoundException(parsedGenreId));
+        when(movieService.findByGenre(invalidGenreId)).thenThrow(new GenreNotFoundException(invalidGenreId));
 
         mockMvc.perform(get(URL + "/genre/{genreId}", invalidGenreId))
                 .andExpect(status().isOk())
@@ -103,32 +102,16 @@ class MovieControllerTest {
     @Test
     @DisplayName("Find movies by genre - should return error message when genre ID does not exist.")
     void findByGenre_ReturnsErrorMessageWhenGenreIdNotExists() throws Exception {
-        String nonExistingGenreId = "1000";
-        int parsedGenreId = Integer.parseInt(nonExistingGenreId);
+        int nonExistingGenreId = 1000;
         String errorMessage = "Genre with specified id " + nonExistingGenreId + " not found. Check the request details.";
 
-        when(movieService.findByGenre(nonExistingGenreId)).thenThrow(new GenreNotFoundException(parsedGenreId));
+        when(movieService.findByGenre(nonExistingGenreId)).thenThrow(new GenreNotFoundException(nonExistingGenreId));
 
         mockMvc.perform(get(URL + "/genre/{genreId}", nonExistingGenreId))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.error_message").value(errorMessage));
     }
-
-    @Test
-    @DisplayName("Find movies by genre - should return error message with non-integer genre id.")
-    void findByGenre_ReturnsErrorMessageWithNonIntegerGenreId() throws Exception {
-        String nonIntegerGenreId = "abc";
-        String errorMessage = "Invalid genre ID: " + nonIntegerGenreId + ". Genre ID should be a positive number.";
-
-        when(movieService.findByGenre(nonIntegerGenreId)).thenThrow(new GenreNotFoundException(nonIntegerGenreId));
-
-        mockMvc.perform(get(URL + "/genre/{genreId}", nonIntegerGenreId))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.error_message").value(errorMessage));
-    }
-
 
     @Test
     @DisplayName("Find all movies - should return list of all movies sorted by rating in descending order.")

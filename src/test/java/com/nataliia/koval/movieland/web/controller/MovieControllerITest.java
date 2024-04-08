@@ -68,7 +68,7 @@ class MovieControllerITest {
     @Test
     @DisplayName("Integration test for GET /api/v1/movies/genre/{genreId}")
     void findByGenre_shouldReturnStatusOkAndContentTypeApplicationJson() {
-        String genreId = "1";
+        int genreId = 1;
 
         ResponseEntity<List<MovieDto>> responseEntity = testRestTemplate.exchange(
                 URL + "/genre/{genreId}",
@@ -90,7 +90,7 @@ class MovieControllerITest {
     @Test
     @DisplayName("Integration test for handling GenreNotFoundException with non-existing genre ID")
     void handleGenreNotFoundException_withNonExistingGenreId() {
-        String nonExistingGenreId = "1000";
+        int nonExistingGenreId = 1000;
 
         ResponseEntity<String> responseEntity = testRestTemplate.getForEntity(
                 URL + "/genre/{genreId}",
@@ -102,31 +102,17 @@ class MovieControllerITest {
     }
 
     @Test
-    @DisplayName("Integration test for handling GenreNotFoundException with negative genre ID")
+    @DisplayName("Integration test for handling GenreNotFoundException with invalid genre ID")
     void handleGenreNotFoundException_withInvalidGenreId() {
-         String genreId = "-1";
+         int invalidGenreId = -1;
 
         ResponseEntity<String> responseEntity = testRestTemplate.getForEntity(
                 URL + "/genre/{genreId}",
                 String.class,
-                genreId);
+                invalidGenreId);
 
         Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        Assertions.assertTrue(Objects.requireNonNull(responseEntity.getBody()).contains("Invalid genre ID: " + genreId));
-    }
-
-    @Test
-    @DisplayName("Integration test for handling GenreNotFoundException with non-integer genre ID")
-    void handleGenreNotFoundException_withNonIntegerGenreId() {
-        String genreId = "abc";
-
-        ResponseEntity<String> responseEntity = testRestTemplate.getForEntity(
-                URL + "/genre/{genreId}",
-                String.class,
-                genreId);
-
-        Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        Assertions.assertTrue(Objects.requireNonNull(responseEntity.getBody()).contains("Invalid genre ID: " + genreId));
+        Assertions.assertTrue(Objects.requireNonNull(responseEntity.getBody()).contains("Invalid genre ID: " + invalidGenreId));
     }
 
     @Test

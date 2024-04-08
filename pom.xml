@@ -18,6 +18,7 @@
 	<properties>
 		<java.version>19</java.version>
 		<mapstruct.version>1.5.0.Final</mapstruct.version>
+		<javax.validation>2.0.1.Final</javax.validation>
 	</properties>
 
 	<dependencies>
@@ -58,6 +59,12 @@
 			<groupId>org.mapstruct</groupId>
 			<artifactId>mapstruct-processor</artifactId>
 			<version>${mapstruct.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.validation</groupId>
+			<artifactId>validation-api</artifactId>
+			<version>${javax.validation}</version>
 		</dependency>
 
 		<!--		T E S T			-->
