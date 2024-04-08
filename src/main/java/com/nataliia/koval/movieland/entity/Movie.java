@@ -35,6 +35,8 @@ public class Movie {
     @Column(name = "year_of_release")
     private String yearOfRelease;
 
+    private String description;
+
     private double rating;
 
     private double price;

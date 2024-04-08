@@ -1,6 +1,5 @@
 package com.nataliia.koval.movieland.dto;
 
-import com.nataliia.koval.movieland.entity.Genre;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,6 +16,7 @@ public class MovieDto {
     private String nameRussian;
     private String nameNative;
     private String yearOfRelease;
+    private String description;
     private double rating;
     private double price;
     private String picturePath;
