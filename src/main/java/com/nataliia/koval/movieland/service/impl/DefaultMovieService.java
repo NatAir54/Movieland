@@ -1,7 +1,6 @@
 package com.nataliia.koval.movieland.service.impl;
 
 import com.nataliia.koval.movieland.dto.MovieDto;
-import com.nataliia.koval.movieland.entity.Genre;
 import com.nataliia.koval.movieland.entity.Movie;
 import com.nataliia.koval.movieland.exception.GenreNotFoundException;
 import com.nataliia.koval.movieland.mapper.MovieMapper;
@@ -12,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -36,12 +34,13 @@ public class DefaultMovieService implements MovieService {
     }
 
     @Override
-    public List<MovieDto> findByGenre(int genreId) throws GenreNotFoundException {
-        Optional<Genre> optionalGenre = genreRepository.findById(genreId);
-        if (optionalGenre.isPresent()) {
-            return mapMoviesToDto(movieRepository.findByGenre(genreId));
-        }
-        throw new GenreNotFoundException(genreId);
+    public List<MovieDto> findByGenre(String genreId) throws GenreNotFoundException {
+        int parsedGenreId = parseGenreId(genreId);
+        return mapMoviesToDto(
+                genreRepository.findById(parsedGenreId)
+                        .map(genre -> movieRepository.findByGenre(genre.getId()))
+                        .orElseThrow(() -> new GenreNotFoundException(parsedGenreId))
+        );
     }
 
     private List<MovieDto> findAllSorted(String ratingOrder, String priceOrder) {
@@ -54,5 +53,13 @@ public class DefaultMovieService implements MovieService {
         return movies.stream()
                 .map(movieMapper::toMovieDto)
                 .collect(Collectors.toList());
+    }
+
+    private int parseGenreId(String genreId) throws GenreNotFoundException {
+        try {
+            return Integer.parseInt(genreId);
+        } catch (NumberFormatException e) {
+            throw new GenreNotFoundException(genreId);
+        }
     }
 }

@@ -1,6 +1,7 @@
 package com.nataliia.koval.movieland.web.controller;
 
 import com.nataliia.koval.movieland.dto.MovieDto;
+import com.nataliia.koval.movieland.exception.GenreNotFoundException;
 import com.nataliia.koval.movieland.service.MovieService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +32,7 @@ public class MovieController {
     }
 
     @GetMapping("/genre/{genreId}")
-    public ResponseEntity<List<MovieDto>> getMoviesByGenre(@PathVariable int genreId) {
+    public ResponseEntity<List<MovieDto>> getMoviesByGenre(@PathVariable String genreId) {
         List<MovieDto> movies = movieService.findByGenre(genreId);
         return ResponseEntity.ok(movies);
     }

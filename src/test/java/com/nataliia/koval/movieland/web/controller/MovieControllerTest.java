@@ -27,6 +27,8 @@ import java.util.List;
 @AutoConfigureMockMvc
 @WebMvcTest(MovieController.class)
 class MovieControllerTest {
+    private static final String URL = "/api/v1/movies";
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -44,7 +46,7 @@ class MovieControllerTest {
         List<MovieDto> movies = createMovieDtos();
         when(movieService.findAll(null, null)).thenReturn(movies);
 
-        mockMvc.perform(get("/api/v1/movies"))
+        mockMvc.perform(get(URL))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
@@ -58,7 +60,7 @@ class MovieControllerTest {
         List<MovieDto> movies = createMovieDtos();
         when(movieService.findThreeRandom()).thenReturn(movies.subList(0, 3));
 
-        mockMvc.perform(get("/api/v1/movies/random"))
+        mockMvc.perform(get(URL + "/random"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
@@ -68,11 +70,12 @@ class MovieControllerTest {
     @Test
     @DisplayName("Find movies by genre - should return list of movies by genre with valid id.")
     void findByGenre_ReturnsListOfMoviesByGenre() throws Exception {
-        int genreId = 1;
+        String genreId = "1";
         List<MovieDto> movies = createMovieDtos();
+
         when(movieService.findByGenre(genreId)).thenReturn(movies);
 
-        mockMvc.perform(get("/api/v1/movies/genre/{genreId}", genreId))
+        mockMvc.perform(get(URL + "/genre/{genreId}", genreId))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
@@ -80,13 +83,15 @@ class MovieControllerTest {
     }
 
     @Test
-    @DisplayName("Find movies by genre - should return error message with invalid genre id.")
-    void findByGenre_ReturnsErrorMessageWithInvalidGenreId() throws Exception {
-        int invalidGenreId = -1;
+    @DisplayName("Find movies by genre - should return error message with negative genre id.")
+    void findByGenre_ReturnsErrorMessageWithNegativeGenreId() throws Exception {
+        String invalidGenreId = "-1";
+        int parsedGenreId = Integer.parseInt(invalidGenreId);
         String errorMessage = "Invalid genre ID: " + invalidGenreId + ". Genre ID should be a positive number.";
-        when(movieService.findByGenre(invalidGenreId)).thenThrow(new GenreNotFoundException(invalidGenreId));
 
-        mockMvc.perform(get("/api/v1/movies/genre/{genreId}", invalidGenreId))
+        when(movieService.findByGenre(invalidGenreId)).thenThrow(new GenreNotFoundException(parsedGenreId));
+
+        mockMvc.perform(get(URL + "/genre/{genreId}", invalidGenreId))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.error_message").value(errorMessage));
@@ -95,15 +100,32 @@ class MovieControllerTest {
     @Test
     @DisplayName("Find movies by genre - should return error message when genre ID does not exist.")
     void findByGenre_ReturnsErrorMessageWhenGenreIdNotExists() throws Exception {
-        int nonExistingGenreId = 1000;
+        String nonExistingGenreId = "1000";
+        int parsedGenreId = Integer.parseInt(nonExistingGenreId);
         String errorMessage = "Genre with specified id " + nonExistingGenreId + " not found. Check the request details.";
-        when(movieService.findByGenre(nonExistingGenreId)).thenThrow(new GenreNotFoundException(nonExistingGenreId));
 
-        mockMvc.perform(get("/api/v1/movies/genre/{genreId}", nonExistingGenreId))
+        when(movieService.findByGenre(nonExistingGenreId)).thenThrow(new GenreNotFoundException(parsedGenreId));
+
+        mockMvc.perform(get(URL + "/genre/{genreId}", nonExistingGenreId))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.error_message").value(errorMessage));
     }
+
+    @Test
+    @DisplayName("Find movies by genre - should return error message with non-integer genre id.")
+    void findByGenre_ReturnsErrorMessageWithNonIntegerGenreId() throws Exception {
+        String nonIntegerGenreId = "abc";
+        String errorMessage = "Invalid genre ID: " + nonIntegerGenreId + ". Genre ID should be a positive number.";
+
+        when(movieService.findByGenre(nonIntegerGenreId)).thenThrow(new GenreNotFoundException(nonIntegerGenreId));
+
+        mockMvc.perform(get(URL + "/genre/{genreId}", nonIntegerGenreId))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.error_message").value(errorMessage));
+    }
+
 
     @Test
     @DisplayName("Find all movies - should return list of all movies sorted by rating in descending order.")
@@ -113,14 +135,14 @@ class MovieControllerTest {
 
         when(movieService.findAll("desc", null)).thenReturn(movies);
 
-        mockMvc.perform(get("/api/v1/movies?ratingOrder=desc"))
+        mockMvc.perform(get(URL + "?ratingOrder=desc"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.size()").value(movies.size()));
 
         for (int i = 0; i < movies.size(); i++) {
-            mockMvc.perform(get("/api/v1/movies?ratingOrder=desc"))
+            mockMvc.perform(get(URL + "?ratingOrder=desc"))
                     .andExpect(jsonPath("$[" + i + "].rating").value(movies.get(i).getRating()));
         }
     }
@@ -133,14 +155,14 @@ class MovieControllerTest {
 
         when(movieService.findAll("asc", null)).thenReturn(movies);
 
-        mockMvc.perform(get("/api/v1/movies?ratingOrder=asc"))
+        mockMvc.perform(get(URL + "?ratingOrder=asc"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.size()").value(movies.size()));
 
         for (int i = 0; i < movies.size(); i++) {
-            mockMvc.perform(get("/api/v1/movies?ratingOrder=asc"))
+            mockMvc.perform(get(URL + "?ratingOrder=asc"))
                     .andExpect(jsonPath("$[" + i + "].rating").value(movies.get(i).getRating()));
         }
     }
@@ -151,14 +173,14 @@ class MovieControllerTest {
         List<MovieDto> movies = createMovieDtos();
         when(movieService.findAll(null, "desc")).thenReturn(movies);
 
-        mockMvc.perform(get("/api/v1/movies?priceOrder=desc"))
+        mockMvc.perform(get(URL + "?priceOrder=desc"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.size()").value(movies.size()));
 
         for (int i = 0; i < movies.size(); i++) {
-            mockMvc.perform(get("/api/v1/movies?priceOrder=desc"))
+            mockMvc.perform(get(URL + "?priceOrder=desc"))
                     .andExpect(jsonPath("$[" + i + "].rating").value(movies.get(i).getRating()));
         }
     }
@@ -169,14 +191,14 @@ class MovieControllerTest {
         List<MovieDto> movies = createMovieDtos();
         when(movieService.findAll(null, "asc")).thenReturn(movies);
 
-        mockMvc.perform(get("/api/v1/movies?priceOrder=asc"))
+        mockMvc.perform(get(URL + "?priceOrder=asc"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.size()").value(movies.size()));
 
         for (int i = 0; i < movies.size(); i++) {
-            mockMvc.perform(get("/api/v1/movies?priceOrder=asc"))
+            mockMvc.perform(get(URL + "?priceOrder=asc"))
                     .andExpect(jsonPath("$[" + i + "].rating").value(movies.get(i).getRating()));
         }
     }

@@ -79,7 +79,7 @@ class MovieControllerITest {
     @Test
     @DisplayName("Find movies by genre - should return list of movies by genre with valid id.")
     void findByGenre_shouldReturnListOfMoviesByGenre() throws Exception {
-        int genreId = 1;
+        String genreId = "1";
         mockMvc.perform(get(URL + "/genre/" + genreId))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -88,9 +88,9 @@ class MovieControllerITest {
     }
 
     @Test
-    @DisplayName("Find movies by genre with invalid genre ID - should return error message with invalid genre id.")
+    @DisplayName("Find movies by genre with invalid genre ID - should return error message with negative genre id.")
     void findByGenre_withInvalidGenreId_shouldReturnNotFoundAndEmptyList() throws Exception {
-        int invalidGenreId = -1;
+        String invalidGenreId = "-1";
         String errorMessage = "Invalid genre ID: " + invalidGenreId + ". Genre ID should be a positive number.";
         mockMvc.perform(get(URL + "/genre/" + invalidGenreId))
                 .andExpect(status().isOk())
@@ -101,9 +101,20 @@ class MovieControllerITest {
     @Test
     @DisplayName("Find movies by genre - should return error message when genre ID does not exist.")
     void findByGenre_withNonExistentGenreId_shouldThrowGenreNotFoundException() throws Exception {
-        int nonExistentGenreId = 1000;
+        String nonExistentGenreId = "1000";
         String errorMessage = "Genre with specified id " + nonExistentGenreId + " not found. Check the request details.";
         mockMvc.perform(get(URL + "/genre/" + nonExistentGenreId))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.error_message").value(errorMessage));
+    }
+
+    @Test
+    @DisplayName("Find movies by genre - should return error message with non-integer genre id.")
+    void findByGenre_withNonIntegerGenreId_shouldThrowGenreNotFoundException() throws Exception {
+        String nonIntegerGenreId = "abc";
+        String errorMessage = "Invalid genre ID: " + nonIntegerGenreId + ". Genre ID should be a positive number.";
+        mockMvc.perform(get(URL + "/genre/" + nonIntegerGenreId))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.error_message").value(errorMessage));

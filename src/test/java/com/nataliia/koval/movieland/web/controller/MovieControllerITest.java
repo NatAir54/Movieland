@@ -22,6 +22,8 @@ import java.util.Objects;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class MovieControllerITest {
+    private static final String URL = "/api/v1/movies";
+
     @Autowired
     private TestRestTemplate testRestTemplate;
 
@@ -29,7 +31,7 @@ class MovieControllerITest {
     @DisplayName("Integration test for GET /api/v1/movies")
     void findAll_shouldReturnStatusOkAndContentTypeApplicationJson() {
         ResponseEntity<List<MovieDto>> responseEntity = testRestTemplate.exchange(
-                "/api/v1/movies",
+                URL,
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<>() {
@@ -48,7 +50,7 @@ class MovieControllerITest {
     @DisplayName("Integration test for GET /api/v1/movies/random")
     void findThreeRandom_shouldReturnStatusOkAndContentTypeApplicationJson() {
         ResponseEntity<List<MovieDto>> responseEntity = testRestTemplate.exchange(
-                "/api/v1/movies/random?randomMoviesNumber=3",
+                URL + "/random",
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<>() {
@@ -66,10 +68,10 @@ class MovieControllerITest {
     @Test
     @DisplayName("Integration test for GET /api/v1/movies/genre/{genreId}")
     void findByGenre_shouldReturnStatusOkAndContentTypeApplicationJson() {
-        int genreId = 1;
+        String genreId = "1";
 
         ResponseEntity<List<MovieDto>> responseEntity = testRestTemplate.exchange(
-                "/api/v1/movies/genre/{genreId}",
+                URL + "/genre/{genreId}",
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<>() {
@@ -88,10 +90,10 @@ class MovieControllerITest {
     @Test
     @DisplayName("Integration test for handling GenreNotFoundException with non-existing genre ID")
     void handleGenreNotFoundException_withNonExistingGenreId() {
-        int nonExistingGenreId = 1000;
+        String nonExistingGenreId = "1000";
 
         ResponseEntity<String> responseEntity = testRestTemplate.getForEntity(
-                "/api/v1/movies/genre/{genreId}",
+                URL + "/genre/{genreId}",
                 String.class,
                 nonExistingGenreId);
 
@@ -100,24 +102,38 @@ class MovieControllerITest {
     }
 
     @Test
-    @DisplayName("Integration test for handling GenreNotFoundException with invalid genre ID")
+    @DisplayName("Integration test for handling GenreNotFoundException with negative genre ID")
     void handleGenreNotFoundException_withInvalidGenreId() {
-         int invalidGenreId = -1;
+         String genreId = "-1";
 
         ResponseEntity<String> responseEntity = testRestTemplate.getForEntity(
-                "/api/v1/movies/genre/{genreId}",
+                URL + "/genre/{genreId}",
                 String.class,
-                invalidGenreId);
+                genreId);
 
         Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        Assertions.assertTrue(Objects.requireNonNull(responseEntity.getBody()).contains("Invalid genre ID: " + invalidGenreId));
+        Assertions.assertTrue(Objects.requireNonNull(responseEntity.getBody()).contains("Invalid genre ID: " + genreId));
+    }
+
+    @Test
+    @DisplayName("Integration test for handling GenreNotFoundException with non-integer genre ID")
+    void handleGenreNotFoundException_withNonIntegerGenreId() {
+        String genreId = "abc";
+
+        ResponseEntity<String> responseEntity = testRestTemplate.getForEntity(
+                URL + "/genre/{genreId}",
+                String.class,
+                genreId);
+
+        Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        Assertions.assertTrue(Objects.requireNonNull(responseEntity.getBody()).contains("Invalid genre ID: " + genreId));
     }
 
     @Test
     @DisplayName("Integration test for GET /api/v1/movies sorted by rating in ascending order")
     void findAllSortedByRatingAsc_shouldReturnSortedMoviesByRatingAsc() throws IOException {
         ResponseEntity<String> responseEntity = testRestTemplate.exchange(
-                "/api/v1/movies?ratingOrder=asc",
+                URL + "?ratingOrder=asc",
                 HttpMethod.GET,
                 null,
                 String.class);
@@ -142,7 +158,7 @@ class MovieControllerITest {
     @DisplayName("Integration test for GET /api/v1/movies sorted by rating in descending order")
     void findAllSortedByRatingDesc_shouldReturnSortedMoviesByRatingDesc() throws IOException {
         ResponseEntity<String> responseEntity = testRestTemplate.exchange(
-                "/api/v1/movies?ratingOrder=desc",
+                URL + "?ratingOrder=desc",
                 HttpMethod.GET,
                 null,
                 String.class);
@@ -167,7 +183,7 @@ class MovieControllerITest {
     @DisplayName("Integration test for GET /api/v1/movies sorted by price in descending order")
     void findAllSortedByPriceDesc_shouldReturnSortedMoviesByPriceDesc() throws IOException {
         ResponseEntity<String> responseEntity = testRestTemplate.exchange(
-                "/api/v1/movies?priceOrder=desc",
+                URL + "?priceOrder=desc",
                 HttpMethod.GET,
                 null,
                 String.class);
@@ -192,7 +208,7 @@ class MovieControllerITest {
     @DisplayName("Integration test for GET /api/v1/movies sorted by price in ascending order")
     void findAllSortedByPriceAsc_shouldReturnSortedMoviesByPriceAsc() throws IOException {
         ResponseEntity<String> responseEntity = testRestTemplate.exchange(
-                "/api/v1/movies?priceOrder=asc",
+                URL + "?priceOrder=asc",
                 HttpMethod.GET,
                 null,
                 String.class);
@@ -218,7 +234,7 @@ class MovieControllerITest {
     void handleInvalidSortingException_withInvalidRatingSortingOrder() {
         try {
             testRestTemplate.getForEntity(
-                    "/api/v1/movies?ratingOrder=invalid",
+                    URL + "?ratingOrder=invalid",
                     String.class);
         } catch (HttpClientErrorException e) {
             Assertions.assertEquals(HttpStatus.OK, e.getStatusCode());
@@ -231,7 +247,7 @@ class MovieControllerITest {
     void handleInvalidSortingException_withInvalidPriceSortingOrder() {
         try {
             testRestTemplate.getForEntity(
-                    "/api/v1/movies?priceOrder=invalid",
+                    URL + "?priceOrder=invalid",
                     String.class);
         } catch (HttpClientErrorException e) {
             Assertions.assertEquals(HttpStatus.OK, e.getStatusCode());

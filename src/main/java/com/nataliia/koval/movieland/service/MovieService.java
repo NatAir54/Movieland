@@ -12,5 +12,5 @@ import java.util.List;
 public interface MovieService {
     List<MovieDto> findAll(String ratingOrder, String priceOrder);
     List<MovieDto> findThreeRandom();
-    List<MovieDto> findByGenre(int genreId) throws GenreNotFoundException;
+    List<MovieDto> findByGenre(String genreId) throws GenreNotFoundException;
 }

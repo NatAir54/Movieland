@@ -15,10 +15,15 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 import java.util.Objects;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class GenreControllerITest {
+    private static final String URL = "/api/v1/genres";
+
     @Autowired
     private TestRestTemplate testRestTemplate;
 
@@ -26,7 +31,7 @@ class GenreControllerITest {
     @DisplayName("Integration test for GET /api/v1/genres")
     void findAll_shouldReturnStatusOkAndContentTypeApplicationJson() {
         ResponseEntity<List<MovieDto>> responseEntity = testRestTemplate.exchange(
-                "/api/v1/genres",
+                URL,
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<>() {
