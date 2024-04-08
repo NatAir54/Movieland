@@ -3,6 +3,7 @@ package com.nataliia.koval.movieland.service.impl;
 import com.nataliia.koval.movieland.dto.MovieDto;
 import com.nataliia.koval.movieland.entity.Movie;
 import com.nataliia.koval.movieland.exception.GenreNotFoundException;
+import com.nataliia.koval.movieland.exception.MovieNotFoundException;
 import com.nataliia.koval.movieland.mapper.MovieMapper;
 import com.nataliia.koval.movieland.repository.GenreRepository;
 import com.nataliia.koval.movieland.repository.MovieRepository;
@@ -35,12 +36,20 @@ public class DefaultMovieService implements MovieService {
 
     @Override
     public List<MovieDto> findByGenre(String genreId) throws GenreNotFoundException {
-        int parsedGenreId = parseGenreId(genreId);
+        int parsedGenreId = parseId(genreId, GenreNotFoundException.class);
         return mapMoviesToDto(
                 genreRepository.findById(parsedGenreId)
                         .map(genre -> movieRepository.findByGenre(genre.getId()))
                         .orElseThrow(() -> new GenreNotFoundException(parsedGenreId))
         );
+    }
+
+    @Override
+    public MovieDto findById(String movieId) {
+        int parsedMovieId = parseId(movieId, MovieNotFoundException.class);
+        return movieRepository.findById(parsedMovieId)
+                .map(movieMapper::toMovieDto)
+                .orElseThrow(() -> new MovieNotFoundException(parsedMovieId));
     }
 
     private List<MovieDto> findAllSorted(String ratingOrder, String priceOrder) {
@@ -55,11 +64,19 @@ public class DefaultMovieService implements MovieService {
                 .collect(Collectors.toList());
     }
 
-    private int parseGenreId(String genreId) throws GenreNotFoundException {
+    private int parseId(String id, Class<? extends RuntimeException> exceptionClass) throws RuntimeException {
         try {
-            return Integer.parseInt(genreId);
+            return Integer.parseInt(id);
         } catch (NumberFormatException e) {
-            throw new GenreNotFoundException(genreId);
+            throw instantiateException(exceptionClass, id);
+        }
+    }
+
+    private RuntimeException instantiateException(Class<? extends RuntimeException> exceptionClass, String id) {
+        try {
+            return exceptionClass.getDeclaredConstructor(String.class).newInstance(id);
+        } catch (Exception ex) {
+            return new RuntimeException("Error instantiating exception", ex);
         }
     }
 }

@@ -2,6 +2,7 @@ package com.nataliia.koval.movieland.web.controller.advice;
 
 import com.nataliia.koval.movieland.exception.GenreNotFoundException;
 import com.nataliia.koval.movieland.exception.InvalidSortingException;
+import com.nataliia.koval.movieland.exception.MovieNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -20,6 +21,12 @@ public class ControllerExceptionHandler {
 
     @ExceptionHandler(InvalidSortingException.class)
     public ResponseEntity<Map<String, String>> handleInvalidSortingException(InvalidSortingException ex) {
+        String errorMessage = ex.getMessage();
+        return ResponseEntity.ok(Collections.singletonMap("error_message", errorMessage));
+    }
+
+    @ExceptionHandler(MovieNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleMovieNotFoundException(MovieNotFoundException ex) {
         String errorMessage = ex.getMessage();
         return ResponseEntity.ok(Collections.singletonMap("error_message", errorMessage));
     }

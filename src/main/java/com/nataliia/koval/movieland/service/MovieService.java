@@ -13,4 +13,6 @@ public interface MovieService {
     List<MovieDto> findAll(String ratingOrder, String priceOrder);
     List<MovieDto> findThreeRandom();
     List<MovieDto> findByGenre(String genreId) throws GenreNotFoundException;
+
+    MovieDto findById(String movieId);
 }
