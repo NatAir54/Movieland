@@ -156,3 +156,62 @@ END LOOP;
 END $$;
 
 
+CREATE SEQUENCE IF NOT EXISTS country_id_seq START WITH 1 INCREMENT BY 5;
+
+CREATE TABLE IF NOT EXISTS country (
+    id INTEGER PRIMARY KEY DEFAULT nextval('country_id_seq'),
+    name VARCHAR(255) NOT NULL
+);
+
+INSERT INTO country (name) VALUES
+                               ('США'),
+                               ('Франция'),
+                               ('Великобритания'),
+                               ('Италия'),
+                               ('Германия'),
+                               ('Япония'),
+                               ('Испания');
+
+
+CREATE TABLE IF NOT EXISTS movie_country (
+    movie_id INTEGER REFERENCES movie(id) ON DELETE CASCADE,
+    country_id INTEGER REFERENCES country(id) ON DELETE CASCADE,
+    PRIMARY KEY (movie_id, country_id)
+);
+
+INSERT INTO movie_country (movie_id, country_id)
+SELECT m.id AS movie_id, c.id AS country_id
+FROM movie m
+         CROSS JOIN country c
+WHERE (
+    (m.name_russian = 'Побег из Шоушенка' AND c.name = 'США')
+        OR (m.name_russian = 'Зеленая миля' AND c.name = 'США')
+        OR (m.name_russian = 'Форрест Гамп' AND c.name = 'США')
+        OR (m.name_russian = 'Список Шиндлера' AND c.name = 'США')
+        OR (m.name_russian = '1+1' AND c.name = 'Франция')
+        OR (m.name_russian = 'Начало' AND c.name IN ('США', 'Великобритания'))
+        OR (m.name_russian = 'Жизнь прекрасная' AND c.name = 'Италия')
+        OR (m.name_russian = 'Бойцовский клуб' AND c.name IN ('США', 'Германия'))
+        OR (m.name_russian = 'Звёздные войны: Эпизод 4 – Новая надежда' AND c.name = 'США')
+        OR (m.name_russian = 'Звёздные войны: Эпизод 5 – Империя наносит ответный удар' AND c.name = 'США')
+        OR (m.name_russian = 'Унесённые призраками' AND c.name = 'Япония')
+        OR (m.name_russian = 'Титаник' AND c.name = 'США')
+        OR (m.name_russian = 'Пролетая над гнездом кукушки' AND c.name = 'США')
+        OR (m.name_russian = 'Ходячий замок' AND c.name = 'Япония')
+        OR (m.name_russian = 'Гладиатор' AND c.name IN ('США', 'Великобритания'))
+        OR (m.name_russian = 'Большой куш' AND c.name IN ('Великобритания', 'США'))
+        OR (m.name_russian = 'Темный рыцарь' AND c.name IN ('США', 'Великобритания'))
+        OR (m.name_russian = 'Как приручить дракона' AND c.name = 'США')
+        OR (m.name_russian = 'Молчание ягнят' AND c.name = 'США')
+        OR (m.name_russian = 'Гран Торино' AND c.name IN ('США', 'Германия'))
+        OR (m.name_russian = 'Хороший, плохой, злой' AND c.name IN ('Италия', 'Испания', 'Германия', 'США'))
+        OR (m.name_russian = 'Укрощение строптивого' AND c.name = 'Италия')
+        OR (m.name_russian = 'Блеф' AND c.name = 'Италия')
+        OR (m.name_russian = 'Джанго освобожденный' AND c.name = 'США')
+        OR (m.name_russian = 'Танцующий с волками' AND c.name IN ('США', 'Великобритания'))
+    )
+  AND NOT EXISTS (
+    SELECT 1
+    FROM movie_country mc
+    WHERE mc.movie_id = m.id AND mc.country_id = c.id
+);

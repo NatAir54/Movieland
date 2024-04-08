@@ -45,6 +45,12 @@ public class Movie {
     private String picturePath;
 
     @ManyToMany
+    @JoinTable(name = "movie_country",
+            joinColumns = @JoinColumn(name = "movie_id"),
+            inverseJoinColumns = @JoinColumn(name = "country_id"))
+    private Set<Country> countries;
+
+    @ManyToMany
     @JoinTable(name = "movie_genre",
             joinColumns = @JoinColumn(name = "movie_id"),
             inverseJoinColumns = @JoinColumn(name = "genre_id"))

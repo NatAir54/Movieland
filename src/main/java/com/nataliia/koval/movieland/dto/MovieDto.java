@@ -20,5 +20,6 @@ public class MovieDto {
     private double rating;
     private double price;
     private String picturePath;
+    private Set<CountryDto> countries;
     private Set<GenreDto> genres;
 }

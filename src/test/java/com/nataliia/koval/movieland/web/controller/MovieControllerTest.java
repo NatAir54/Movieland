@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
+import com.nataliia.koval.movieland.dto.CountryDto;
 import com.nataliia.koval.movieland.dto.GenreDto;
 import com.nataliia.koval.movieland.dto.MovieDto;
 import com.nataliia.koval.movieland.exception.GenreNotFoundException;
@@ -196,15 +197,14 @@ class MovieControllerTest {
         Set<GenreDto> genres = new HashSet<>();
         genres.add(dramaGenre);
 
-        String description1 = "description1";
-        String description2 = "description2";
-        String description3 = "description3";
-        String description4 = "description4";
+        CountryDto country = new CountryDto(1, "США");
+        Set<CountryDto> countries = new HashSet<>();
+        countries.add(country);
 
-        movies.add(new MovieDto(1, "Побег из Шоушенка", "The Shawshank Redemption", "1994", description1, 8.9, 123.45, "https://images-na.ssl-images-amazon.com/images/M/MV5BODU4MjU4NjIwNl5BMl5BanBnXkFtZTgwMDU2MjEyMDE@._V1._SY209_CR0,0,140,209_.jpg", genres));
-        movies.add(new MovieDto(2, "Зеленая миля", "The Green Mile", "1999", description2, 8.9, 134.67, "https://images-na.ssl-images-amazon.com/images/M/MV5BMTUxMzQyNjA5MF5BMl5BanBnXkFtZTYwOTU2NTY3._V1._SY209_CR0,0,140,209_.jpg", genres));
-        movies.add(new MovieDto(3, "Форрест Гамп", "Forrest Gump", "1994", description3, 8.6, 200.6, "https://images-na.ssl-images-amazon.com/images/M/MV5BNWIwODRlZTUtY2U3ZS00Yzg1LWJhNzYtMmZiYmEyNmU1NjMzXkEyXkFqcGdeQXVyMTQxNzMzNDI@._V1._SY209_CR2,0,140,209_.jpg", genres));
-        movies.add(new MovieDto(4, "Список Шиндлера", "Schindler's List", "1993", description4,8.7, 150.5, "https://images-na.ssl-images-amazon.com/images/M/MV5BNDE4OTMxMTctNmRhYy00NWE2LTg3YzItYTk3M2UwOTU5Njg4XkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1._SX140_CR0,0,140,209_.jpg", genres));
+        movies.add(new MovieDto(1, "Побег из Шоушенка", "The Shawshank Redemption", "1994", "description1", 8.9, 123.45, "picturePath1", countries, genres));
+        movies.add(new MovieDto(2, "Зеленая миля", "The Green Mile", "1999", "description2", 8.9, 134.67, "picturePath2", countries, genres));
+        movies.add(new MovieDto(3, "Форрест Гамп", "Forrest Gump", "1994", "description3", 8.6, 200.6, "picturePath3", countries, genres));
+        movies.add(new MovieDto(4, "Список Шиндлера", "Schindler's List", "1993", "description4",8.7, 150.5, "picturePath4", countries, genres));
         return movies;
     }
 }
