@@ -219,20 +219,25 @@ WHERE (
 
 CREATE SEQUENCE IF NOT EXISTS user_id_seq START WITH 1 INCREMENT BY 5;
 
-CREATE TABLE IF NOT EXISTS user (
+CREATE TABLE IF NOT EXISTS "user" (
     id INTEGER PRIMARY KEY DEFAULT nextval('user_id_seq'),
     name VARCHAR(255) NOT NULL
 );
 
-INSERT INTO user (name) VALUES
-                            ('Дарлин Эдвардс'),
-                            ('Габриэль Джексон'),
-                            ('Рональд Рейнольдс'),
-                            ('Нил Паркер'),
-                            ('Трэвис Райт'),
-                            ('Джесси Паттерсон'),
-                            ('Амелия Кэннеди'),
-                            ('Деннис Крейг'),
-                            ('Дэрил Брайант'),
-                            ('Айда Дэвис');
+INSERT INTO "user" (name) VALUES
+                              ('Дарлин Эдвардс'),
+                              ('Габриэль Джексон'),
+                              ('Рональд Рейнольдс'),
+                              ('Нил Паркер'),
+                              ('Трэвис Райт'),
+                              ('Джесси Паттерсон'),
+                              ('Амелия Кэннеди'),
+                              ('Деннис Крейг'),
+                              ('Дэрил Брайант'),
+                              ('Айда Дэвис');
+
+
+
+
+
 

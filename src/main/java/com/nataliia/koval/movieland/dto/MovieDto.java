@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Getter
@@ -20,6 +21,6 @@ public class MovieDto {
     private double rating;
     private double price;
     private String picturePath;
-    private Set<CountryDto> countries;
-    private Set<GenreDto> genres;
+    private Set<CountryDto> countries = new HashSet<>();
+    private Set<GenreDto> genres =  new HashSet<>();
 }
