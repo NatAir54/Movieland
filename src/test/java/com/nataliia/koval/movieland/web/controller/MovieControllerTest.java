@@ -1,16 +1,16 @@
 package com.nataliia.koval.movieland.web.controller;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-import com.nataliia.koval.movieland.dto.CountryDto;
-import com.nataliia.koval.movieland.dto.GenreDto;
-import com.nataliia.koval.movieland.dto.MovieDto;
+import com.nataliia.koval.movieland.dto.*;
 import com.nataliia.koval.movieland.exception.GenreNotFoundException;
 import com.nataliia.koval.movieland.service.MovieService;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -190,6 +190,32 @@ class MovieControllerTest {
         }
     }
 
+    @Test
+    @DisplayName("Find movie by ID - should return movie with correct details.")
+    void findById_ReturnsMovieWithCorrectDetails() throws Exception {
+        int movieId = 1;
+        MovieDto movie = createMovieDtos().get(0);
+
+        when(movieService.findById(movieId)).thenReturn(movie);
+
+        mockMvc.perform(get(URL + "/{movieId}", movieId))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(movie.getId()))
+                .andExpect(jsonPath("$.nameRussian").value(movie.getNameRussian()))
+                .andExpect(jsonPath("$.nameNative").value(movie.getNameNative()))
+                .andExpect(jsonPath("$.yearOfRelease").value(movie.getYearOfRelease()))
+                .andExpect(jsonPath("$.description").value(movie.getDescription()))
+                .andExpect(jsonPath("$.rating").value(movie.getRating()))
+                .andExpect(jsonPath("$.price").value(movie.getPrice()))
+                .andExpect(jsonPath("$.picturePath").value(movie.getPicturePath()))
+                .andExpect(jsonPath("$.nameNative").value(movie.getNameNative()))
+                .andExpect(jsonPath("$.countries", hasSize(movie.getCountries().size())))
+                .andExpect(jsonPath("$.genres", hasSize(movie.getGenres().size())))
+                .andExpect(jsonPath("$.reviews", hasSize(movie.getReviews().size())));
+    }
+
+
     private List<MovieDto> createMovieDtos() {
         List<MovieDto> movies = new ArrayList<>();
 
@@ -201,10 +227,22 @@ class MovieControllerTest {
         Set<CountryDto> countries = new HashSet<>();
         countries.add(country);
 
-        movies.add(new MovieDto(1, "Побег из Шоушенка", "The Shawshank Redemption", "1994", "description1", 8.9, 123.45, "picturePath1", countries, genres, null));
-        movies.add(new MovieDto(2, "Зеленая миля", "The Green Mile", "1999", "description2", 8.9, 134.67, "picturePath2", countries, genres, null));
-        movies.add(new MovieDto(3, "Форрест Гамп", "Forrest Gump", "1994", "description3", 8.6, 200.6, "picturePath3", countries, genres, null));
-        movies.add(new MovieDto(4, "Список Шиндлера", "Schindler's List", "1993", "description4",8.7, 150.5, "picturePath4", countries, genres, null));
+        Set<ReviewDto> reviews = getReviewDtos();
+
+        movies.add(new MovieDto(1, "Побег из Шоушенка", "The Shawshank Redemption", "1994", "description1", 8.9, 123.45, "picturePath1", countries, genres, reviews));
+        movies.add(new MovieDto(2, "Зеленая миля", "The Green Mile", "1999", "description2", 8.9, 134.67, "picturePath2", countries, genres, reviews));
+        movies.add(new MovieDto(3, "Форрест Гамп", "Forrest Gump", "1994", "description3", 8.6, 200.6, "picturePath3", countries, genres, reviews));
+        movies.add(new MovieDto(4, "Список Шиндлера", "Schindler's List", "1993", "description4",8.7, 150.5, "picturePath4", countries, genres, reviews));
         return movies;
+    }
+
+    @NotNull
+    private static Set<ReviewDto> getReviewDtos() {
+        UserDto user = new UserDto(1, "Дарлин Эдвардс");
+
+        ReviewDto review = new ReviewDto(1, user, "Гениальное кино! Смотришь и думаешь «Так не бывает!», но позже понимаешь, что только так и должно быть. Начинаешь заново осмысливать значение фразы, которую постоянно используешь в своей жизни, «Надежда умирает последней». Ведь если ты не надеешься, то все в твоей жизни гаснет, не остается смысла. Фильм наполнен бесконечным числом правильных афоризмов. Я уверена, что буду пересматривать его сотни раз.");
+        Set<ReviewDto> reviews = new HashSet<>();
+        reviews.add(review);
+        return reviews;
     }
 }
