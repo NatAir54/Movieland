@@ -16,8 +16,10 @@ public class Review {
     @SequenceGenerator(name = "review_sequence", sequenceName = "review_id_seq", allocationSize = 20)
     private Integer id;
 
+    @Column(name = "movie_name_russian")
+    private String movieNameRussian;
+
     @ManyToOne
-    @JoinColumn(name = "user_id")
     private User user;
 
     private String text;
