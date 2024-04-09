@@ -115,12 +115,10 @@ WHERE (
     WHERE mg.movie_id = m.id AND mg.genre_id = g.id
 );
 
-ALTER TABLE IF EXISTS movie
-    ADD COLUMN IF NOT EXISTS description TEXT;
 
 DO $$
     DECLARE
-movie_data TEXT[] := ARRAY[
+        movie_data TEXT[] := ARRAY[
             'Побег из Шоушенка', 'Успешный банкир Энди Дюфрейн обвинен в убийстве собственной жены и ее любовника. Оказавшись в тюрьме под названием Шоушенк, он сталкивается с жестокостью и беззаконием, царящими по обе стороны решетки. Каждый, кто попадает в эти стены, становится их рабом до конца жизни. Но Энди, вооруженный живым умом и доброй душой, отказывается мириться с приговором судьбы и начинает разрабатывать невероятно дерзкий план своего освобождения.',
             'Зеленая миля', 'Обвиненный в страшном преступлении, Джон Коффи оказывается в блоке смертников тюрьмы «Холодная гора». Вновь прибывший обладал поразительным ростом и был пугающе спокоен, что, впрочем, никак не влияло на отношение к нему начальника блока Пола Эджкомба, привыкшего исполнять приговор.',
             'Форрест Гамп', 'От лица главного героя Форреста Гампа, слабоумного безобидного человека с благородным и открытым сердцем, рассказывается история его необыкновенной жизни.Фантастическим образом превращается он в известного футболиста, героя войны, преуспевающего бизнесмена. Он становится миллиардером, но остается таким же бесхитростным, глупым и добрым. Форреста ждет постоянный успех во всем, а он любит девочку, с которой дружил в детстве, но взаимность приходит слишком поздно.',
@@ -149,10 +147,21 @@ movie_data TEXT[] := ARRAY[
             ];
         movie_info TEXT;
 BEGIN
-FOR i IN 1..array_length(movie_data, 1) BY 2 LOOP
-                movie_info := movie_data[i];
-UPDATE movie SET description = movie_data[i+1] WHERE name_russian = movie_info;
-END LOOP;
+    -- Add the 'description' column if it doesn't exist
+    BEGIN
+        ALTER TABLE movie ADD COLUMN IF NOT EXISTS description TEXT;
+    EXCEPTION
+        WHEN duplicate_column THEN
+            -- 'description' column already exists, do nothing
+    END;
+
+        -- Update descriptions for specific movies
+    FOR i IN 1..array_length(movie_data, 1) BY 2 LOOP
+        movie_info := movie_data[i];
+        UPDATE movie
+        SET description = movie_data[i+1]
+        WHERE name_russian = movie_info;
+    END LOOP;
 END $$;
 
 
