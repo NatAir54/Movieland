@@ -1,6 +1,7 @@
 package com.nataliia.koval.movieland.web.controller;
 
 import com.nataliia.koval.movieland.dto.MovieDto;
+import com.nataliia.koval.movieland.exception.MovieNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -239,6 +240,39 @@ class MovieControllerITest {
             Assertions.assertEquals(HttpStatus.OK, e.getStatusCode());
             Assertions.assertTrue(e.getResponseBodyAsString().contains("Invalid sorting order: invalid"));
         }
+    }
+
+    @Test
+    @DisplayName("Integration test for GET /api/v1/movies/{movieId}")
+    void findById_shouldReturnStatusOkAndContentTypeApplicationJson() {
+        int movieId = 1;
+
+        ResponseEntity<MovieDto> responseEntity = testRestTemplate.getForEntity(
+                URL + "/{movieId}",
+                MovieDto.class,
+                movieId);
+
+        Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        Assertions.assertTrue(Objects.requireNonNull(responseEntity.getHeaders().getContentType())
+                .isCompatibleWith(MediaType.APPLICATION_JSON));
+
+        MovieDto movie = responseEntity.getBody();
+        Assertions.assertNotNull(movie);
+        Assertions.assertEquals(movieId, movie.getId());
+    }
+
+    @Test
+    @DisplayName("Integration test for handling MovieNotFoundException with invalid movie ID")
+    void handleMovieNotFoundException_withInvalidMovieId() {
+        int invalidMovieId = -1;
+
+        ResponseEntity<String> responseEntity = testRestTemplate.getForEntity(
+                URL + "/{movieId}",
+                String.class,
+                invalidMovieId);
+
+        Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        Assertions.assertTrue(Objects.requireNonNull(responseEntity.getBody()).contains("Invalid movie ID: " + invalidMovieId));
     }
 
 }
