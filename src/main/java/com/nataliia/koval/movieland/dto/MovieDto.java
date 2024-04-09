@@ -23,4 +23,5 @@ public class MovieDto {
     private String picturePath;
     private Set<CountryDto> countries = new HashSet<>();
     private Set<GenreDto> genres =  new HashSet<>();
+    private Set<ReviewDto> reviews =  new HashSet<>();
 }

@@ -1,10 +1,6 @@
 package com.nataliia.koval.movieland.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -15,10 +11,11 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @RequiredArgsConstructor
+@Table(name = "users")
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_sequence")
-    @SequenceGenerator(name = "user_sequence", sequenceName = "user_id_seq", allocationSize = 5)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "users_sequence")
+    @SequenceGenerator(name = "users_sequence", sequenceName = "users_id_seq", allocationSize = 5)
     private Integer id;
 
     private String name;

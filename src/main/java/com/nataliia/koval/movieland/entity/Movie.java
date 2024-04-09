@@ -49,4 +49,7 @@ public class Movie {
             inverseJoinColumns = @JoinColumn(name = "genre_id"))
     private Set<Genre> genres = new HashSet<>();
 
+    @OneToMany
+    @JoinColumn(name = "movie_id")
+    private Set<Review> reviews = new HashSet<>();
 }

@@ -1,4 +1,4 @@
-INSERT INTO "user" (name) VALUES
+INSERT INTO users (name) VALUES
                                ('Дарлин Эдвардс'),
                                ('Габриэль Джексон'),
                                ('Рональд Рейнольдс'),

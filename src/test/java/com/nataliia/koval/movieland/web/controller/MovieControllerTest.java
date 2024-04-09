@@ -201,10 +201,10 @@ class MovieControllerTest {
         Set<CountryDto> countries = new HashSet<>();
         countries.add(country);
 
-        movies.add(new MovieDto(1, "Побег из Шоушенка", "The Shawshank Redemption", "1994", "description1", 8.9, 123.45, "picturePath1", countries, genres));
-        movies.add(new MovieDto(2, "Зеленая миля", "The Green Mile", "1999", "description2", 8.9, 134.67, "picturePath2", countries, genres));
-        movies.add(new MovieDto(3, "Форрест Гамп", "Forrest Gump", "1994", "description3", 8.6, 200.6, "picturePath3", countries, genres));
-        movies.add(new MovieDto(4, "Список Шиндлера", "Schindler's List", "1993", "description4",8.7, 150.5, "picturePath4", countries, genres));
+        movies.add(new MovieDto(1, "Побег из Шоушенка", "The Shawshank Redemption", "1994", "description1", 8.9, 123.45, "picturePath1", countries, genres, null));
+        movies.add(new MovieDto(2, "Зеленая миля", "The Green Mile", "1999", "description2", 8.9, 134.67, "picturePath2", countries, genres, null));
+        movies.add(new MovieDto(3, "Форрест Гамп", "Forrest Gump", "1994", "description3", 8.6, 200.6, "picturePath3", countries, genres, null));
+        movies.add(new MovieDto(4, "Список Шиндлера", "Schindler's List", "1993", "description4",8.7, 150.5, "picturePath4", countries, genres, null));
         return movies;
     }
 }

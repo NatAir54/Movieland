@@ -134,14 +134,14 @@ WHERE (
 );
 
 
-CREATE SEQUENCE IF NOT EXISTS user_id_seq START WITH 1 INCREMENT BY 5;
+CREATE SEQUENCE IF NOT EXISTS users_id_seq START WITH 1 INCREMENT BY 5;
 
-CREATE TABLE IF NOT EXISTS "user" (
-    id INTEGER PRIMARY KEY DEFAULT nextval('user_id_seq'),
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY DEFAULT nextval('users_id_seq'),
     name VARCHAR(255) NOT NULL
 );
 
-INSERT INTO "user" (name) VALUES
+INSERT INTO users (name) VALUES
                               ('Дарлин Эдвардс'),
                               ('Габриэль Джексон'),
                               ('Рональд Рейнольдс'),
@@ -155,37 +155,46 @@ INSERT INTO "user" (name) VALUES
 
 CREATE SEQUENCE IF NOT EXISTS review_id_seq START WITH 1 INCREMENT BY 20;
 
-CREATE TABLE IF NOT EXISTS Review (
+CREATE TABLE IF NOT EXISTS review (
     id INTEGER PRIMARY KEY DEFAULT nextval('review_id_seq'),
     movie_name_russian VARCHAR(255),
-    user_id INTEGER REFERENCES "user"(id),
+    user_id INTEGER REFERENCES users(id),
     text TEXT
 );
 
 INSERT INTO review (movie_name_russian, user_id, text)
 SELECT 'Побег из Шоушенка', u.id, 'Гениальное кино! Смотришь и думаешь «Так не бывает!», но позже понимаешь, что только так и должно быть. Начинаешь заново осмысливать значение фразы, которую постоянно используешь в своей жизни, «Надежда умирает последней». Ведь если ты не надеешься, то все в твоей жизни гаснет, не остается смысла. Фильм наполнен бесконечным числом правильных афоризмов. Я уверена, что буду пересматривать его сотни раз.'
-FROM "user" u
+FROM users u
 WHERE u.name = 'Дарлин Эдвардс';
 
 INSERT INTO review (movie_name_russian, user_id, text)
 SELECT 'Побег из Шоушенка', u.id, 'Кино это является, безусловно, «со знаком качества». Что же до первого места в рейтинге, то, думаю, здесь имело место быть выставление «десяточек» от большинства зрителей вкупе с раздутыми восторженными откликами кинокритиков. Фильм атмосферный. Он драматичный. И, конечно, заслуживает того, чтобы находиться довольно высоко в мировом кинематографе.'
-FROM "user" u
+FROM users u
 WHERE u.name = 'Габриэль Джексон';
 
 INSERT INTO review (movie_name_russian, user_id, text)
 SELECT 'Зеленая миля', u.id, 'Перестал удивляться тому, что этот фильм занимает сплошь первые места во всевозможных кино рейтингах. Особенно я люблю когда при экранизации литературного произведение из него в силу специфики кинематографа исчезает ирония и появляется некий сверхреализм, обязанный удерживать зрителя у экрана каждую отдельно взятую секунду.'
-FROM "user" u
+FROM users u
 WHERE u.name = 'Рональд Рейнольдс';
 
 INSERT INTO review (movie_name_russian, user_id, text)
 SELECT 'Форрест Гамп', u.id, 'Много еще можно сказать об этом шедевре. И то, что он учит верить, и то, чтобы никогда не сдаваться… Но самый главный девиз я увидел вот в этой фразе: «Занимайся жизнью, или занимайся смертью».'
-FROM "user" u
+FROM users u
 WHERE u.name = 'Нил Паркер';
 
 INSERT INTO review (movie_name_russian, user_id, text)
 SELECT 'Список Шиндлера', u.id, 'Очень хороший фильм, необычный сюжет, я бы даже сказала непредсказуемый. Такие фильмы уже стали редкостью.'
-FROM "user" u
+FROM users u
 WHERE u.name = 'Трэвис Райт';
+
+
+ALTER TABLE review ADD COLUMN movie_id INTEGER;
+
+ALTER TABLE review
+    ADD CONSTRAINT fk_review_movie
+        FOREIGN KEY (movie_id)
+            REFERENCES movie(id);
+
 
 
 

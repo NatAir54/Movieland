@@ -10,5 +10,6 @@ import org.mapstruct.Mapping;
 public interface MovieMapper {
     @Mapping(target = "countries", source = "countries")
     @Mapping(target = "genres", source = "genres")
+    @Mapping(target = "reviews", source = "reviews")
     MovieDto toMovieDto(Movie movie);
 }

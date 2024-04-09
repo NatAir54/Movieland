@@ -19,7 +19,8 @@ public class Review {
     @Column(name = "movie_name_russian")
     private String movieNameRussian;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     private User user;
 
     private String text;
