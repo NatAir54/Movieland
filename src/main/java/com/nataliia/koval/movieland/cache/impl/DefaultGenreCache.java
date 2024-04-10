@@ -2,7 +2,6 @@ package com.nataliia.koval.movieland.cache.impl;
 
 import com.nataliia.koval.movieland.cache.GenreCache;
 import com.nataliia.koval.movieland.cache.ImmutableGenre;
-import com.nataliia.koval.movieland.entity.Genre;
 import com.nataliia.koval.movieland.repository.GenreRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Component
@@ -46,13 +44,7 @@ public class DefaultGenreCache implements GenreCache {
         }
     }
 
-    List<ImmutableGenre> convertToImmutableGenres(List<Genre> genres) {
-        return genres.stream()
-                .map(genre -> (ImmutableGenre) genre)
-                .collect(Collectors.toList());
-    }
-
     private List<ImmutableGenre> fetchGenresFromDatabase() {
-        return convertToImmutableGenres(genreRepository.findAll());
+        return new ArrayList<>(genreRepository.findAll());
     }
 }

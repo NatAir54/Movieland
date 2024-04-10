@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.ArrayList;
 import java.util.List;
 
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
@@ -35,7 +36,7 @@ public class DefaultGenreCacheTest {
 
         genreCache.updateCache();
 
-        assertEquals(genreCache.convertToImmutableGenres(freshGenres), genreCache.retrieveGenresFromCache());
+        assertEquals(freshGenres, genreCache.retrieveGenresFromCache());
     }
 
     @Test
@@ -46,7 +47,7 @@ public class DefaultGenreCacheTest {
 
         genreCache.initCache();
 
-        assertEquals(genreCache.convertToImmutableGenres(freshGenres), genreCache.retrieveGenresFromCache());
+        assertEquals(freshGenres, genreCache.retrieveGenresFromCache());
     }
 
     private List<Genre> createGenre() {
