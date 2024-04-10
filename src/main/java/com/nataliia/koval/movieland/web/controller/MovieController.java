@@ -3,13 +3,11 @@ package com.nataliia.koval.movieland.web.controller;
 import com.nataliia.koval.movieland.dto.MovieDto;
 import com.nataliia.koval.movieland.service.MovieService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import javax.validation.constraints.Positive;
 
 import java.util.List;
 
@@ -26,19 +24,19 @@ public class MovieController {
     ) {
         return movieService.findAll(ratingOrder, priceOrder);
     }
+
     @GetMapping("/random")
     public List<MovieDto> findThreeRandom() {
         return movieService.findThreeRandom();
     }
 
     @GetMapping("/genre/{genreId}")
-    public ResponseEntity<List<MovieDto>> findByGenreId(@PathVariable @Positive int genreId) {
-        List<MovieDto> movies = movieService.findByGenre(genreId);
-        return ResponseEntity.ok(movies);
+    public List<MovieDto> findByGenreId(@PathVariable int genreId) {
+        return movieService.findByGenre(genreId);
     }
 
     @GetMapping("/{movieId}")
-    public MovieDto findById(@PathVariable @Positive int movieId) {
+    public MovieDto findById(@PathVariable int movieId) {
         return movieService.findById(movieId);
     }
 }

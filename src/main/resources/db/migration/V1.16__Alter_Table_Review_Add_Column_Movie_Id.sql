@@ -1,4 +1,4 @@
-ALTER TABLE review ADD COLUMN movie_id INTEGER;
+ALTER TABLE review ADD COLUMN IF NOT EXISTS movie_id INTEGER;
 
 ALTER TABLE review
     ADD CONSTRAINT fk_review_movie

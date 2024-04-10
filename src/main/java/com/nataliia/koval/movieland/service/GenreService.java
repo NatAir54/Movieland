@@ -1,7 +1,6 @@
 package com.nataliia.koval.movieland.service;
 
 import com.nataliia.koval.movieland.dto.GenreDto;
-import com.nataliia.koval.movieland.entity.Genre;
 
 import java.util.List;
 

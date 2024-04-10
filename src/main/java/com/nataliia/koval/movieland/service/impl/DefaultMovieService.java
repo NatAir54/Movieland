@@ -3,6 +3,7 @@ package com.nataliia.koval.movieland.service.impl;
 import com.nataliia.koval.movieland.dto.MovieDto;
 import com.nataliia.koval.movieland.entity.Movie;
 import com.nataliia.koval.movieland.exception.GenreNotFoundException;
+import com.nataliia.koval.movieland.exception.InvalidSortingException;
 import com.nataliia.koval.movieland.exception.MovieNotFoundException;
 import com.nataliia.koval.movieland.mapper.MovieMapper;
 import com.nataliia.koval.movieland.repository.GenreRepository;
@@ -51,8 +52,30 @@ public class DefaultMovieService implements MovieService {
 
     private List<MovieDto> findAllSorted(String ratingOrder, String priceOrder) {
         List<Movie> sortedMovies = ratingOrder != null ?
-                movieRepository.findAllSortedByRating(ratingOrder) : movieRepository.findAllSortedByPrice(priceOrder);
+                findAllSortedByRating(ratingOrder) : findAllSortedByPrice(priceOrder);
         return mapMoviesToDto(sortedMovies);
+    }
+
+    private List<Movie> findAllSortedByRating(String ratingOrder) {
+        if (isInvalidSortingOrder(ratingOrder)) {
+            throw new InvalidSortingException(ratingOrder);
+        }
+        return ratingOrder.equalsIgnoreCase("asc") ?
+                movieRepository.findAllSortedByRatingAsc() :
+                movieRepository.findAllSortedByRatingDesc();
+    }
+
+    private List<Movie> findAllSortedByPrice(String priceOrder) {
+        if (isInvalidSortingOrder(priceOrder)) {
+            throw new InvalidSortingException(priceOrder);
+        }
+        return priceOrder.equalsIgnoreCase("asc") ?
+                movieRepository.findAllSortedByPriceAsc() :
+                movieRepository.findAllSortedByPriceDesc();
+    }
+
+    private boolean isInvalidSortingOrder(String order) {
+        return !order.equalsIgnoreCase("asc") && !order.equalsIgnoreCase("desc");
     }
 
     private List<MovieDto> mapMoviesToDto(List<Movie> movies) {

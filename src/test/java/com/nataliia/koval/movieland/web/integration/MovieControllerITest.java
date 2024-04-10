@@ -96,7 +96,7 @@ class MovieControllerITest {
         int invalidGenreId = -1;
         String errorMessage = "Invalid genre ID: " + invalidGenreId + ". Genre ID should be a positive number.";
         mockMvc.perform(get(URL + "/genre/" + invalidGenreId))
-                .andExpect(status().isOk())
+                .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.error_message").value(errorMessage));
     }
@@ -107,7 +107,7 @@ class MovieControllerITest {
         int nonExistentGenreId = 1000;
         String errorMessage = "Genre with specified id " + nonExistentGenreId + " not found. Check the request details.";
         mockMvc.perform(get(URL + "/genre/" + nonExistentGenreId))
-                .andExpect(status().isOk())
+                .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.error_message").value(errorMessage));
     }

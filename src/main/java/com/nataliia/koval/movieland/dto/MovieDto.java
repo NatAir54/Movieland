@@ -13,7 +13,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MovieDto {
-    private Integer id;
+    private int id;
     private String nameRussian;
     private String nameNative;
     private String yearOfRelease;

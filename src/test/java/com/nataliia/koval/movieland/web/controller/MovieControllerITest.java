@@ -98,7 +98,7 @@ class MovieControllerITest {
                 String.class,
                 nonExistingGenreId);
 
-        Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
         Assertions.assertTrue(Objects.requireNonNull(responseEntity.getBody()).contains("Genre with specified id " + nonExistingGenreId + " not found"));
     }
 
@@ -112,7 +112,7 @@ class MovieControllerITest {
                 String.class,
                 invalidGenreId);
 
-        Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
         Assertions.assertTrue(Objects.requireNonNull(responseEntity.getBody()).contains("Invalid genre ID: " + invalidGenreId));
     }
 
@@ -271,7 +271,7 @@ class MovieControllerITest {
                 String.class,
                 invalidMovieId);
 
-        Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
         Assertions.assertTrue(Objects.requireNonNull(responseEntity.getBody()).contains("Invalid movie ID: " + invalidMovieId));
     }
 

@@ -7,7 +7,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-import com.nataliia.koval.movieland.dto.*;
+import com.nataliia.koval.movieland.dto.MovieDto;
+import com.nataliia.koval.movieland.dto.GenreDto;
+import com.nataliia.koval.movieland.dto.CountryDto;
+import com.nataliia.koval.movieland.dto.ReviewDto;
+import com.nataliia.koval.movieland.dto.UserDto;
+
 import com.nataliia.koval.movieland.exception.GenreNotFoundException;
 import com.nataliia.koval.movieland.service.MovieService;
 import org.jetbrains.annotations.NotNull;
@@ -95,7 +100,7 @@ class MovieControllerTest {
         when(movieService.findByGenre(invalidGenreId)).thenThrow(new GenreNotFoundException(invalidGenreId));
 
         mockMvc.perform(get(URL + "/genre/{genreId}", invalidGenreId))
-                .andExpect(status().isOk())
+                .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.error_message").value(errorMessage));
     }
@@ -109,7 +114,7 @@ class MovieControllerTest {
         when(movieService.findByGenre(nonExistingGenreId)).thenThrow(new GenreNotFoundException(nonExistingGenreId));
 
         mockMvc.perform(get(URL + "/genre/{genreId}", nonExistingGenreId))
-                .andExpect(status().isOk())
+                .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.error_message").value(errorMessage));
     }
@@ -194,7 +199,7 @@ class MovieControllerTest {
     @DisplayName("Find movie by ID - should return movie with correct details.")
     void findById_ReturnsMovieWithCorrectDetails() throws Exception {
         int movieId = 1;
-        MovieDto movie = createMovieDtos().get(0);
+        MovieDto movie = createMovieDtos().getFirst();
 
         when(movieService.findById(movieId)).thenReturn(movie);
 

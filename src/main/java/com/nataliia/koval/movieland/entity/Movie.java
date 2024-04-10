@@ -26,7 +26,7 @@ public class Movie {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "movie_sequence")
     @SequenceGenerator(name = "movie_sequence", sequenceName = "movie_id_seq", allocationSize = 20)
-    private Integer id;
+    private int id;
 
     @Column(name = "name_russian")
     private String nameRussian;
@@ -37,10 +37,13 @@ public class Movie {
     @Column(name = "year_of_release")
     private String yearOfRelease;
 
+    @Column(name = "description")
     private String description;
 
+    @Column(name = "rating")
     private double rating;
 
+    @Column(name = "price")
     private double price;
 
     @Column(name= "picture_path")

@@ -20,8 +20,8 @@ import lombok.AllArgsConstructor;
 public class Genre implements ImmutableGenre {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "genre_sequence")
-    @SequenceGenerator(name = "genre_sequence", sequenceName = "genre_id_seq", allocationSize = 5)
-    private Integer id;
+    @SequenceGenerator(name = "genre_sequence", sequenceName = "genre_id_seq", allocationSize = 10)
+    private int id;
 
     private String name;
 }

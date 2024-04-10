@@ -1,6 +1,6 @@
 package com.nataliia.koval.movieland.cache;
 
 public interface ImmutableGenre {
-    Integer getId();
+    int getId();
     String getName();
 }
