@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
+
 
 @RequiredArgsConstructor
 @Service
@@ -23,8 +23,6 @@ public class DefaultGenreService implements GenreService {
     }
 
     private List<GenreDto> mapGenresToDto(List<ImmutableGenre> genres) {
-        return genres.stream()
-                .map(genreMapper::toGenreDto)
-                .collect(Collectors.toList());
+        return genreMapper.toGenreDtoList(genres);
     }
 }

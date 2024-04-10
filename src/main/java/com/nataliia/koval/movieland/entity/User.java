@@ -1,6 +1,12 @@
 package com.nataliia.koval.movieland.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Table;
+import jakarta.persistence.GenerationType;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

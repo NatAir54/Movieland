@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -57,8 +56,6 @@ public class DefaultMovieService implements MovieService {
     }
 
     private List<MovieDto> mapMoviesToDto(List<Movie> movies) {
-        return movies.stream()
-                .map(movieMapper::toMovieDto)
-                .collect(Collectors.toList());
+        return movieMapper.toMovieDtoList((movies));
     }
 }

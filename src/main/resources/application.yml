@@ -17,6 +17,10 @@ spring:
   flyway:
     enabled: false
 
+# interval for update cache each four hours
+cache:
+  interval: "0 0 0/4 * * *"
+
 logging:
   pattern:
     level: "DEBUG"

@@ -1,7 +1,7 @@
 package com.nataliia.koval.movieland.cache.integration;
 
 import com.nataliia.koval.movieland.cache.ImmutableGenre;
-import com.nataliia.koval.movieland.cache.impl.GenreCacheImpl;
+import com.nataliia.koval.movieland.cache.impl.DefaultGenreCache;
 import com.nataliia.koval.movieland.repository.GenreRepository;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
@@ -17,8 +17,6 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.time.Duration;
-import java.time.Instant;
 import java.util.List;
 
 @SpringBootTest
@@ -28,14 +26,14 @@ import java.util.List;
         @Sql(scripts = "classpath:db/initialize_genre_data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD),
         @Sql(scripts = "classpath:db/remove_genre_data.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
 })
-public class GenreCacheImplITest {
+public class DefaultGenreCacheITest {
 
     @Container
     @ServiceConnection
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15.3");
 
     @Autowired
-    private GenreCacheImpl genreCache;
+    private DefaultGenreCache genreCache;
 
     @Autowired
     private GenreRepository genreRepository;
@@ -62,37 +60,19 @@ public class GenreCacheImplITest {
     void testCacheUpdate() {
         List<ImmutableGenre> initialCachedGenres = genreCache.retrieveGenresFromCache();
 
-        // Sleep for the cache update interval plus some buffer time
         Thread.sleep(5000);
 
         List<ImmutableGenre> updatedCachedGenres = genreCache.retrieveGenresFromCache();
 
-        // Ensure that the cache has been updated
         Assertions.assertNotSame(initialCachedGenres, updatedCachedGenres);
     }
 
     @Test
     @DisplayName("Cache should remain consistent between serial calls within update interval")
     void testCacheConsistency() {
-        // Retrieve genres from the cache multiple times
         List<ImmutableGenre> cachedGenres1 = genreCache.retrieveGenresFromCache();
         List<ImmutableGenre> cachedGenres2 = genreCache.retrieveGenresFromCache();
 
-        // Ensure that the cached genres are consistent between serial calls
         Assertions.assertEquals(cachedGenres1, cachedGenres2);
-    }
-
-    @Test
-    @DisplayName("Cache should expire and update when last update time is outdated")
-    void testCacheExpiry() {
-        List<ImmutableGenre> initialCachedGenres = genreCache.retrieveGenresFromCache();
-
-        // Invalidate the cache by setting the last update time to an old timestamp
-        genreCache.setLastUpdate(Instant.now().minus(Duration.ofHours(5)));
-
-        List<ImmutableGenre> updatedCachedGenres = genreCache.retrieveGenresFromCache();
-
-        // Ensure that the cache has been updated
-        Assertions.assertNotSame(initialCachedGenres, updatedCachedGenres);
     }
 }
