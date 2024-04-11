@@ -68,7 +68,7 @@ class MovieControllerITest {
                 .andExpect(jsonPath("$[0].countries[0].name").value("США"))
                 .andExpect(jsonPath("$[0].genres[0].name").value("криминал"))
                 .andExpect(jsonPath("$[0].reviews").isArray())
-                .andExpect(jsonPath("$[0].reviews[0].userId").exists());;
+                .andExpect(jsonPath("$[0].reviews[0].userId").exists());
     }
 
     @Test
