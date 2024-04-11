@@ -224,12 +224,12 @@ class MovieControllerITest {
                     String.class);
         } catch (HttpClientErrorException e) {
             Assertions.assertEquals(HttpStatus.OK, e.getStatusCode());
-            Assertions.assertTrue(e.getResponseBodyAsString().contains("Invalid sorting order: invalid"));
+            Assertions.assertTrue(e.getResponseBodyAsString().contains("Invalid sorting order: invalid."));
         }
     }
 
     @Test
-    @DisplayName("Integration test for handling InvalidSortingException with invalid sorting order")
+    @DisplayName("Integration test for handling InvalidSortingException with invalid price sorting order")
     void handleInvalidSortingException_withInvalidPriceSortingOrder() {
         try {
             testRestTemplate.getForEntity(
@@ -237,7 +237,7 @@ class MovieControllerITest {
                     String.class);
         } catch (HttpClientErrorException e) {
             Assertions.assertEquals(HttpStatus.OK, e.getStatusCode());
-            Assertions.assertTrue(e.getResponseBodyAsString().contains("Invalid sorting order: invalid"));
+            Assertions.assertTrue(e.getResponseBodyAsString().contains("Invalid sorting order: invalid."));
         }
     }
 

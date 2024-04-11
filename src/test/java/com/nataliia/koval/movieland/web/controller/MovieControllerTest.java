@@ -14,6 +14,7 @@ import com.nataliia.koval.movieland.dto.ReviewDto;
 import com.nataliia.koval.movieland.dto.UserDto;
 
 import com.nataliia.koval.movieland.exception.GenreNotFoundException;
+import com.nataliia.koval.movieland.exception.InvalidSortingException;
 import com.nataliia.koval.movieland.service.MovieService;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,10 +29,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
-import java.util.Comparator;
 import java.util.Set;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.Comparator;
 
 @AutoConfigureMockMvc
 @WebMvcTest(MovieController.class)
@@ -196,6 +197,34 @@ class MovieControllerTest {
     }
 
     @Test
+    @DisplayName("Find all movies - should throw InvalidSortingException when sorting order is invalid for rating")
+    void findAll_ThrowsInvalidSortingExceptionForInvalidRatingOrder() throws Exception {
+        String invalidRatingOrder = "invalid";
+        String errorMessage = "Invalid sorting order: " + invalidRatingOrder + ". Sorting order should be 'asc' or 'desc'.";
+
+        when(movieService.findAll(invalidRatingOrder, null)).thenThrow(new InvalidSortingException(invalidRatingOrder));
+
+        mockMvc.perform(get(URL + "?ratingOrder=" + invalidRatingOrder))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.error_message").value(errorMessage));
+    }
+
+    @Test
+    @DisplayName("Find all movies - should throw InvalidSortingException when sorting order is invalid for price")
+    void findAll_ThrowsInvalidSortingExceptionForInvalidPriceOrder() throws Exception {
+        String invalidPriceOrder = "invalid";
+        String errorMessage = "Invalid sorting order: " + invalidPriceOrder + ". Sorting order should be 'asc' or 'desc'.";
+
+        when(movieService.findAll(null, invalidPriceOrder)).thenThrow(new InvalidSortingException(invalidPriceOrder));
+
+        mockMvc.perform(get(URL + "?priceOrder=" + invalidPriceOrder))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.error_message").value(errorMessage));
+    }
+
+    @Test
     @DisplayName("Find movie by ID - should return movie with correct details.")
     void findById_ReturnsMovieWithCorrectDetails() throws Exception {
         int movieId = 1;
@@ -220,17 +249,14 @@ class MovieControllerTest {
                 .andExpect(jsonPath("$.reviews", hasSize(movie.getReviews().size())));
     }
 
-
     private List<MovieDto> createMovieDtos() {
         List<MovieDto> movies = new ArrayList<>();
 
         GenreDto dramaGenre = new GenreDto(1, "драма");
-        Set<GenreDto> genres = new HashSet<>();
-        genres.add(dramaGenre);
+        Set<GenreDto> genres = Collections.singleton(dramaGenre);
 
         CountryDto country = new CountryDto(1, "США");
-        Set<CountryDto> countries = new HashSet<>();
-        countries.add(country);
+        Set<CountryDto> countries = Collections.singleton(country);
 
         Set<ReviewDto> reviews = getReviewDtos();
 
@@ -244,10 +270,7 @@ class MovieControllerTest {
     @NotNull
     private static Set<ReviewDto> getReviewDtos() {
         UserDto user = new UserDto(1, "Дарлин Эдвардс");
-
         ReviewDto review = new ReviewDto(1, user, "Гениальное кино! Смотришь и думаешь «Так не бывает!», но позже понимаешь, что только так и должно быть. Начинаешь заново осмысливать значение фразы, которую постоянно используешь в своей жизни, «Надежда умирает последней». Ведь если ты не надеешься, то все в твоей жизни гаснет, не остается смысла. Фильм наполнен бесконечным числом правильных афоризмов. Я уверена, что буду пересматривать его сотни раз.");
-        Set<ReviewDto> reviews = new HashSet<>();
-        reviews.add(review);
-        return reviews;
+        return Collections.singleton(review);
     }
 }

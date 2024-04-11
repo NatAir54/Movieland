@@ -66,7 +66,9 @@ class MovieControllerITest {
                 .andExpect(jsonPath("$[0].price").value(123.45))
                 .andExpect(jsonPath("$[0].picturePath").value("https://images-na.ssl-images-amazon.com/images/M/MV5BODU4MjU4NjIwNl5BMl5BanBnXkFtZTgwMDU2MjEyMDE@._V1._SY209_CR0,0,140,209_.jpg"))
                 .andExpect(jsonPath("$[0].countries[0].name").value("США"))
-                .andExpect(jsonPath("$[0].genres[0].name").value("криминал"));
+                .andExpect(jsonPath("$[0].genres[0].name").value("криминал"))
+                .andExpect(jsonPath("$[0].reviews").isArray())
+                .andExpect(jsonPath("$[0].reviews[0].userId").exists());;
     }
 
     @Test
@@ -158,5 +160,65 @@ class MovieControllerITest {
                 .andExpect(jsonPath("$.length()").value(4))
                 .andExpect(jsonPath("$[0].price").value(200.6))
                 .andExpect(jsonPath("$[3].price").value(123.45));
+    }
+
+    @Test
+    @DisplayName("Find all movies sorted by rating with invalid sorting order - should return error message")
+    void findAllSortedByRating_InvalidSortingOrder() throws Exception {
+        String invalidOrder = "invalid";
+        String errorMessage = "Invalid sorting order: " + invalidOrder + ". Sorting order should be 'asc' or 'desc'.";
+
+        mockMvc.perform(get(URL + "?ratingOrder=invalid"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.error_message").value(errorMessage));
+    }
+
+    @Test
+    @DisplayName("Find all movies sorted by price with invalid sorting order - should return error message")
+    void findAllSortedByPrice_InvalidSortingOrder() throws Exception {
+        String invalidOrder = "invalid";
+        String errorMessage = "Invalid sorting order: " + invalidOrder + ". Sorting order should be 'asc' or 'desc'.";
+
+        mockMvc.perform(get(URL + "?priceOrder=invalid"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.error_message").value(errorMessage));
+    }
+
+    @Test
+    @DisplayName("Find movie by ID - should return correct movie details")
+    void findById_shouldReturnCorrectMovieDetails() throws Exception {
+        int movieId = 1;
+        mockMvc.perform(get(URL + "/" + movieId))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.nameRussian").value("Побег из Шоушенка"))
+                .andExpect(jsonPath("$.nameNative").value("The Shawshank Redemption"))
+                .andExpect(jsonPath("$.yearOfRelease").value("1994"))
+                .andExpect(jsonPath("$.description").value("Успешный банкир Энди Дюфрейн обвинен в убийстве собственной жены и ее любовника. Оказавшись в тюрьме под названием Шоушенк, он сталкивается с жестокостью и беззаконием, царящими по обе стороны решетки. Каждый, кто попадает в эти стены, становится их рабом до конца жизни. Но Энди, вооруженный живым умом и доброй душой, отказывается мириться с приговором судьбы и начинает разрабатывать невероятно дерзкий план своего освобождения."))
+                .andExpect(jsonPath("$.rating").value(8.9))
+                .andExpect(jsonPath("$.price").value(123.45))
+                .andExpect(jsonPath("$.picturePath").value("https://images-na.ssl-images-amazon.com/images/M/MV5BODU4MjU4NjIwNl5BMl5BanBnXkFtZTgwMDU2MjEyMDE@._V1._SY209_CR0,0,140,209_.jpg"))
+                .andExpect(jsonPath("$.countries[0].name").value("США"))
+                .andExpect(jsonPath("$.genres[0].name").value("криминал"));
+    }
+
+    @Test
+    @DisplayName("Find movie by ID - should return correct movie details with reviews")
+    void findById_shouldReturnCorrectMovieDetailsWithReviews() throws Exception {
+        int movieId = 1;
+        mockMvc.perform(get(URL + "/" + movieId))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.nameRussian").value("Побег из Шоушенка"))
+                .andExpect(jsonPath("$.reviews").isArray())
+                .andExpect(jsonPath("$.reviews.length()").value(2))
+                .andExpect(jsonPath("$.reviews[0].userId").exists())
+                .andExpect(jsonPath("$.reviews[0].text").value("Гениальное кино! Смотришь и думаешь «Так не бывает!», но позже понимаешь, что только так и должно быть. Начинаешь заново осмысливать значение фразы, которую постоянно используешь в своей жизни, «Надежда умирает последней». Ведь если ты не надеешься, то все в твоей жизни гаснет, не остается смысла. Фильм наполнен бесконечным числом правильных афоризмов. Я уверена, что буду пересматривать его сотни раз."))
+                .andExpect(jsonPath("$.reviews[1].userId").exists())
+                .andExpect(jsonPath("$.reviews[1].text").value("Кино это является, безусловно, «со знаком качества». Что же до первого места в рейтинге, то, думаю, здесь имело место быть выставление «десяточек» от большинства зрителей вкупе с раздутыми восторженными откликами кинокритиков. Фильм атмосферный. Он драматичный. И, конечно, заслуживает того, чтобы находиться довольно высоко в мировом кинематографе."));
     }
 }
