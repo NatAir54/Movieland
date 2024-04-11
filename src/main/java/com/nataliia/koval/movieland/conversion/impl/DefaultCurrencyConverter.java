@@ -3,11 +3,11 @@ package com.nataliia.koval.movieland.conversion.impl;
 import com.nataliia.koval.movieland.conversion.CurrencyConverter;
 import com.nataliia.koval.movieland.exception.ConvertCurrencyException;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -30,7 +30,9 @@ public class DefaultCurrencyConverter implements CurrencyConverter {
         double exchangeRate = fetchExchangeRate(currency);
         double convertedPrice = price / exchangeRate;
 
-        return Double.parseDouble(String.format(Locale.US, "%.2f", convertedPrice));
+        String formattedPrice = String.format(Locale.US, "%.2f", convertedPrice);
+
+        return Double.parseDouble(formattedPrice);
     }
 
     private boolean isInvalidCurrency(String currency) {
@@ -47,25 +49,23 @@ public class DefaultCurrencyConverter implements CurrencyConverter {
             }
 
             return exchangeRate;
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             throw new ConvertCurrencyException("Failed to fetch exchange rate for currency: " + currency, e);
         }
     }
 
-    private String fetchExchangeRateResponse(String currency) throws IOException {
+    private String fetchExchangeRateResponse(String currency) throws IOException, InterruptedException {
         String EXCHANGE_RATE_BASE_URL = "https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=";
-        URL url = new URL(EXCHANGE_RATE_BASE_URL + currency.toUpperCase() + "&json");
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("GET");
+        HttpResponse<String> response;
+        try (HttpClient httpClient = HttpClient.newHttpClient()) {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(EXCHANGE_RATE_BASE_URL + currency.toUpperCase() + "&json"))
+                    .GET()
+                    .build();
 
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-            StringBuilder response = new StringBuilder();
-            String inputLine;
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-            }
-            return response.toString();
+            response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         }
+        return response.body();
     }
 
     private double parseExchangeRateFromJson(String jsonResponse) {

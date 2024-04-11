@@ -230,7 +230,9 @@ class MovieControllerTest {
         int movieId = 1;
         MovieDto movie = createMovieDtos().getFirst();
 
-        when(movieService.findById(movieId, null)).thenReturn(movie);
+        String currency = "UAH";
+
+        when(movieService.findById(movieId, currency)).thenReturn(movie);
 
         mockMvc.perform(get(URL + "/{movieId}", movieId))
                 .andExpect(status().isOk())
