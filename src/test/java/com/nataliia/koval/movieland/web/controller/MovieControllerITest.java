@@ -259,7 +259,6 @@ class MovieControllerITest {
         Assertions.assertNotNull(movie);
         Assertions.assertEquals(movieId, movie.getId());
     }
-
     @Test
     @DisplayName("Integration test for handling MovieNotFoundException with invalid movie ID")
     void handleMovieNotFoundException_withInvalidMovieId() {
@@ -274,4 +273,81 @@ class MovieControllerITest {
         Assertions.assertTrue(Objects.requireNonNull(responseEntity.getBody()).contains("Invalid movie ID: " + invalidMovieId));
     }
 
+    @Test
+    @DisplayName("Integration test for GET /api/v1/movies/{movieId} with currency conversion")
+    void findById_shouldReturnMovieWithCorrectlyConvertedPrice() {
+        int movieId = 1;
+
+        ResponseEntity<MovieDto> responseEntityWithDefaultCurrency = testRestTemplate.getForEntity(
+                URL + "/{movieId}",
+                MovieDto.class,
+                movieId);
+
+        Assertions.assertEquals(HttpStatus.OK, responseEntityWithDefaultCurrency.getStatusCode());
+        Assertions.assertTrue(Objects.requireNonNull(responseEntityWithDefaultCurrency.getHeaders().getContentType())
+                .isCompatibleWith(MediaType.APPLICATION_JSON));
+
+        MovieDto movieWithDefaultCurrency = responseEntityWithDefaultCurrency.getBody();
+        Assertions.assertNotNull(movieWithDefaultCurrency);
+        Assertions.assertEquals(movieId, movieWithDefaultCurrency.getId());
+
+        double originalPrice = movieWithDefaultCurrency.getPrice();
+
+        String currency = "USD";
+
+        ResponseEntity<MovieDto> responseEntityWithConvertedCurrency = testRestTemplate.getForEntity(
+                URL + "/{movieId}?currency={currency}",
+                MovieDto.class,
+                movieId,
+                currency);
+
+        Assertions.assertEquals(HttpStatus.OK, responseEntityWithConvertedCurrency.getStatusCode());
+        Assertions.assertTrue(Objects.requireNonNull(responseEntityWithConvertedCurrency.getHeaders().getContentType())
+                .isCompatibleWith(MediaType.APPLICATION_JSON));
+
+        MovieDto movieWithConvertedCurrency = responseEntityWithConvertedCurrency.getBody();
+        Assertions.assertNotNull(movieWithConvertedCurrency);
+        Assertions.assertEquals(movieId, movieWithConvertedCurrency.getId());
+
+        Assertions.assertNotEquals(originalPrice, movieWithConvertedCurrency.getPrice());
+        Assertions.assertTrue(movieWithConvertedCurrency.getPrice() > 0);
+    }
+
+    @Test
+    @DisplayName("Integration test for GET /api/v1/movies/{movieId} with invalid currency")
+    void findById_shouldReturnBadRequestForInvalidCurrency() {
+        int movieId = 1;
+        String invalidCurrency = "invalid";
+
+        try {
+            ResponseEntity<MovieDto> responseEntity = testRestTemplate.getForEntity(
+                    URL + "/{movieId}?currency={currency}",
+                    MovieDto.class,
+                    movieId,
+                    invalidCurrency);
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            Assertions.assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+            Assertions.assertTrue(e.getResponseBodyAsString().contains("Unsupported currency"));
+        }
+    }
+
+    @Test
+    @DisplayName("Integration test for GET /api/v1/movies/{movieId} with unsupported currency")
+    void findById_shouldReturnBadRequestForUnsupportedCurrency() {
+        int movieId = 1;
+        String unsupportedCurrency = "RUB";
+
+        try {
+            ResponseEntity<MovieDto> responseEntity = testRestTemplate.getForEntity(
+                    URL + "/{movieId}?currency={currency}",
+                    MovieDto.class,
+                    movieId,
+                    unsupportedCurrency);
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            Assertions.assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+            Assertions.assertTrue(e.getResponseBodyAsString().contains("Price can be converted to USD or EUR"));
+        }
+    }
 }
