@@ -36,10 +36,12 @@ public interface MovieService {
     List<MovieDto> findByGenre(int genreId) throws GenreNotFoundException;
 
     /**
-     * Retrieves a movie by its ID.
+     * Retrieves a movie by its ID and optionally converts its price to the specified currency.
      *
-     * @param movieId The ID of the movie to retrieve.
+     * @param movieId  The ID of the movie to retrieve.
+     * @param currency The currency code to which the price should be converted. If null or "UAH",
+     *                 the original price is returned without conversion.
      * @return MovieDto representing the movie with the specified ID.
      */
-    MovieDto findById(int movieId);
+    MovieDto findById(int movieId, String currency);
 }

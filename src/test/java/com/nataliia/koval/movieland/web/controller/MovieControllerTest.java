@@ -230,7 +230,7 @@ class MovieControllerTest {
         int movieId = 1;
         MovieDto movie = createMovieDtos().getFirst();
 
-        when(movieService.findById(movieId)).thenReturn(movie);
+        when(movieService.findById(movieId, null)).thenReturn(movie);
 
         mockMvc.perform(get(URL + "/{movieId}", movieId))
                 .andExpect(status().isOk())

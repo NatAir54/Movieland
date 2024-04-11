@@ -5,21 +5,23 @@ import com.nataliia.koval.movieland.cache.ImmutableGenre;
 import com.nataliia.koval.movieland.repository.GenreRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Primary;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-@Primary
+@Deprecated
 @RequiredArgsConstructor
 @Component
-public class DefaultGenreCache implements GenreCache {
+public class DeprecatedGenreCache implements GenreCache {
+    private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
     private final GenreRepository genreRepository;
-    private final CopyOnWriteArrayList<ImmutableGenre> cache = new CopyOnWriteArrayList<>();
+    private List<ImmutableGenre> cache =  new ArrayList<>();
+
 
     @PostConstruct
     void initCache() {
@@ -30,13 +32,17 @@ public class DefaultGenreCache implements GenreCache {
 
     @Override
     public List<ImmutableGenre> retrieveGenresFromCache() {
-        return List.copyOf(cache);
+        return new ArrayList<>(cache);
     }
 
     @Scheduled(cron = "${cache.interval}")
     void updateCache() {
-        cache.clear();
-        cache.addAll(fetchGenresFromDatabase());
+        lock.writeLock().lock();
+        try {
+            this.cache = fetchGenresFromDatabase();
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
     private List<ImmutableGenre> fetchGenresFromDatabase() {

@@ -1,5 +1,6 @@
 package com.nataliia.koval.movieland.web.controller.advice;
 
+import com.nataliia.koval.movieland.exception.ConvertCurrencyException;
 import com.nataliia.koval.movieland.exception.GenreNotFoundException;
 import com.nataliia.koval.movieland.exception.InvalidSortingException;
 import com.nataliia.koval.movieland.exception.MovieNotFoundException;
@@ -32,5 +33,12 @@ public class ControllerExceptionHandler {
         String errorMessage = ex.getMessage();
         Map<String, String> errors = Map.of("error_message", errorMessage);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errors);
+    }
+
+    @ExceptionHandler(ConvertCurrencyException.class)
+    public ResponseEntity<Map<String, String>> handleConvertCurrencyException(ConvertCurrencyException ex) {
+        String errorMessage = ex.getMessage();
+        Map<String, String> errors = Map.of("error_message", errorMessage);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 }
