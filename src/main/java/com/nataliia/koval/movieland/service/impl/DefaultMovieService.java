@@ -51,7 +51,7 @@ public class DefaultMovieService implements MovieService {
                 .map(movieMapper::toMovieDto)
                 .orElseThrow(() -> new MovieNotFoundException(movieId));
 
-        if (shouldReturnOriginalPrice(currency)) {
+        if (currency.equalsIgnoreCase("UAH")) {
             return movieDto;
         }
 
@@ -59,10 +59,6 @@ public class DefaultMovieService implements MovieService {
         movieDto.setPrice(convertedPrice);
 
         return movieDto;
-    }
-
-    private boolean shouldReturnOriginalPrice(String currency) {
-        return currency == null || currency.equalsIgnoreCase("UAH");
     }
 
     private List<MovieDto> findAllSorted(String ratingOrder, String priceOrder) {
