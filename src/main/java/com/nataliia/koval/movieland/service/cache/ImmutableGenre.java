@@ -1,4 +1,4 @@
-package com.nataliia.koval.movieland.cache;
+package com.nataliia.koval.movieland.service.cache;
 
 public interface ImmutableGenre {
     int getId();

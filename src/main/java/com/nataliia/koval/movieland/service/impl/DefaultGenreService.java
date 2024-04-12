@@ -1,7 +1,7 @@
 package com.nataliia.koval.movieland.service.impl;
 
-import com.nataliia.koval.movieland.cache.GenreCache;
-import com.nataliia.koval.movieland.cache.ImmutableGenre;
+import com.nataliia.koval.movieland.service.cache.GenreCache;
+import com.nataliia.koval.movieland.service.cache.ImmutableGenre;
 import com.nataliia.koval.movieland.dto.GenreDto;
 import com.nataliia.koval.movieland.mapper.GenreMapper;
 import com.nataliia.koval.movieland.service.GenreService;

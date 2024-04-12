@@ -1,7 +1,7 @@
-package com.nataliia.koval.movieland.cache.impl;
+package com.nataliia.koval.movieland.service.cache.impl;
 
-import com.nataliia.koval.movieland.cache.GenreCache;
-import com.nataliia.koval.movieland.cache.ImmutableGenre;
+import com.nataliia.koval.movieland.service.cache.GenreCache;
+import com.nataliia.koval.movieland.service.cache.ImmutableGenre;
 import com.nataliia.koval.movieland.repository.GenreRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +35,7 @@ public class DeprecatedGenreCache implements GenreCache {
         return new ArrayList<>(cache);
     }
 
-    @Scheduled(cron = "${cache.interval}")
+    @Scheduled(cron = "${cache.genres_interval}")
     void updateCache() {
         lock.writeLock().lock();
         try {

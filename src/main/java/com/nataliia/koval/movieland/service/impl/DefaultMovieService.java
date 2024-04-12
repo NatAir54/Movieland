@@ -1,6 +1,7 @@
 package com.nataliia.koval.movieland.service.impl;
 
-import com.nataliia.koval.movieland.conversion.CurrencyConverter;
+import com.nataliia.koval.movieland.service.conversion.CurrencyConverter;
+import com.nataliia.koval.movieland.service.conversion.impl.CurrencySupported;
 import com.nataliia.koval.movieland.dto.MovieDto;
 import com.nataliia.koval.movieland.entity.Movie;
 import com.nataliia.koval.movieland.exception.GenreNotFoundException;
@@ -51,7 +52,7 @@ public class DefaultMovieService implements MovieService {
                 .map(movieMapper::toMovieDto)
                 .orElseThrow(() -> new MovieNotFoundException(movieId));
 
-        if (currency.equalsIgnoreCase("UAH")) {
+        if (currency.equalsIgnoreCase(CurrencySupported.UAH.getName())) {
             return movieDto;
         }
 

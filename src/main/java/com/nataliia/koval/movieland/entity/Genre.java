@@ -1,6 +1,6 @@
 package com.nataliia.koval.movieland.entity;
 
-import com.nataliia.koval.movieland.cache.ImmutableGenre;
+import com.nataliia.koval.movieland.service.cache.ImmutableGenre;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.GeneratedValue;

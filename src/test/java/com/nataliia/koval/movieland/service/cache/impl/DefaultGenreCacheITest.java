@@ -1,8 +1,8 @@
-package com.nataliia.koval.movieland.cache.integration;
+package com.nataliia.koval.movieland.service.cache.impl;
 
-import com.nataliia.koval.movieland.cache.ImmutableGenre;
-import com.nataliia.koval.movieland.cache.impl.DefaultGenreCache;
+
 import com.nataliia.koval.movieland.repository.GenreRepository;
+import com.nataliia.koval.movieland.service.cache.ImmutableGenre;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -26,8 +26,7 @@ import java.util.List;
         @Sql(scripts = "classpath:db/initialize_genre_data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD),
         @Sql(scripts = "classpath:db/remove_genre_data.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
 })
-public class DefaultGenreCacheITest {
-
+class DefaultGenreCacheITest {
     @Container
     @ServiceConnection
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15.3");

@@ -1,23 +1,23 @@
-package com.nataliia.koval.movieland.cache.impl;
+package com.nataliia.koval.movieland.service.cache.impl;
+
 
 import com.nataliia.koval.movieland.entity.Genre;
 import com.nataliia.koval.movieland.repository.GenreRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class DefaultGenreCacheTest {
+class DefaultGenreCacheTest {
     @Mock
     private GenreRepository genreRepository;
 

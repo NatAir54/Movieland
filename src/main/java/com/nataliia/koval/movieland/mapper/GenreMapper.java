@@ -1,6 +1,6 @@
 package com.nataliia.koval.movieland.mapper;
 
-import com.nataliia.koval.movieland.cache.ImmutableGenre;
+import com.nataliia.koval.movieland.service.cache.ImmutableGenre;
 import com.nataliia.koval.movieland.dto.GenreDto;
 import org.mapstruct.Mapper;
 
