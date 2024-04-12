@@ -9,30 +9,29 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.web.reactive.function.client.WebClient;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+
 
 @RequiredArgsConstructor
 @Cache
 public class DefaultRateCache implements RateCache {
+
     private static final String EXCHANGE_RATE_BASE_URL = "https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=";
 
     private final CopyOnWriteArrayList<Rate> ratesCache = new CopyOnWriteArrayList<>();
 
     private final RateRepository rateRepository;
 
+
     @PostConstruct
     void initCache() {
-        if(ratesCache.isEmpty()) {
+        if (ratesCache.isEmpty()) {
             ratesCache.addAll(fetchRatesFromDatabase());
         }
     }
@@ -40,10 +39,10 @@ public class DefaultRateCache implements RateCache {
     @Override
     public double fetchRate(String currency) {
         return ratesCache.stream()
-            .filter(rate -> rate.getName().equalsIgnoreCase(currency))
-            .mapToDouble(Rate::getValue)
-            .findFirst()
-            .orElse(0.0);
+                .filter(rate -> rate.getName().equalsIgnoreCase(currency))
+                .mapToDouble(Rate::getValue)
+                .findFirst()
+                .orElse(0.0);
     }
 
     @Scheduled(cron = "${cache.rates.interval}")
@@ -59,14 +58,18 @@ public class DefaultRateCache implements RateCache {
     }
 
     private double fetchRateByCurrency(String currency) {
-         try (HttpClient httpClient = HttpClient.newHttpClient()) {
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(EXCHANGE_RATE_BASE_URL + currency.toUpperCase() + "&json"))
-                    .GET()
-                    .build();
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            return parseExchangeRateFromJson(response.body());
-        } catch (IOException | InterruptedException e) {
+        WebClient webClient = WebClient.create(EXCHANGE_RATE_BASE_URL);
+
+        try {
+            String jsonResponse = webClient.get()
+                    .uri(uriBuilder -> uriBuilder.path(currency.toUpperCase()).queryParam("json").build())
+                    .accept(MediaType.APPLICATION_JSON)
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .block();
+
+            return parseExchangeRateFromJson(jsonResponse);
+        } catch (Exception e) {
             throw new ConvertCurrencyException("Failed to fetch exchange rate for currency: " + currency, e);
         }
     }
@@ -82,6 +85,6 @@ public class DefaultRateCache implements RateCache {
     }
 
     private List<Rate> fetchRatesFromDatabase() {
-        return new ArrayList<>(rateRepository.findAll());
+        return rateRepository.findAll();
     }
 }
