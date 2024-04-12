@@ -49,8 +49,11 @@ public class DefaultRateCache implements RateCache {
     @Scheduled(cron = "${cache.rates_interval}")
     private void updateRates() {
         List<Rate> rates = rateRepository.findAll();
-        rates.forEach(rate -> rate.setValue(fetchRateByCurrency(rate.getName())));
-        rates.forEach(rate -> rate.setLastUpdated(LocalDateTime.now()));
+        rates.forEach(rate -> {
+            rate.setValue(fetchRateByCurrency(rate.getName()));
+            rate.setLastUpdated(LocalDateTime.now());
+            rateRepository.save(rate);
+        });
         cache.clear();
         cache.addAll(rates);
     }
