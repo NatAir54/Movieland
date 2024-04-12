@@ -1,5 +1,6 @@
 package com.nataliia.koval.movieland.service.impl;
 
+import com.nataliia.koval.movieland.conversion.CurrencyConverter;
 import com.nataliia.koval.movieland.dto.MovieDto;
 import com.nataliia.koval.movieland.entity.Movie;
 import com.nataliia.koval.movieland.exception.GenreNotFoundException;
@@ -20,6 +21,7 @@ public class DefaultMovieService implements MovieService {
     private final MovieRepository movieRepository;
     private final GenreRepository genreRepository;
     private final MovieMapper movieMapper;
+    private final CurrencyConverter currencyConverter;
 
     @Override
     public List<MovieDto> findAll(String ratingOrder, String priceOrder) {
@@ -44,10 +46,19 @@ public class DefaultMovieService implements MovieService {
     }
 
     @Override
-    public MovieDto findById(int movieId) {
-        return movieRepository.findById(movieId)
+    public MovieDto findById(int movieId, String currency) {
+        MovieDto movieDto = movieRepository.findById(movieId)
                 .map(movieMapper::toMovieDto)
                 .orElseThrow(() -> new MovieNotFoundException(movieId));
+
+        if (currency.equalsIgnoreCase("UAH")) {
+            return movieDto;
+        }
+
+        double convertedPrice = currencyConverter.convert(movieDto.getPrice(), currency);
+        movieDto.setPrice(convertedPrice);
+
+        return movieDto;
     }
 
     private List<MovieDto> findAllSorted(String ratingOrder, String priceOrder) {

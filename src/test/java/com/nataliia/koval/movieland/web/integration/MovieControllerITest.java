@@ -15,6 +15,8 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import static org.assertj.core.api.AssertionsForClassTypes.not;
+import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -220,5 +222,52 @@ class MovieControllerITest {
                 .andExpect(jsonPath("$.reviews[0].text").value("Гениальное кино! Смотришь и думаешь «Так не бывает!», но позже понимаешь, что только так и должно быть. Начинаешь заново осмысливать значение фразы, которую постоянно используешь в своей жизни, «Надежда умирает последней». Ведь если ты не надеешься, то все в твоей жизни гаснет, не остается смысла. Фильм наполнен бесконечным числом правильных афоризмов. Я уверена, что буду пересматривать его сотни раз."))
                 .andExpect(jsonPath("$.reviews[1].userId").exists())
                 .andExpect(jsonPath("$.reviews[1].text").value("Кино это является, безусловно, «со знаком качества». Что же до первого места в рейтинге, то, думаю, здесь имело место быть выставление «десяточек» от большинства зрителей вкупе с раздутыми восторженными откликами кинокритиков. Фильм атмосферный. Он драматичный. И, конечно, заслуживает того, чтобы находиться довольно высоко в мировом кинематографе."));
+    }
+
+    @Test
+    @DisplayName("Integration test for GET /api/v1/movies/{movieId} with currency conversion")
+    void findById_shouldReturnMovieDetailsWithConvertedPrice() throws Exception {
+        int movieId = 1;
+        String defaultCurrency = "UAH";
+        String targetCurrency = "USD";
+        double originalPrice = 123.45;
+
+        mockMvc.perform(get(URL + "/" + movieId + "?currency=" + defaultCurrency))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(movieId))
+                .andExpect(jsonPath("$.price").value(originalPrice));
+
+        mockMvc.perform(get(URL + "/" + movieId + "?currency=" + targetCurrency))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(movieId))
+                .andExpect(jsonPath("$.price").isNumber())
+                .andExpect(jsonPath("$.price").value(not(equalTo(0))))
+                .andExpect(jsonPath("$.price").value(not(equalTo(originalPrice))));
+    }
+
+    @Test
+    @DisplayName("Integration test for GET /api/v1/movies/{movieId} with invalid currency")
+    void findById_shouldReturnBadRequestForInvalidCurrency() throws Exception {
+        int movieId = 1;
+        String invalidCurrency = "invalidCurrency";
+
+        mockMvc.perform(get(URL + "/" + movieId + "?currency=" + invalidCurrency))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.error_message").value("Unsupported currency: " + invalidCurrency + ". Price can be converted to USD or EUR."));
+    }
+
+    @Test
+    @DisplayName("Integration test for GET /api/v1/movies/{movieId} with unsupported currency")
+    void findById_shouldReturnBadRequestForUnsupportedCurrency() throws Exception {
+        int movieId = 1;
+        String unsupportedCurrency = "RUB";
+
+        mockMvc.perform(get(URL + "/" + movieId + "?currency=" + unsupportedCurrency))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.error_message").value("Unsupported currency: " + unsupportedCurrency + ". Price can be converted to USD or EUR."));
     }
 }

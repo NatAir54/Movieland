@@ -36,7 +36,10 @@ public class MovieController {
     }
 
     @GetMapping("/{movieId}")
-    public MovieDto findById(@PathVariable int movieId) {
-        return movieService.findById(movieId);
+    public MovieDto findById(
+            @PathVariable int movieId,
+            @RequestParam(required = false, defaultValue = "UAH") String currency
+    ) {
+        return movieService.findById(movieId, currency);
     }
 }
