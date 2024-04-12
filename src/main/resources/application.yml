@@ -17,10 +17,12 @@ spring:
   flyway:
     enabled: false
 
-# intervals for update GenreCache and RateCache
+# intervals for update cache
 cache:
-  genres_interval: "0 0 0/4 * * *"
-  rates_interval: "0 0 0 */24 * *"
+  genres:
+    interval: "0 0 0/4 * * *"
+  rates:
+    interval: "0 0 0 */24 * *"
 
 logging:
   pattern:

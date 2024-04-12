@@ -8,7 +8,6 @@ import com.nataliia.koval.movieland.entity.Rate;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.scheduling.annotation.Scheduled;
 
@@ -25,28 +24,29 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @RequiredArgsConstructor
 @Cache
 public class DefaultRateCache implements RateCache {
+    private static final String EXCHANGE_RATE_BASE_URL = "https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=";
 
-    private final CopyOnWriteArrayList<Rate> cache = new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<Rate> ratesCache = new CopyOnWriteArrayList<>();
 
     private final RateRepository rateRepository;
 
     @PostConstruct
     void initCache() {
-        if(cache.isEmpty()) {
-            cache.addAll(fetchRatesFromDatabase());
+        if(ratesCache.isEmpty()) {
+            ratesCache.addAll(fetchRatesFromDatabase());
         }
     }
 
     @Override
     public double fetchRate(String currency) {
-        return cache.stream()
-                .filter(rate -> rate.getName().equalsIgnoreCase(currency))
-                .mapToDouble(Rate::getValue)
-                .findFirst()
-                .orElse(0.0);
+        return ratesCache.stream()
+            .filter(rate -> rate.getName().equalsIgnoreCase(currency))
+            .mapToDouble(Rate::getValue)
+            .findFirst()
+            .orElse(0.0);
     }
 
-    @Scheduled(cron = "${cache.rates_interval}")
+    @Scheduled(cron = "${cache.rates.interval}")
     private void updateRates() {
         List<Rate> rates = rateRepository.findAll();
         rates.forEach(rate -> {
@@ -54,13 +54,12 @@ public class DefaultRateCache implements RateCache {
             rate.setLastUpdated(LocalDateTime.now());
             rateRepository.save(rate);
         });
-        cache.clear();
-        cache.addAll(rates);
+        ratesCache.clear();
+        ratesCache.addAll(rates);
     }
 
     private double fetchRateByCurrency(String currency) {
-        String EXCHANGE_RATE_BASE_URL = "https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=";
-        try (HttpClient httpClient = HttpClient.newHttpClient()) {
+         try (HttpClient httpClient = HttpClient.newHttpClient()) {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(EXCHANGE_RATE_BASE_URL + currency.toUpperCase() + "&json"))
                     .GET()
@@ -75,13 +74,9 @@ public class DefaultRateCache implements RateCache {
     private double parseExchangeRateFromJson(String jsonResponse) {
         try {
             JSONArray jsonArray = new JSONArray(jsonResponse);
-            if (!jsonArray.isEmpty()) {
-                JSONObject jsonObject = jsonArray.getJSONObject(0);
-                return jsonObject.getDouble("rate");
-            } else {
-                throw new ConvertCurrencyException("No exchange rate data found in JSON response.");
-            }
-        } catch (JSONException e) {
+            JSONObject jsonObject = jsonArray.getJSONObject(0);
+            return jsonObject.getDouble("rate");
+        } catch (Exception e) {
             throw new ConvertCurrencyException("Error parsing exchange rate from JSON: " + e.getMessage(), e);
         }
     }

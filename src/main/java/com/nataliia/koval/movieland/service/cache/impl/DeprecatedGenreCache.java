@@ -35,7 +35,7 @@ public class DeprecatedGenreCache implements GenreCache {
         return new ArrayList<>(cache);
     }
 
-    @Scheduled(cron = "${cache.genres_interval}")
+    @Scheduled(cron = "${cache.genres.interval}")
     void updateCache() {
         lock.writeLock().lock();
         try {

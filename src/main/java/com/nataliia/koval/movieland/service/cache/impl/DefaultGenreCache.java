@@ -33,7 +33,7 @@ public class DefaultGenreCache implements GenreCache {
         return List.copyOf(cache);
     }
 
-    @Scheduled(cron = "${cache.genres_interval}")
+    @Scheduled(cron = "${cache.genres.interval}")
     void updateCache() {
         cache.clear();
         cache.addAll(fetchGenresFromDatabase());

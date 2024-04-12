@@ -1,11 +1,11 @@
 package com.nataliia.koval.movieland.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Table;
-import jakarta.persistence.GenerationType;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,5 +24,5 @@ public class User {
     @SequenceGenerator(name = "users_sequence", sequenceName = "users_id_seq", allocationSize = 20)
     private Integer id;
 
-    private String name;
+    private String nickname;
 }
