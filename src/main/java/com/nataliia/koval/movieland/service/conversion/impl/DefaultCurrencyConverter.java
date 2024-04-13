@@ -5,7 +5,6 @@ import com.nataliia.koval.movieland.service.conversion.Converter;
 import com.nataliia.koval.movieland.service.conversion.CurrencyConverter;
 import com.nataliia.koval.movieland.exception.ConvertCurrencyException;
 
-import java.util.Locale;
 import lombok.RequiredArgsConstructor;
 
 
