@@ -1,6 +1,5 @@
 package com.nataliia.koval.movieland.service.impl;
 
-import com.nataliia.koval.movieland.exception.InvalidSortingException;
 import com.nataliia.koval.movieland.service.conversion.CurrencyConverter;
 import com.nataliia.koval.movieland.service.conversion.impl.CurrencySupported;
 import com.nataliia.koval.movieland.dto.MovieDto;

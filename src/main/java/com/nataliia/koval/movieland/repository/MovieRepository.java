@@ -62,13 +62,13 @@ public interface MovieRepository extends JpaRepository<Movie, Integer> {
         validateSortingOrder(ratingOrder);
         return "asc".equalsIgnoreCase(ratingOrder) ?
                 findByGenreSortedByRatingAsc(genreId) : findByGenreSortedByRatingDesc(genreId);
-    };
+    }
 
     default List<Movie> findByGenreSortedByPrice(int genreId, String priceOrder){
         validateSortingOrder(priceOrder);
         return "asc".equalsIgnoreCase(priceOrder) ?
                 findByGenreSortedByPriceAsc(genreId) : findByGenreSortedByPriceDesc(genreId);
-    };
+    }
 
     private static void validateSortingOrder(String order) {
         if (!"asc".equalsIgnoreCase(order) && !"desc".equalsIgnoreCase(order)) {
