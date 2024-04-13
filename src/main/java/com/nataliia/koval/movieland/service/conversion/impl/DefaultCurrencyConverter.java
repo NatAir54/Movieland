@@ -24,10 +24,10 @@ public class DefaultCurrencyConverter implements CurrencyConverter {
             throw new ConvertCurrencyException("Invalid exchange rate for currency: " + currency);
         }
 
-        double convertedPrice = price / exchangeRate;
+        return roundToTwoDecimals(price / exchangeRate);
+    }
 
-        String formattedPrice = String.format(Locale.US, "%.2f", convertedPrice);
-
-        return Double.parseDouble(formattedPrice);
+    private double roundToTwoDecimals(double value) {
+        return Math.round(value * 100.0) / 100.0;
     }
 }
