@@ -1,22 +1,15 @@
 package com.nataliia.koval.movieland.service.conversion.impl;
 
 import com.nataliia.koval.movieland.exception.ConvertCurrencyException;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
 import java.util.stream.Stream;
 
-@Getter
-@AllArgsConstructor
 public enum CurrencySupported {
-    USD("USD"), EUR("EUR"), UAH("UAH");
+    UAH(), USD(), EUR();
 
-    private final String name;
 
-    public static String containsValue(String value) {
-        if (Stream.of(CurrencySupported.values()).anyMatch(currency -> currency.getName().equalsIgnoreCase(value))) {
-            return value;
+    public static void validate(String value) {
+        if (Stream.of(CurrencySupported.values()).noneMatch(currency -> currency.name().equals(value.toUpperCase()))) {
+            throw new ConvertCurrencyException("Unsupported currency: " + value + ". Price can be converted to USD or EUR.");
         }
-        throw new ConvertCurrencyException("Unsupported currency: " + value + ". Price can be converted to USD or EUR.");
     }
 }

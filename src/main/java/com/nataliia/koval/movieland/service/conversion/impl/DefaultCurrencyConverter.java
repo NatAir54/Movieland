@@ -17,10 +17,8 @@ public class DefaultCurrencyConverter implements CurrencyConverter {
 
 
     @Override
-    public double convert(double price, String currency) {
-        String currencyChecked = CurrencySupported.containsValue(currency);
-
-        double exchangeRate = rateCache.fetchRate(currencyChecked);
+    public double convert(double price, CurrencySupported currency) {
+        double exchangeRate = rateCache.fetchRate(currency);
 
         if (exchangeRate <= 0) {
             throw new ConvertCurrencyException("Invalid exchange rate for currency: " + currency);

@@ -16,6 +16,7 @@ import com.nataliia.koval.movieland.dto.UserDto;
 import com.nataliia.koval.movieland.exception.GenreNotFoundException;
 import com.nataliia.koval.movieland.exception.InvalidSortingException;
 import com.nataliia.koval.movieland.service.MovieService;
+import com.nataliia.koval.movieland.service.conversion.impl.CurrencySupported;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -230,7 +231,7 @@ class MovieControllerTest {
         int movieId = 1;
         MovieDto movie = createMovieDtos().getFirst();
 
-        String currency = "UAH";
+        CurrencySupported currency = CurrencySupported.valueOf("UAH");
 
         when(movieService.findById(movieId, currency)).thenReturn(movie);
 

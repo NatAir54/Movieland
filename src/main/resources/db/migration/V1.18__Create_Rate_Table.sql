@@ -1,8 +1,0 @@
-CREATE SEQUENCE IF NOT EXISTS rate_id_seq START WITH 1 INCREMENT BY 20;
-
-CREATE TABLE IF NOT EXISTS rate (
-    id INTEGER PRIMARY KEY DEFAULT nextval('rate_id_seq'),
-    name VARCHAR(255),
-    value NUMERIC(10,2) NOT NULL,
-    last_updated TIMESTAMP
-);

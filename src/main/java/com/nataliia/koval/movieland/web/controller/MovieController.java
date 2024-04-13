@@ -2,6 +2,7 @@ package com.nataliia.koval.movieland.web.controller;
 
 import com.nataliia.koval.movieland.dto.MovieDto;
 import com.nataliia.koval.movieland.service.MovieService;
+import com.nataliia.koval.movieland.service.conversion.impl.CurrencySupported;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,11 +36,15 @@ public class MovieController {
         return movieService.findByGenre(genreId);
     }
 
+
     @GetMapping("/{movieId}")
     public MovieDto findById(
             @PathVariable int movieId,
             @RequestParam(required = false, defaultValue = "UAH") String currency
     ) {
-        return movieService.findById(movieId, currency);
+        CurrencySupported.validate(currency);
+
+        CurrencySupported requestedCurrency = CurrencySupported.valueOf(currency.toUpperCase());
+        return movieService.findById(movieId, requestedCurrency);
     }
 }

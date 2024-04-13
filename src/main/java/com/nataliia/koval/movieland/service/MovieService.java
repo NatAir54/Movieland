@@ -2,6 +2,7 @@ package com.nataliia.koval.movieland.service;
 
 import com.nataliia.koval.movieland.dto.MovieDto;
 import com.nataliia.koval.movieland.exception.GenreNotFoundException;
+import com.nataliia.koval.movieland.service.conversion.impl.CurrencySupported;
 
 import java.util.List;
 
@@ -43,5 +44,5 @@ public interface MovieService {
      *                 the original price is returned without conversion.
      * @return MovieDto representing the movie with the specified ID.
      */
-    MovieDto findById(int movieId, String currency);
+    MovieDto findById(int movieId, CurrencySupported currency);
 }

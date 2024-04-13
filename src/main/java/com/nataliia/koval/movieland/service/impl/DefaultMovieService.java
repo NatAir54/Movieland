@@ -47,12 +47,10 @@ public class DefaultMovieService implements MovieService {
     }
 
     @Override
-    public MovieDto findById(int movieId, String currency) {
-        MovieDto movieDto = movieRepository.findById(movieId)
-                .map(movieMapper::toMovieDto)
-                .orElseThrow(() -> new MovieNotFoundException(movieId));
+    public MovieDto findById(int movieId, CurrencySupported currency) {
+        MovieDto movieDto = findMovieById(movieId);
 
-        if (currency.equalsIgnoreCase(CurrencySupported.UAH.getName())) {
+        if (currency == CurrencySupported.UAH) {
             return movieDto;
         }
 
@@ -88,6 +86,12 @@ public class DefaultMovieService implements MovieService {
 
     private boolean isInvalidSortingOrder(String order) {
         return !order.equalsIgnoreCase("asc") && !order.equalsIgnoreCase("desc");
+    }
+
+    private MovieDto findMovieById(int movieId) {
+        return movieRepository.findById(movieId)
+                .map(movieMapper::toMovieDto)
+                .orElseThrow(() -> new MovieNotFoundException(movieId));
     }
 
     private List<MovieDto> mapMoviesToDto(List<Movie> movies) {
