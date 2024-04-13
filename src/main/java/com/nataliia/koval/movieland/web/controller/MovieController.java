@@ -16,7 +16,9 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/movies")
 public class MovieController {
+
     private final MovieService movieService;
+
 
     @GetMapping
     public List<MovieDto> findAll(
@@ -26,10 +28,12 @@ public class MovieController {
         return movieService.findAll(ratingOrder, priceOrder);
     }
 
+
     @GetMapping("/random")
     public List<MovieDto> findThreeRandom() {
         return movieService.findThreeRandom();
     }
+
 
     @GetMapping("/genre/{genreId}")
     public List<MovieDto> findByGenreId(
@@ -46,9 +50,7 @@ public class MovieController {
             @PathVariable int movieId,
             @RequestParam(required = false, defaultValue = "UAH") String currency
     ) {
-        CurrencySupported.validate(currency);
-
-        CurrencySupported requestedCurrency = CurrencySupported.valueOf(currency.toUpperCase());
+        CurrencySupported requestedCurrency = CurrencySupported.validate(currency);
         return movieService.findById(movieId, requestedCurrency);
     }
 }

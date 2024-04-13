@@ -1,5 +1,6 @@
 package com.nataliia.koval.movieland.service.impl;
 
+import com.nataliia.koval.movieland.service.MovieSortingService;
 import com.nataliia.koval.movieland.service.conversion.CurrencyConverter;
 import com.nataliia.koval.movieland.service.conversion.impl.CurrencySupported;
 import com.nataliia.koval.movieland.dto.MovieDto;
@@ -22,31 +23,39 @@ public class DefaultMovieService implements MovieService {
     private final GenreRepository genreRepository;
     private final MovieMapper movieMapper;
     private final CurrencyConverter currencyConverter;
+    private final MovieSortingService movieSortingService;
+
 
     @Override
     public List<MovieDto> findAll(String ratingOrder, String priceOrder) {
+        List<Movie> movies;
         if (ratingOrder == null && priceOrder == null) {
-            return mapMoviesToDto(movieRepository.findAll());
+            movies = movieRepository.findAll();
+        } else {
+            movies = movieSortingService.findAllSorted(ratingOrder, priceOrder);
         }
-        return findAllSorted(ratingOrder, priceOrder);
+        return mapToDto(movies);
     }
 
     @Override
     public List<MovieDto> findThreeRandom() {
-        return mapMoviesToDto(movieRepository.findThreeRandom());
+        return mapToDto(movieRepository.findThreeRandom());
     }
 
     @Override
     public List<MovieDto> findByGenre(int genreId, String ratingOrder, String priceOrder) {
+        List<Movie> movies;
         if (ratingOrder == null && priceOrder == null) {
-            return mapMoviesToDto(findMoviesByGenre(genreId));
+            movies = findByGenre(genreId);
+        } else {
+            movies = movieSortingService.findByGenreSorted(genreId, ratingOrder, priceOrder);
         }
-        return findByGenreSorted(genreId, ratingOrder, priceOrder);
+        return mapToDto(movies);
     }
 
     @Override
     public MovieDto findById(int movieId, CurrencySupported currency) {
-        MovieDto movieDto = findMovieById(movieId);
+        MovieDto movieDto = findById(movieId);
 
         if (currency == CurrencySupported.UAH) {
             return movieDto;
@@ -58,34 +67,19 @@ public class DefaultMovieService implements MovieService {
         return movieDto;
     }
 
-    private List<MovieDto> findAllSorted(String ratingOrder, String priceOrder) {
-        List<Movie> sortedMovies = ratingOrder == null ?
-                movieRepository.findAllSortedByPrice(priceOrder) :
-                movieRepository.findAllSortedByRating(ratingOrder);
-        return mapMoviesToDto(sortedMovies);
-    }
-
-
-    private List<MovieDto> findByGenreSorted(int genreId, String ratingOrder, String priceOrder) {
-        List<Movie> sortedMovies = ratingOrder == null ?
-                movieRepository.findByGenreSortedByPrice(genreId, priceOrder) :
-                movieRepository.findByGenreSortedByRating(genreId, ratingOrder);
-        return mapMoviesToDto(sortedMovies);
-    }
-
-    private MovieDto findMovieById(int movieId) {
+    private MovieDto findById(int movieId) {
         return movieRepository.findById(movieId)
                 .map(movieMapper::toMovieDto)
                 .orElseThrow(() -> new MovieNotFoundException(movieId));
     }
 
-    private List<Movie> findMoviesByGenre(int genreId) {
+    private List<Movie> findByGenre(int genreId) {
         return genreRepository.findById(genreId)
                 .map(genre -> movieRepository.findByGenre(genre.getId()))
                 .orElseThrow(() -> new GenreNotFoundException(genreId));
     }
 
-    private List<MovieDto> mapMoviesToDto(List<Movie> movies) {
+    private List<MovieDto> mapToDto(List<Movie> movies) {
         return movieMapper.toMovieDtoList((movies));
     }
 }
