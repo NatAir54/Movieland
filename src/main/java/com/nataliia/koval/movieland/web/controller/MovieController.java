@@ -32,8 +32,12 @@ public class MovieController {
     }
 
     @GetMapping("/genre/{genreId}")
-    public List<MovieDto> findByGenreId(@PathVariable int genreId) {
-        return movieService.findByGenre(genreId);
+    public List<MovieDto> findByGenreId(
+            @PathVariable int genreId,
+            @RequestParam(required = false) String ratingOrder,
+            @RequestParam(required = false) String priceOrder) {
+
+        return movieService.findByGenre(genreId, ratingOrder, priceOrder);
     }
 
 

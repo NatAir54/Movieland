@@ -1,5 +1,6 @@
 package com.nataliia.koval.movieland.service.impl;
 
+import com.nataliia.koval.movieland.exception.InvalidSortingException;
 import com.nataliia.koval.movieland.service.conversion.CurrencyConverter;
 import com.nataliia.koval.movieland.service.conversion.impl.CurrencySupported;
 import com.nataliia.koval.movieland.dto.MovieDto;
@@ -37,8 +38,11 @@ public class DefaultMovieService implements MovieService {
     }
 
     @Override
-    public List<MovieDto> findByGenre(int genreId) {
-        return mapMoviesToDto(findMoviesByGenre(genreId));
+    public List<MovieDto> findByGenre(int genreId, String ratingOrder, String priceOrder) {
+        if (ratingOrder == null && priceOrder == null) {
+            return mapMoviesToDto(findMoviesByGenre(genreId));
+        }
+        return findByGenreSorted(genreId, ratingOrder, priceOrder);
     }
 
     @Override
@@ -59,6 +63,14 @@ public class DefaultMovieService implements MovieService {
         List<Movie> sortedMovies = ratingOrder == null ?
                 movieRepository.findAllSortedByPrice(priceOrder) :
                 movieRepository.findAllSortedByRating(ratingOrder);
+        return mapMoviesToDto(sortedMovies);
+    }
+
+
+    private List<MovieDto> findByGenreSorted(int genreId, String ratingOrder, String priceOrder) {
+        List<Movie> sortedMovies = ratingOrder == null ?
+                movieRepository.findByGenreSortedByPrice(genreId, priceOrder) :
+                movieRepository.findByGenreSortedByRating(genreId, ratingOrder);
         return mapMoviesToDto(sortedMovies);
     }
 

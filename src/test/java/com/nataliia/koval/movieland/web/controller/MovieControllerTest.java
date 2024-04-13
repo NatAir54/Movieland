@@ -84,7 +84,7 @@ class MovieControllerTest {
         int genreId = 1;
         List<MovieDto> movies = createMovieDtos();
 
-        when(movieService.findByGenre(genreId)).thenReturn(movies);
+        when(movieService.findByGenre(genreId, null, null)).thenReturn(movies);
 
         mockMvc.perform(get(URL + "/genre/{genreId}", genreId))
                 .andExpect(status().isOk())
@@ -99,7 +99,7 @@ class MovieControllerTest {
         int invalidGenreId = -1;
         String errorMessage = "Invalid genre ID: " + invalidGenreId + ". Genre ID should be a positive number.";
 
-        when(movieService.findByGenre(invalidGenreId)).thenThrow(new GenreNotFoundException(invalidGenreId));
+        when(movieService.findByGenre(invalidGenreId, null, null)).thenThrow(new GenreNotFoundException(invalidGenreId));
 
         mockMvc.perform(get(URL + "/genre/{genreId}", invalidGenreId))
                 .andExpect(status().isNotFound())
@@ -113,7 +113,7 @@ class MovieControllerTest {
         int nonExistingGenreId = 1000;
         String errorMessage = "Genre with specified id " + nonExistingGenreId + " not found. Check the request details.";
 
-        when(movieService.findByGenre(nonExistingGenreId)).thenThrow(new GenreNotFoundException(nonExistingGenreId));
+        when(movieService.findByGenre(nonExistingGenreId, null, null)).thenThrow(new GenreNotFoundException(nonExistingGenreId));
 
         mockMvc.perform(get(URL + "/genre/{genreId}", nonExistingGenreId))
                 .andExpect(status().isNotFound())

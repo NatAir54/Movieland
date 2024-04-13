@@ -21,9 +21,7 @@ public interface MovieRepository extends JpaRepository<Movie, Integer> {
     @Query(value = "SELECT * FROM movie ORDER BY RANDOM() LIMIT 3", nativeQuery = true)
     List<Movie> findThreeRandom();
 
-    @Query(value = "SELECT m.* FROM movie m " +
-            "INNER JOIN movie_genre mg ON m.id = mg.movie_id " +
-            "WHERE mg.genre_id = :genreId", nativeQuery = true)
+    @Query("SELECT m FROM Movie m JOIN m.genres g WHERE g.id = :genreId")
     List<Movie> findByGenre(@Param("genreId") int genreId);
 
     @Query("SELECT m FROM Movie m ORDER BY m.rating DESC")
@@ -38,6 +36,18 @@ public interface MovieRepository extends JpaRepository<Movie, Integer> {
     @Query("SELECT m FROM Movie m ORDER BY m.price ASC")
     List<Movie> findAllSortedByPriceAsc();
 
+    @Query("SELECT m FROM Movie m JOIN m.genres g WHERE g.id = :genreId ORDER BY m.rating ASC")
+    List<Movie> findByGenreSortedByRatingAsc(@Param("genreId") int genreId);
+
+    @Query("SELECT m FROM Movie m JOIN m.genres g WHERE g.id = :genreId ORDER BY m.rating DESC")
+    List<Movie> findByGenreSortedByRatingDesc(@Param("genreId") int genreId);
+
+    @Query("SELECT m FROM Movie m JOIN m.genres g WHERE g.id = :genreId ORDER BY m.price ASC")
+    List<Movie> findByGenreSortedByPriceAsc(@Param("genreId") int genreId);
+
+    @Query("SELECT m FROM Movie m JOIN m.genres g WHERE g.id = :genreId ORDER BY m.price DESC")
+    List<Movie> findByGenreSortedByPriceDesc(@Param("genreId") int genreId);
+
     default List<Movie> findAllSortedByRating(String ratingOrder) {
         validateSortingOrder(ratingOrder);
         return "asc".equalsIgnoreCase(ratingOrder) ? findAllSortedByRatingAsc() : findAllSortedByRatingDesc();
@@ -48,9 +58,21 @@ public interface MovieRepository extends JpaRepository<Movie, Integer> {
         return "asc".equalsIgnoreCase(priceOrder) ? findAllSortedByPriceAsc() : findAllSortedByPriceDesc();
     }
 
+    default List<Movie> findByGenreSortedByRating(int genreId, String ratingOrder){
+        validateSortingOrder(ratingOrder);
+        return "asc".equalsIgnoreCase(ratingOrder) ?
+                findByGenreSortedByRatingAsc(genreId) : findByGenreSortedByRatingDesc(genreId);
+    };
+
+    default List<Movie> findByGenreSortedByPrice(int genreId, String priceOrder){
+        validateSortingOrder(priceOrder);
+        return "asc".equalsIgnoreCase(priceOrder) ?
+                findByGenreSortedByPriceAsc(genreId) : findByGenreSortedByPriceDesc(genreId);
+    };
+
     private static void validateSortingOrder(String order) {
         if (!"asc".equalsIgnoreCase(order) && !"desc".equalsIgnoreCase(order)) {
-            throw new InvalidSortingException("Invalid sorting order: " + order);
+            throw new InvalidSortingException(order);
         }
     }
 }

@@ -176,7 +176,6 @@ FROM users u
 WHERE u.nickname = 'Трэвис Райт';
 
 
-
 UPDATE review r
 SET movie_id = (
     SELECT id
@@ -184,6 +183,9 @@ SET movie_id = (
     WHERE m.name_russian = r.movie_name_russian
 );
 
+
+CREATE INDEX idx_movie_rating ON movie (rating);
+CREATE INDEX idx_movie_price ON movie (price);
 
 
 
