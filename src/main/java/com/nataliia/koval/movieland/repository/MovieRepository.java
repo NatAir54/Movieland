@@ -1,6 +1,7 @@
 package com.nataliia.koval.movieland.repository;
 
 import com.nataliia.koval.movieland.entity.Movie;
+import com.nataliia.koval.movieland.exception.InvalidSortingException;
 import io.micrometer.common.lang.NonNullApi;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -36,4 +37,20 @@ public interface MovieRepository extends JpaRepository<Movie, Integer> {
 
     @Query("SELECT m FROM Movie m ORDER BY m.price ASC")
     List<Movie> findAllSortedByPriceAsc();
+
+    default List<Movie> findAllSortedByRating(String ratingOrder) {
+        validateSortingOrder(ratingOrder);
+        return "asc".equalsIgnoreCase(ratingOrder) ? findAllSortedByRatingAsc() : findAllSortedByRatingDesc();
+    }
+
+    default List<Movie> findAllSortedByPrice(String priceOrder) {
+        validateSortingOrder(priceOrder);
+        return "asc".equalsIgnoreCase(priceOrder) ? findAllSortedByPriceAsc() : findAllSortedByPriceDesc();
+    }
+
+    private static void validateSortingOrder(String order) {
+        if (!"asc".equalsIgnoreCase(order) && !"desc".equalsIgnoreCase(order)) {
+            throw new InvalidSortingException("Invalid sorting order: " + order);
+        }
+    }
 }

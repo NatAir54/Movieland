@@ -26,17 +26,12 @@ public class DefaultRateCache implements RateCache {
 
     @PostConstruct
     void initCache() {
-        if (ratesCache.isEmpty()) {
+        if(ratesCache.isEmpty()) {
             updateRates();
         }
     }
 
-    @Override
-    public double fetchRate(CurrencySupported currency) {
-        return ratesCache.getOrDefault(currency, 0.0);
-    }
-
-    @Scheduled(cron = "${cache.rates.interval}")
+    @Scheduled(cron = "${cache.rates.update.schedule}")
     private void updateRates() {
         ratesCache.clear();
         for (CurrencySupported currency : CurrencySupported.values()) {
@@ -46,6 +41,11 @@ public class DefaultRateCache implements RateCache {
             }
             ratesCache.put(currency, rate);
         }
+    }
+
+    @Override
+    public double fetchRate(CurrencySupported currency) {
+        return ratesCache.getOrDefault(currency, 0.0);
     }
 
     private double fetchRateByCurrency(String currency) {

@@ -32,10 +32,15 @@ public class DeprecatedGenreCache implements GenreCache {
 
     @Override
     public List<ImmutableGenre> retrieveGenresFromCache() {
-        return new ArrayList<>(cache);
+        lock.readLock().lock();
+        try {
+            return new ArrayList<>(cache);
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
-    @Scheduled(cron = "${cache.genres.interval}")
+    @Scheduled(cron = "${cache.genres.update.schedule}")
     void updateCache() {
         lock.writeLock().lock();
         try {
