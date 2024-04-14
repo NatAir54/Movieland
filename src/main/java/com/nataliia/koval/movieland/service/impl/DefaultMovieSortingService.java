@@ -51,16 +51,16 @@ public class DefaultMovieSortingService implements MovieSortingService {
 
     private List<Movie> sortByPrice(int genreId, String priceOrder){
         return switch (priceOrder.toLowerCase()) {
-            case "asc" -> movieRepository.findByGenreSortedByPriceAsc(genreId);
-            case "desc" -> movieRepository.findByGenreSortedByPriceDesc(genreId);
+            case "asc" -> movieRepository.findByGenreSortByPriceAsc(genreId);
+            case "desc" -> movieRepository.findByGenreSortByPriceDesc(genreId);
             default -> throw new InvalidSortingException(priceOrder);
         };
     }
 
     private List<Movie> sortByRating(int genreId, String ratingOrder){
         return switch (ratingOrder.toLowerCase()) {
-            case "asc" -> movieRepository.findByGenreSortedByRatingAsc(genreId);
-            case "desc" -> movieRepository.findByGenreSortedByRatingDesc(genreId);
+            case "asc" -> movieRepository.findByGenreSortByRatingAsc(genreId);
+            case "desc" -> movieRepository.findByGenreSortByRatingDesc(genreId);
             default -> throw new InvalidSortingException(ratingOrder);
         };
     }

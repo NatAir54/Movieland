@@ -28,12 +28,9 @@ public class DefaultMovieService implements MovieService {
 
     @Override
     public List<MovieDto> findAll(String ratingOrder, String priceOrder) {
-        List<Movie> movies;
-        if (ratingOrder == null && priceOrder == null) {
-            movies = movieRepository.findAll();
-        } else {
-            movies = movieSortingService.findAllSorted(ratingOrder, priceOrder);
-        }
+        List<Movie> movies = (ratingOrder == null && priceOrder == null) ?
+                movieRepository.findAll() :
+                movieSortingService.findAllSorted(ratingOrder, priceOrder);
         return mapToDto(movies);
     }
 
@@ -44,12 +41,9 @@ public class DefaultMovieService implements MovieService {
 
     @Override
     public List<MovieDto> findByGenre(int genreId, String ratingOrder, String priceOrder) {
-        List<Movie> movies;
-        if (ratingOrder == null && priceOrder == null) {
-            movies = findByGenre(genreId);
-        } else {
-            movies = movieSortingService.findByGenreSorted(genreId, ratingOrder, priceOrder);
-        }
+        List<Movie> movies = (ratingOrder == null && priceOrder == null) ?
+                findByGenre(genreId) :
+                movieSortingService.findByGenreSorted(genreId, ratingOrder, priceOrder);
         return mapToDto(movies);
     }
 
@@ -57,19 +51,17 @@ public class DefaultMovieService implements MovieService {
     public MovieDto findById(int movieId, CurrencySupported currency) {
         MovieDto movieDto = findById(movieId);
 
-        if (currency == CurrencySupported.UAH) {
-            return movieDto;
+        if (currency != CurrencySupported.UAH) {
+            double convertedPrice = currencyConverter.convert(movieDto.getPrice(), currency);
+            movieDto.setPrice(convertedPrice);
         }
-
-        double convertedPrice = currencyConverter.convert(movieDto.getPrice(), currency);
-        movieDto.setPrice(convertedPrice);
 
         return movieDto;
     }
 
     private MovieDto findById(int movieId) {
         return movieRepository.findById(movieId)
-                .map(movieMapper::toMovieDto)
+                .map(movieMapper::toDto)
                 .orElseThrow(() -> new MovieNotFoundException(movieId));
     }
 
@@ -80,6 +72,6 @@ public class DefaultMovieService implements MovieService {
     }
 
     private List<MovieDto> mapToDto(List<Movie> movies) {
-        return movieMapper.toMovieDtoList((movies));
+        return movieMapper.toDtoList((movies));
     }
 }

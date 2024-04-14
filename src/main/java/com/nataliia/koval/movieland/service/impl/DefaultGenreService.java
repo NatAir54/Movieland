@@ -23,6 +23,6 @@ public class DefaultGenreService implements GenreService {
     }
 
     private List<GenreDto> mapGenresToDto(List<ImmutableGenre> genres) {
-        return genreMapper.toGenreDtoList(genres);
+        return genreMapper.toDtoList(genres);
     }
 }
