@@ -19,10 +19,10 @@ public class DefaultGenreService implements GenreService {
 
     @Override
     public List<GenreDto> findAll() {
-        return mapGenresToDto(genreCache.retrieveGenresFromCache());
+        return mapToDtoList(genreCache.getAll());
     }
 
-    private List<GenreDto> mapGenresToDto(List<ImmutableGenre> genres) {
+    private List<GenreDto> mapToDtoList(List<ImmutableGenre> genres) {
         return genreMapper.toDtoList(genres);
     }
 }

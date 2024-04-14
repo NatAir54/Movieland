@@ -19,27 +19,27 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class DefaultGenreCache implements GenreCache {
 
     private final GenreRepository genreRepository;
-    private final CopyOnWriteArrayList<ImmutableGenre> cache = new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<ImmutableGenre> genresCache = new CopyOnWriteArrayList<>();
 
     @PostConstruct
     void initCache() {
-        if(cache.isEmpty()) {
-            cache.addAll(fetchGenresFromDatabase());
+        if(genresCache.isEmpty()) {
+            genresCache.addAll(fetchGenresFromRepository());
         }
     }
 
     @Override
-    public List<ImmutableGenre> retrieveGenresFromCache() {
-        return List.copyOf(cache);
+    public List<ImmutableGenre> getAll() {
+        return List.copyOf(genresCache);
     }
 
     @Scheduled(cron = "${cache.genres.update.schedule}")
     void updateCache() {
-        cache.clear();
-        cache.addAll(fetchGenresFromDatabase());
+        genresCache.clear();
+        genresCache.addAll(fetchGenresFromRepository());
     }
 
-    private List<ImmutableGenre> fetchGenresFromDatabase() {
+    private List<ImmutableGenre> fetchGenresFromRepository() {
         return new ArrayList<>(genreRepository.findAll());
     }
 }

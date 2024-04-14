@@ -12,5 +12,5 @@ public interface GenreCache {
      *
      * @return List of ImmutableGenre objects representing the genres retrieved from the cache.
      */
-    List<ImmutableGenre> retrieveGenresFromCache();
+    List<ImmutableGenre> getAll();
 }

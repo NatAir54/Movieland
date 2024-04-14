@@ -31,7 +31,7 @@ public class DeprecatedGenreCache implements GenreCache {
     }
 
     @Override
-    public List<ImmutableGenre> retrieveGenresFromCache() {
+    public List<ImmutableGenre> getAll() {
         lock.readLock().lock();
         try {
             return new ArrayList<>(cache);

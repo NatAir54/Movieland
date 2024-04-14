@@ -7,15 +7,15 @@ public enum CurrencySupported {
     UAH(), USD(), EUR();
 
 
-    public static CurrencySupported validate(String value) {
-        String valueValidated = value.toUpperCase();
-
-        boolean isNotSupportedCurrency = Stream.of(CurrencySupported.values())
-                .noneMatch(currency -> currency.name().equals(valueValidated));
-
-        if (isNotSupportedCurrency) {
+    public static CurrencySupported parseCurrency(String value) {
+        if (isNotSupportedCurrency(value)) {
             throw new ConvertCurrencyException("Unsupported currency: " + value + ". Price can be converted to USD or EUR.");
         }
-        return CurrencySupported.valueOf(valueValidated);
+        return CurrencySupported.valueOf(value);
+    }
+
+    private static boolean isNotSupportedCurrency(String value) {
+        return Stream.of(values())
+                .noneMatch(currency -> currency.name().equals(value));
     }
 }

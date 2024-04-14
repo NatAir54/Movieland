@@ -16,7 +16,7 @@ public interface MovieSortingService {
      * @param priceOrder  The order in which movies should be sorted by price. Can be "asc" for ascending or "desc" for descending. Null if no sorting by price is required.
      * @return A list of movies sorted according to the specified criteria.
      */
-    List<Movie> findAllSorted(String ratingOrder, String priceOrder);
+    List<Movie> findAllSortByPriceOrRating(String ratingOrder, String priceOrder);
 
     /**
      * Retrieves movies of a specific genre sorted according to the provided rating and price order.
@@ -26,5 +26,5 @@ public interface MovieSortingService {
      * @param priceOrder  The order in which movies should be sorted by price. Can be "asc" for ascending or "desc" for descending. Null if no sorting by price is required.
      * @return A list of movies belonging to the specified genre, sorted according to the specified criteria.
      */
-    List<Movie> findByGenreSorted(int genreId, String ratingOrder, String priceOrder);
+    List<Movie> findByGenreSortByPriceOrRating(int genreId, String ratingOrder, String priceOrder);
 }

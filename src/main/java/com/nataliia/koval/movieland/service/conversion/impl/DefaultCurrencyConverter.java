@@ -1,6 +1,6 @@
 package com.nataliia.koval.movieland.service.conversion.impl;
 
-import com.nataliia.koval.movieland.service.cache.RateCache;
+import com.nataliia.koval.movieland.service.cache.CurrencyRateCache;
 import com.nataliia.koval.movieland.service.conversion.Converter;
 import com.nataliia.koval.movieland.service.conversion.CurrencyConverter;
 import com.nataliia.koval.movieland.exception.ConvertCurrencyException;
@@ -12,18 +12,20 @@ import lombok.RequiredArgsConstructor;
 @Converter
 public class DefaultCurrencyConverter implements CurrencyConverter {
 
-    private final RateCache rateCache;
+    private final CurrencyRateCache rateCache;
 
 
     @Override
     public double convert(double price, CurrencySupported currency) {
-        double exchangeRate = rateCache.fetchRate(currency);
-
-        if (exchangeRate <= 0) {
+        double exchangeRate = rateCache.getExchangeRate(currency);
+        if (isInvalidExchangeRate(exchangeRate)) {
             throw new ConvertCurrencyException("Invalid exchange rate for currency: " + currency);
         }
-
         return roundToTwoDecimals(price / exchangeRate);
+    }
+
+    private boolean isInvalidExchangeRate(double exchangeRate) {
+        return exchangeRate <= 0;
     }
 
     private double roundToTwoDecimals(double value) {

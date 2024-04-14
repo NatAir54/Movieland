@@ -36,7 +36,7 @@ class DefaultGenreCacheTest {
 
         genreCache.updateCache();
 
-        assertEquals(freshGenres, genreCache.retrieveGenresFromCache());
+        assertEquals(freshGenres, genreCache.getAll());
     }
 
     @Test
@@ -47,7 +47,7 @@ class DefaultGenreCacheTest {
 
         genreCache.initCache();
 
-        assertEquals(freshGenres, genreCache.retrieveGenresFromCache());
+        assertEquals(freshGenres, genreCache.getAll());
     }
 
     private List<Genre> createGenre() {

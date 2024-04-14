@@ -30,21 +30,21 @@ public class DefaultMovieService implements MovieService {
     public List<MovieDto> findAll(String ratingOrder, String priceOrder) {
         List<Movie> movies = (ratingOrder == null && priceOrder == null) ?
                 movieRepository.findAll() :
-                movieSortingService.findAllSorted(ratingOrder, priceOrder);
-        return mapToDto(movies);
+                movieSortingService.findAllSortByPriceOrRating(ratingOrder, priceOrder);
+        return mapToDtoList(movies);
     }
 
     @Override
     public List<MovieDto> findThreeRandom() {
-        return mapToDto(movieRepository.findThreeRandom());
+        return mapToDtoList(movieRepository.findThreeRandom());
     }
 
     @Override
     public List<MovieDto> findByGenre(int genreId, String ratingOrder, String priceOrder) {
         List<Movie> movies = (ratingOrder == null && priceOrder == null) ?
                 findByGenre(genreId) :
-                movieSortingService.findByGenreSorted(genreId, ratingOrder, priceOrder);
-        return mapToDto(movies);
+                movieSortingService.findByGenreSortByPriceOrRating(genreId, ratingOrder, priceOrder);
+        return mapToDtoList(movies);
     }
 
     @Override
@@ -71,7 +71,7 @@ public class DefaultMovieService implements MovieService {
                 .orElseThrow(() -> new GenreNotFoundException(genreId));
     }
 
-    private List<MovieDto> mapToDto(List<Movie> movies) {
+    private List<MovieDto> mapToDtoList(List<Movie> movies) {
         return movieMapper.toDtoList((movies));
     }
 }
