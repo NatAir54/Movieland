@@ -6,14 +6,12 @@ import com.nataliia.koval.movieland.service.cache.ImmutableGenre;
 import com.nataliia.koval.movieland.repository.GenreRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Primary;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-@Primary
 @RequiredArgsConstructor
 @Cache
 public class DefaultGenreCache implements GenreCache {

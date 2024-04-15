@@ -1,11 +1,6 @@
 package com.nataliia.koval.movieland.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,4 +20,9 @@ public class User {
     private Integer id;
 
     private String nickname;
+
+    private String email;
+
+    @Column(name = "password_hash")
+    private String passwordHash;
 }
