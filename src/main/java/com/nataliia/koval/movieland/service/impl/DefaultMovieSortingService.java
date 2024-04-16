@@ -18,50 +18,31 @@ public class DefaultMovieSortingService implements MovieSortingService {
 
 
     @Override
-    public List<Movie> findAllSorted(String ratingOrder, String priceOrder) {
+    public List<Movie> findAllSortByPriceOrRating(String ratingOrder, String priceOrder) {
         return ratingOrder == null ?
-                sortByPrice(priceOrder) :
-                sortByRating(ratingOrder);
+                sortBy("price", priceOrder) :
+                sortBy("rating", ratingOrder);
     }
 
     @Override
-    public List<Movie> findByGenreSorted(int genreId, String ratingOrder, String priceOrder) {
-        return ratingOrder == null ?
-                sortByPrice(genreId, priceOrder) :
-                sortByRating(genreId, ratingOrder);
+    public List<Movie> findByGenreSortByPriceOrRating(int genreId, String ratingOrder, String priceOrder) {
+        String order = (ratingOrder == null) ? priceOrder : ratingOrder;
+
+        return switch (order.toLowerCase()) {
+            case "asc" -> (ratingOrder == null) ? movieRepository.findByGenreSortByPriceAsc(genreId) :
+                    movieRepository.findByGenreSortByRatingAsc(genreId);
+            case "desc" -> (ratingOrder == null) ? movieRepository.findByGenreSortByPriceDesc(genreId) :
+                    movieRepository.findByGenreSortByRatingDesc(genreId);
+            default -> throw new InvalidSortingException(order);
+        };
     }
 
-    private List<Movie> sortByPrice(String priceOrder) {
-        Sort sort = switch (priceOrder.toLowerCase()) {
-            case "asc" -> Sort.by("price").ascending();
-            case "desc" -> Sort.by("price").descending();
-            default -> throw new InvalidSortingException(priceOrder);
+    private List<Movie> sortBy(String field, String order) {
+        Sort sort = switch (order.toLowerCase()) {
+            case "asc" -> Sort.by(field).ascending();
+            case "desc" -> Sort.by(field).descending();
+            default -> throw new InvalidSortingException(order);
         };
         return movieRepository.findAll(sort);
-    }
-
-    private List<Movie> sortByRating(String ratingOrder) {
-        Sort sort = switch (ratingOrder.toLowerCase()) {
-            case "asc" -> Sort.by("rating").ascending();
-            case "desc" -> Sort.by("rating").descending();
-            default -> throw new InvalidSortingException(ratingOrder);
-        };
-        return movieRepository.findAll(sort);
-    }
-
-    private List<Movie> sortByPrice(int genreId, String priceOrder){
-        return switch (priceOrder.toLowerCase()) {
-            case "asc" -> movieRepository.findByGenreSortByPriceAsc(genreId);
-            case "desc" -> movieRepository.findByGenreSortByPriceDesc(genreId);
-            default -> throw new InvalidSortingException(priceOrder);
-        };
-    }
-
-    private List<Movie> sortByRating(int genreId, String ratingOrder){
-        return switch (ratingOrder.toLowerCase()) {
-            case "asc" -> movieRepository.findByGenreSortByRatingAsc(genreId);
-            case "desc" -> movieRepository.findByGenreSortByRatingDesc(genreId);
-            default -> throw new InvalidSortingException(ratingOrder);
-        };
     }
 }

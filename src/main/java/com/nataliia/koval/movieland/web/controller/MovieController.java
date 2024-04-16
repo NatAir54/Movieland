@@ -50,7 +50,7 @@ public class MovieController {
             @PathVariable int movieId,
             @RequestParam(required = false, defaultValue = "UAH") String currency
     ) {
-        CurrencySupported requestedCurrency = CurrencySupported.validate(currency);
+        CurrencySupported requestedCurrency = CurrencySupported.parseCurrency(currency.toUpperCase());
         return movieService.findById(movieId, requestedCurrency);
     }
 }

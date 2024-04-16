@@ -40,7 +40,7 @@ class DefaultGenreCacheITest {
     @Test
     @DisplayName("Cache initialization should initialize cache with genres from the database")
     void testCacheInitialization() {
-        List<ImmutableGenre> cachedGenres = genreCache.retrieveGenresFromCache();
+        List<ImmutableGenre> cachedGenres = genreCache.getAll();
 
         Assertions.assertEquals(15, cachedGenres.size());
         Assertions.assertEquals("драма", cachedGenres.get(0).getName());
@@ -57,11 +57,11 @@ class DefaultGenreCacheITest {
     @SneakyThrows
     @DisplayName("Cache should update after the specified interval")
     void testCacheUpdate() {
-        List<ImmutableGenre> initialCachedGenres = genreCache.retrieveGenresFromCache();
+        List<ImmutableGenre> initialCachedGenres = genreCache.getAll();
 
         Thread.sleep(5000);
 
-        List<ImmutableGenre> updatedCachedGenres = genreCache.retrieveGenresFromCache();
+        List<ImmutableGenre> updatedCachedGenres = genreCache.getAll();
 
         Assertions.assertNotSame(initialCachedGenres, updatedCachedGenres);
     }
@@ -69,8 +69,8 @@ class DefaultGenreCacheITest {
     @Test
     @DisplayName("Cache should remain consistent between serial calls within update interval")
     void testCacheConsistency() {
-        List<ImmutableGenre> cachedGenres1 = genreCache.retrieveGenresFromCache();
-        List<ImmutableGenre> cachedGenres2 = genreCache.retrieveGenresFromCache();
+        List<ImmutableGenre> cachedGenres1 = genreCache.getAll();
+        List<ImmutableGenre> cachedGenres2 = genreCache.getAll();
 
         Assertions.assertEquals(cachedGenres1, cachedGenres2);
     }

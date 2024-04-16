@@ -2,7 +2,7 @@ package com.nataliia.koval.movieland.service.cache.impl;
 
 import com.nataliia.koval.movieland.exception.ConvertCurrencyException;
 import com.nataliia.koval.movieland.service.cache.Cache;
-import com.nataliia.koval.movieland.service.cache.RateCache;
+import com.nataliia.koval.movieland.service.cache.CurrencyRateCache;
 import com.nataliia.koval.movieland.service.conversion.impl.CurrencySupported;
 import jakarta.annotation.PostConstruct;
 import org.json.JSONArray;
@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 
 @Cache
-public class DefaultRateCache implements RateCache {
+public class DefaultCurrencyRateCache implements CurrencyRateCache {
 
     private static final String EXCHANGE_RATE_BASE_URL = "https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=";
 
@@ -44,7 +44,7 @@ public class DefaultRateCache implements RateCache {
     }
 
     @Override
-    public double fetchRate(CurrencySupported currency) {
+    public double getExchangeRate(CurrencySupported currency) {
         return ratesCache.getOrDefault(currency, 0.0);
     }
 
