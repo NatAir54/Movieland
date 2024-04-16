@@ -1,15 +1,15 @@
 package com.nataliia.koval.movieland.service.conversion.impl;
 
 import com.nataliia.koval.movieland.service.cache.CurrencyRateCache;
-import com.nataliia.koval.movieland.service.conversion.Converter;
 import com.nataliia.koval.movieland.service.conversion.CurrencyConverter;
 import com.nataliia.koval.movieland.exception.ConvertCurrencyException;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 
 @RequiredArgsConstructor
-@Converter
+@Component
 public class DefaultCurrencyConverter implements CurrencyConverter {
 
     private final CurrencyRateCache rateCache;

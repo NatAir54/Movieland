@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class DefaultUserService implements UserService {
     private final UserRepository userRepository;
-    private final PasswordValidationService passwordUtils;
+    private final PasswordValidationService passwordValidationService;
 
 
     @Override
@@ -27,7 +27,7 @@ public class DefaultUserService implements UserService {
         String storedPasswordHash = getUserPasswordHashByEmail(email);
 
         if (storedPasswordHash != null) {
-            boolean passwordMatches = passwordUtils.verifyPassword(password, storedPasswordHash);
+            boolean passwordMatches = passwordValidationService.verifyPassword(password, storedPasswordHash);
             return !passwordMatches;
         }
         return false;

@@ -1,9 +1,6 @@
 package com.nataliia.koval.movieland.web.controller.advice;
 
-import com.nataliia.koval.movieland.exception.ConvertCurrencyException;
-import com.nataliia.koval.movieland.exception.GenreNotFoundException;
-import com.nataliia.koval.movieland.exception.InvalidSortingException;
-import com.nataliia.koval.movieland.exception.MovieNotFoundException;
+import com.nataliia.koval.movieland.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -19,6 +16,13 @@ public class ControllerExceptionHandler {
         String errorMessage = ex.getMessage();
         Map<String, String> errors = Map.of("error_message", errorMessage);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errors);
+    }
+
+    @ExceptionHandler(AuthException.class)
+    public ResponseEntity<Map<String, String>> handleAuthException(AuthException ex) {
+        String errorMessage = ex.getMessage();
+        Map<String, String> errors = Map.of("error_message", errorMessage);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 
     @ExceptionHandler(InvalidSortingException.class)

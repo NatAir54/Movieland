@@ -6,6 +6,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import jakarta.annotation.PostConstruct;
@@ -15,7 +16,9 @@ import java.util.Date;
 @RequiredArgsConstructor
 @Service
 public class DefaultSecurityTokenService implements SecurityTokenService {
-    private static final long TOKEN_EXPIRATION_TIME = 2 * 60 * 60 * 1000; // 2 hours in milliseconds
+    @Value("${token.expiration.time}")
+    private long tokenExpirationTime;
+
     private final TokenCache<String, String> tokenCache;
     private SecretKey secretKey;
 
@@ -27,25 +30,22 @@ public class DefaultSecurityTokenService implements SecurityTokenService {
 
     @Override
     public String generateAndStoreTokenInCache(String email) {
-        String token = Jwts.builder()
-                .setSubject(email)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + TOKEN_EXPIRATION_TIME))
-                .signWith(secretKey)
-                .compact();
-
+        String token = generateToken(email);
         tokenCache.put(token, email);
         return token;
     }
 
     @Override
-    public boolean isTokenInvalid(String token) {
-        return tokenCache.isTokenInvalid(token);
-    }
-
-    @Override
     public void invalidateToken(String token) {
         tokenCache.remove(token);
+    }
+
+    private String generateToken(String email) {
+        return Jwts.builder()
+                .setSubject(email)
+                .setExpiration(new Date(System.currentTimeMillis() + tokenExpirationTime))
+                .signWith(secretKey)
+                .compact();
     }
 
     private SecretKey generateSecretKey() {

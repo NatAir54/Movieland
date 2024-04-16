@@ -1,18 +1,18 @@
 package com.nataliia.koval.movieland.web.controller;
 
+import com.nataliia.koval.movieland.exception.AuthException;
 import com.nataliia.koval.movieland.service.SecurityTokenService;
 import com.nataliia.koval.movieland.service.UserService;
 import com.nataliia.koval.movieland.web.controller.entity.LoginRequest;
 import com.nataliia.koval.movieland.web.controller.entity.LoginResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,33 +23,25 @@ public class AuthController {
 
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
         String email = loginRequest.email();
         String password = loginRequest.password();
 
         if (userService.isInvalidUser(email, password)) {
-            return ResponseEntity.badRequest().body("Invalid user details. Check email and password");
+            throw new AuthException("Wrong combination of login/password. Check the request details please!");
         }
 
-        String token = securityTokenService.generateAndStoreTokenInCache(email);
-        if (token == null) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to generate token.");
-        }
+        String uuid = securityTokenService.generateAndStoreTokenInCache(email);
 
         String nickname = userService.getUserNickname(email);
-        return ResponseEntity.ok(new LoginResponse(token, nickname));
+        return ResponseEntity.ok(new LoginResponse(uuid, nickname));
     }
 
-    @DeleteMapping("/logout/{uuid}")
-    public ResponseEntity<?> logout(@PathVariable String uuid) {
+    @DeleteMapping("/logout")
+    public ResponseEntity<String> logout(@RequestHeader("uuid") String uuid) {
         if (uuid == null || uuid.isEmpty()) {
-            return ResponseEntity.badRequest().body("UUID is required in the request header.");
+            throw new AuthException("UUID is required in the request header.");
         }
-
-        if (securityTokenService.isTokenInvalid(uuid)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired token.");
-        }
-
         securityTokenService.invalidateToken(uuid);
         return ResponseEntity.ok().build();
     }
