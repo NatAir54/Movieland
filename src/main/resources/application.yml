@@ -25,6 +25,12 @@ cache:
     update:
       schedule: "0 0 */4 * * *"
 
+token:
+  expiration:
+    time: 7200000
+    check:
+      interval: 300000
+
 logging:
   pattern:
     level: "DEBUG"
