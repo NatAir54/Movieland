@@ -1,43 +1,57 @@
 package com.nataliia.koval.movieland.service.cache.impl;
 
+import com.nataliia.koval.movieland.dto.GenreDto;
+import com.nataliia.koval.movieland.mapper.GenreMapper;
 import com.nataliia.koval.movieland.service.cache.Cache;
 import com.nataliia.koval.movieland.service.cache.GenreCache;
-import com.nataliia.koval.movieland.service.cache.ImmutableGenre;
 import com.nataliia.koval.movieland.repository.GenreRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 
+import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 @RequiredArgsConstructor
 @Cache
 public class DefaultGenreCache implements GenreCache {
 
     private final GenreRepository genreRepository;
-    private final CopyOnWriteArrayList<ImmutableGenre> genresCache = new CopyOnWriteArrayList<>();
+    private final GenreMapper genreMapper;
+    private List<SoftReference<GenreDto>> genresCache = new ArrayList<>();
 
     @PostConstruct
     void initCache() {
-        if(genresCache.isEmpty()) {
-            genresCache.addAll(fetchGenresFromRepository());
+        List<GenreDto> fetchedGenres = fetchGenresFromRepository();
+        for (GenreDto genre : fetchedGenres) {
+            genresCache.add(new SoftReference<>(genre));
         }
     }
 
     @Override
-    public List<ImmutableGenre> getAll() {
-        return List.copyOf(genresCache);
+    public List<GenreDto> getAll() {
+        List<GenreDto> result = new ArrayList<>();
+        for (SoftReference<GenreDto> softRef : genresCache) {
+            GenreDto genre = softRef.get();
+            if (genre != null) {
+                result.add(genre);
+            }
+        }
+        return result;
     }
 
-    @Scheduled(cron = "${cache.genres.update.schedule}")
+    @Scheduled(fixedDelayString = "${cache.genres.update.schedule}")
     void updateCache() {
-        genresCache.clear();
-        genresCache.addAll(fetchGenresFromRepository());
+        List<GenreDto> fetchedGenres = fetchGenresFromRepository();
+        List<SoftReference<GenreDto>> genresUpdated = new ArrayList<>();
+        for (GenreDto genre : fetchedGenres) {
+            genresUpdated.add(new SoftReference<>(genre));
+        }
+        genresCache = genresUpdated;
     }
 
-    private List<ImmutableGenre> fetchGenresFromRepository() {
-        return new ArrayList<>(genreRepository.findAll());
+    private List<GenreDto> fetchGenresFromRepository() {
+        return genreMapper.toDtoList(genreRepository.findAll());
     }
 }

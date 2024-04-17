@@ -1,8 +1,8 @@
 package com.nataliia.koval.movieland.service.cache.impl;
 
 
+import com.nataliia.koval.movieland.dto.GenreDto;
 import com.nataliia.koval.movieland.repository.GenreRepository;
-import com.nataliia.koval.movieland.service.cache.ImmutableGenre;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -35,12 +35,13 @@ class DefaultGenreCacheITest {
     private DefaultGenreCache genreCache;
 
     @Autowired
-    private GenreRepository genreRepository;
+    private GenreRepository genreRepository; // TODO I we need this?
+
 
     @Test
     @DisplayName("Cache initialization should initialize cache with genres from the database")
     void testCacheInitialization() {
-        List<ImmutableGenre> cachedGenres = genreCache.getAll();
+        List<GenreDto> cachedGenres = genreCache.getAll();
 
         Assertions.assertEquals(15, cachedGenres.size());
         Assertions.assertEquals("драма", cachedGenres.get(0).getName());
@@ -57,11 +58,11 @@ class DefaultGenreCacheITest {
     @SneakyThrows
     @DisplayName("Cache should update after the specified interval")
     void testCacheUpdate() {
-        List<ImmutableGenre> initialCachedGenres = genreCache.getAll();
+        List<GenreDto> initialCachedGenres = genreCache.getAll();
 
         Thread.sleep(5000);
 
-        List<ImmutableGenre> updatedCachedGenres = genreCache.getAll();
+        List<GenreDto> updatedCachedGenres = genreCache.getAll();
 
         Assertions.assertNotSame(initialCachedGenres, updatedCachedGenres);
     }
@@ -69,8 +70,8 @@ class DefaultGenreCacheITest {
     @Test
     @DisplayName("Cache should remain consistent between serial calls within update interval")
     void testCacheConsistency() {
-        List<ImmutableGenre> cachedGenres1 = genreCache.getAll();
-        List<ImmutableGenre> cachedGenres2 = genreCache.getAll();
+        List<GenreDto> cachedGenres1 = genreCache.getAll();
+        List<GenreDto> cachedGenres2 = genreCache.getAll();
 
         Assertions.assertEquals(cachedGenres1, cachedGenres2);
     }

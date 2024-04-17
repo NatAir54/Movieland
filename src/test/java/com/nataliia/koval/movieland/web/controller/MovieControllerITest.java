@@ -1,353 +1,276 @@
 package com.nataliia.koval.movieland.web.controller;
 
-import com.nataliia.koval.movieland.dto.MovieDto;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.HttpClientErrorException;
-import org.testcontainers.shaded.com.fasterxml.jackson.core.type.TypeReference;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlGroup;
+import org.springframework.test.web.servlet.MockMvc;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Objects;
+import static org.assertj.core.api.AssertionsForClassTypes.not;
+import static org.hamcrest.Matchers.equalTo;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest
+@Testcontainers
+@AutoConfigureMockMvc
+@SqlGroup({
+        @Sql(scripts = "classpath:db/initialize_movie_data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD),
+        @Sql(scripts = "classpath:db/remove_movie_data.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+})
 class MovieControllerITest {
+
     private static final String URL = "/api/v1/movies";
 
+    @Container
+    @ServiceConnection
+    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15.3");
+
     @Autowired
-    private TestRestTemplate testRestTemplate;
+    private MockMvc mockMvc;
 
     @Test
-    @DisplayName("Integration test for GET /api/v1/movies")
-    void findAll_shouldReturnStatusOkAndContentTypeApplicationJson() {
-        ResponseEntity<List<MovieDto>> responseEntity = testRestTemplate.exchange(
-                URL,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<>() {
-                });
-
-        Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        Assertions.assertTrue(Objects.requireNonNull(responseEntity.getHeaders().getContentType())
-                .isCompatibleWith(MediaType.APPLICATION_JSON));
-
-        List<MovieDto> movies = responseEntity.getBody();
-        Assertions.assertNotNull(movies);
-        Assertions.assertFalse(movies.isEmpty());
+    @DisplayName("Find all movies - should return list of all movies.")
+    void findAll_shouldReturnListOfAllMovies() throws Exception {
+        mockMvc.perform(get(URL))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(4));
     }
 
     @Test
-    @DisplayName("Integration test for GET /api/v1/movies/random")
-    void findThreeRandom_shouldReturnStatusOkAndContentTypeApplicationJson() {
-        ResponseEntity<List<MovieDto>> responseEntity = testRestTemplate.exchange(
-                URL + "/random",
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<>() {
-                });
-
-        Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        Assertions.assertTrue(Objects.requireNonNull(responseEntity.getHeaders().getContentType())
-                .isCompatibleWith(MediaType.APPLICATION_JSON));
-
-        List<MovieDto> movies = responseEntity.getBody();
-        Assertions.assertNotNull(movies);
-        Assertions.assertEquals(3, movies.size());
+    @DisplayName("Find all movies - should return correct movie details.")
+    void findAll_shouldReturnCorrectMovieDetails() throws Exception {
+        mockMvc.perform(get(URL))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$[0].nameRussian").value("Побег из Шоушенка"))
+                .andExpect(jsonPath("$[0].nameNative").value("The Shawshank Redemption"))
+                .andExpect(jsonPath("$[0].yearOfRelease").value("1994"))
+                .andExpect(jsonPath("$[0].description").value("Успешный банкир Энди Дюфрейн обвинен в убийстве собственной жены и ее любовника. Оказавшись в тюрьме под названием Шоушенк, он сталкивается с жестокостью и беззаконием, царящими по обе стороны решетки. Каждый, кто попадает в эти стены, становится их рабом до конца жизни. Но Энди, вооруженный живым умом и доброй душой, отказывается мириться с приговором судьбы и начинает разрабатывать невероятно дерзкий план своего освобождения."))
+                .andExpect(jsonPath("$[0].rating").value(8.9))
+                .andExpect(jsonPath("$[0].price").value(123.45))
+                .andExpect(jsonPath("$[0].picturePath").value("https://images-na.ssl-images-amazon.com/images/M/MV5BODU4MjU4NjIwNl5BMl5BanBnXkFtZTgwMDU2MjEyMDE@._V1._SY209_CR0,0,140,209_.jpg"))
+                .andExpect(jsonPath("$[0].countries[0].name").value("США"))
+                .andExpect(jsonPath("$[0].genres[0].name").value("криминал"))
+                .andExpect(jsonPath("$[0].reviews").isArray())
+                .andExpect(jsonPath("$[0].reviews[0].userId").exists());
     }
 
     @Test
-    @DisplayName("Integration test for GET /api/v1/movies/genre/{genreId}")
-    void findByGenre_shouldReturnStatusOkAndContentTypeApplicationJson() {
+    @DisplayName("Find three random movies - should return list of three random movies.")
+    void findThreeRandom_shouldReturnListOfThreeRandomMovies() throws Exception {
+        mockMvc.perform(get(URL + "/random"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(3));
+    }
+
+    @Test
+    @DisplayName("Find movies by genre - should return list of movies by genre with valid id.")
+    void findByGenre_shouldReturnListOfMoviesByGenre() throws Exception {
         int genreId = 1;
-
-        ResponseEntity<List<MovieDto>> responseEntity = testRestTemplate.exchange(
-                URL + "/genre/{genreId}",
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<>() {
-                },
-                genreId);
-
-        Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        Assertions.assertTrue(Objects.requireNonNull(responseEntity.getHeaders().getContentType())
-                .isCompatibleWith(MediaType.APPLICATION_JSON));
-
-        List<MovieDto> movies = responseEntity.getBody();
-        Assertions.assertNotNull(movies);
-        Assertions.assertEquals(16, movies.size());
+        mockMvc.perform(get(URL + "/genre/" + genreId))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(4));
     }
 
     @Test
-    @DisplayName("Integration test for handling GenreNotFoundException with non-existing genre ID")
-    void handleGenreNotFoundException_withNonExistingGenreId() {
-        int nonExistingGenreId = 1000;
-
-        ResponseEntity<String> responseEntity = testRestTemplate.getForEntity(
-                URL + "/genre/{genreId}",
-                String.class,
-                nonExistingGenreId);
-
-        Assertions.assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
-        Assertions.assertTrue(Objects.requireNonNull(responseEntity.getBody()).contains("Genre with specified id " + nonExistingGenreId + " not found"));
+    @DisplayName("Find movies by genre with invalid genre ID - should return error message with invalid genre id.")
+    void findByGenre_withInvalidGenreId_shouldReturnNotFoundAndEmptyList() throws Exception {
+        int invalidGenreId = -1;
+        String errorMessage = "Invalid genre ID: " + invalidGenreId + ". Genre ID should be a positive number.";
+        mockMvc.perform(get(URL + "/genre/" + invalidGenreId))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.error_message").value(errorMessage));
     }
 
     @Test
-    @DisplayName("Integration test for handling GenreNotFoundException with invalid genre ID")
-    void handleGenreNotFoundException_withInvalidGenreId() {
-         int invalidGenreId = -1;
-
-        ResponseEntity<String> responseEntity = testRestTemplate.getForEntity(
-                URL + "/genre/{genreId}",
-                String.class,
-                invalidGenreId);
-
-        Assertions.assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
-        Assertions.assertTrue(Objects.requireNonNull(responseEntity.getBody()).contains("Invalid genre ID: " + invalidGenreId));
+    @DisplayName("Find movies by genre - should return error message when genre ID does not exist.")
+    void findByGenre_withNonExistentGenreId_shouldThrowGenreNotFoundException() throws Exception {
+        int nonExistentGenreId = 1000;
+        String errorMessage = "Genre with specified id " + nonExistentGenreId + " not found. Check the request details.";
+        mockMvc.perform(get(URL + "/genre/" + nonExistentGenreId))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.error_message").value(errorMessage));
     }
 
     @Test
-    @DisplayName("Integration test for GET /api/v1/movies sorted by rating in ascending order")
-    void findAllSortedByRatingAsc_shouldReturnSortedMoviesByRatingAsc() throws IOException {
-        ResponseEntity<String> responseEntity = testRestTemplate.exchange(
-                URL + "?ratingOrder=asc",
-                HttpMethod.GET,
-                null,
-                String.class);
-
-        Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        Assertions.assertTrue(Objects.requireNonNull(responseEntity.getHeaders().getContentType())
-                .isCompatibleWith(MediaType.APPLICATION_JSON));
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        List<MovieDto> movies = objectMapper.readValue(responseEntity.getBody(), new TypeReference<List<MovieDto>>() {});
-        Assertions.assertNotNull(movies);
-        Assertions.assertFalse(movies.isEmpty());
-
-        double previousRating = Double.MIN_VALUE;
-        for (MovieDto movie : movies) {
-            Assertions.assertTrue(movie.getRating() >= previousRating);
-            previousRating = movie.getRating();
-        }
+    @DisplayName("Find all movies sorted by rating in ascending order")
+    void findAllSortedByRatingAsc() throws Exception {
+        mockMvc.perform(get(URL + "?ratingOrder=asc"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(4))
+                .andExpect(jsonPath("$[0].rating").value(8.6))
+                .andExpect(jsonPath("$[0].rating").value(8.7))
+                .andExpect(jsonPath("$[0].rating").value(8.9))
+                .andExpect(jsonPath("$[3].rating").value(8.9));
     }
 
     @Test
-    @DisplayName("Integration test for GET /api/v1/movies sorted by rating in descending order")
-    void findAllSortedByRatingDesc_shouldReturnSortedMoviesByRatingDesc() throws IOException {
-        ResponseEntity<String> responseEntity = testRestTemplate.exchange(
-                URL + "?ratingOrder=desc",
-                HttpMethod.GET,
-                null,
-                String.class);
-
-        Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        Assertions.assertTrue(Objects.requireNonNull(responseEntity.getHeaders().getContentType())
-                .isCompatibleWith(MediaType.APPLICATION_JSON));
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        List<MovieDto> movies = objectMapper.readValue(responseEntity.getBody(), new TypeReference<List<MovieDto>>() {});
-        Assertions.assertNotNull(movies);
-        Assertions.assertFalse(movies.isEmpty());
-
-        double previousRating = Double.MAX_VALUE;
-        for (MovieDto movie : movies) {
-            Assertions.assertTrue(movie.getRating() <= previousRating);
-            previousRating = movie.getRating();
-        }
+    @DisplayName("Find all movies sorted by rating in descending order")
+    void findAllSortedByRatingDesc() throws Exception {
+        mockMvc.perform(get(URL + "?ratingOrder=desc"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(4))
+                .andExpect(jsonPath("$[0].rating").value(8.9))
+                .andExpect(jsonPath("$[1].rating").value(8.9))
+                .andExpect(jsonPath("$[2].rating").value(8.7))
+                .andExpect(jsonPath("$[3].rating").value(8.6));
     }
 
     @Test
-    @DisplayName("Integration test for GET /api/v1/movies sorted by price in descending order")
-    void findAllSortedByPriceDesc_shouldReturnSortedMoviesByPriceDesc() throws IOException {
-        ResponseEntity<String> responseEntity = testRestTemplate.exchange(
-                URL + "?priceOrder=desc",
-                HttpMethod.GET,
-                null,
-                String.class);
-
-        Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        Assertions.assertTrue(Objects.requireNonNull(responseEntity.getHeaders().getContentType())
-                .isCompatibleWith(MediaType.APPLICATION_JSON));
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        List<MovieDto> movies = objectMapper.readValue(responseEntity.getBody(), new TypeReference<List<MovieDto>>() {});
-        Assertions.assertNotNull(movies);
-        Assertions.assertFalse(movies.isEmpty());
-
-        double previousPrice = Double.MAX_VALUE;
-        for (MovieDto movie : movies) {
-            Assertions.assertTrue(movie.getPrice() <= previousPrice);
-            previousPrice = movie.getPrice();
-        }
+    @DisplayName("Find all movies sorted by price in ascending order")
+    void findAllSortedByPriceAsc() throws Exception {
+        mockMvc.perform(get(URL + "?priceOrder=asc"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(4))
+                .andExpect(jsonPath("$[0].price").value(123.45))
+                .andExpect(jsonPath("$[0].price").value(134.67))
+                .andExpect(jsonPath("$[0].price").value(150.5))
+                .andExpect(jsonPath("$[3].price").value(200.6));
     }
 
     @Test
-    @DisplayName("Integration test for GET /api/v1/movies sorted by price in ascending order")
-    void findAllSortedByPriceAsc_shouldReturnSortedMoviesByPriceAsc() throws IOException {
-        ResponseEntity<String> responseEntity = testRestTemplate.exchange(
-                URL + "?priceOrder=asc",
-                HttpMethod.GET,
-                null,
-                String.class);
-
-        Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        Assertions.assertTrue(Objects.requireNonNull(responseEntity.getHeaders().getContentType())
-                .isCompatibleWith(MediaType.APPLICATION_JSON));
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        List<MovieDto> movies = objectMapper.readValue(responseEntity.getBody(), new TypeReference<List<MovieDto>>() {});
-        Assertions.assertNotNull(movies);
-        Assertions.assertFalse(movies.isEmpty());
-
-        double previousPrice = Double.MIN_VALUE;
-        for (MovieDto movie : movies) {
-            Assertions.assertTrue(movie.getPrice() >= previousPrice);
-            previousPrice = movie.getPrice();
-        }
+    @DisplayName("Find all movies sorted by price in descending order")
+    void findAllSortedByPriceDesc() throws Exception {
+        mockMvc.perform(get(URL + "?priceOrder=desc"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(4))
+                .andExpect(jsonPath("$[0].price").value(200.6))
+                .andExpect(jsonPath("$[0].price").value(150.5))
+                .andExpect(jsonPath("$[0].price").value(134.67))
+                .andExpect(jsonPath("$[3].price").value(123.45));
     }
 
     @Test
-    @DisplayName("Integration test for handling InvalidSortingException with invalid rating sorting order")
-    void handleInvalidSortingException_withInvalidRatingSortingOrder() {
-        try {
-            testRestTemplate.getForEntity(
-                    URL + "?ratingOrder=invalid",
-                    String.class);
-        } catch (HttpClientErrorException e) {
-            Assertions.assertEquals(HttpStatus.OK, e.getStatusCode());
-            Assertions.assertTrue(e.getResponseBodyAsString().contains("Invalid sorting order: invalid."));
-        }
+    @DisplayName("Find all movies sorted by rating with invalid sorting order - should return error message")
+    void findAllSortedByRating_InvalidSortingOrder() throws Exception {
+        String invalidOrder = "invalid";
+        String errorMessage = "Invalid sorting order: " + invalidOrder + ". Sorting order should be 'asc' or 'desc'.";
+
+        mockMvc.perform(get(URL + "?ratingOrder=invalid"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.error_message").value(errorMessage));
     }
 
     @Test
-    @DisplayName("Integration test for handling InvalidSortingException with invalid price sorting order")
-    void handleInvalidSortingException_withInvalidPriceSortingOrder() {
-        try {
-            testRestTemplate.getForEntity(
-                    URL + "?priceOrder=invalid",
-                    String.class);
-        } catch (HttpClientErrorException e) {
-            Assertions.assertEquals(HttpStatus.OK, e.getStatusCode());
-            Assertions.assertTrue(e.getResponseBodyAsString().contains("Invalid sorting order: invalid."));
-        }
+    @DisplayName("Find all movies sorted by price with invalid sorting order - should return error message")
+    void findAllSortedByPrice_InvalidSortingOrder() throws Exception {
+        String invalidOrder = "invalid";
+        String errorMessage = "Invalid sorting order: " + invalidOrder + ". Sorting order should be 'asc' or 'desc'.";
+
+        mockMvc.perform(get(URL + "?priceOrder=invalid"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.error_message").value(errorMessage));
     }
 
     @Test
-    @DisplayName("Integration test for GET /api/v1/movies/{movieId}")
-    void findById_shouldReturnStatusOkAndContentTypeApplicationJson() {
+    @DisplayName("Find movie by ID - should return correct movie details")
+    void findById_shouldReturnCorrectMovieDetails() throws Exception {
         int movieId = 1;
-
-        ResponseEntity<MovieDto> responseEntity = testRestTemplate.getForEntity(
-                URL + "/{movieId}",
-                MovieDto.class,
-                movieId);
-
-        Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        Assertions.assertTrue(Objects.requireNonNull(responseEntity.getHeaders().getContentType())
-                .isCompatibleWith(MediaType.APPLICATION_JSON));
-
-        MovieDto movie = responseEntity.getBody();
-        Assertions.assertNotNull(movie);
-        Assertions.assertEquals(movieId, movie.getId());
+        mockMvc.perform(get(URL + "/" + movieId))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.nameRussian").value("Побег из Шоушенка"))
+                .andExpect(jsonPath("$.nameNative").value("The Shawshank Redemption"))
+                .andExpect(jsonPath("$.yearOfRelease").value("1994"))
+                .andExpect(jsonPath("$.description").value("Успешный банкир Энди Дюфрейн обвинен в убийстве собственной жены и ее любовника. Оказавшись в тюрьме под названием Шоушенк, он сталкивается с жестокостью и беззаконием, царящими по обе стороны решетки. Каждый, кто попадает в эти стены, становится их рабом до конца жизни. Но Энди, вооруженный живым умом и доброй душой, отказывается мириться с приговором судьбы и начинает разрабатывать невероятно дерзкий план своего освобождения."))
+                .andExpect(jsonPath("$.rating").value(8.9))
+                .andExpect(jsonPath("$.price").value(123.45))
+                .andExpect(jsonPath("$.picturePath").value("https://images-na.ssl-images-amazon.com/images/M/MV5BODU4MjU4NjIwNl5BMl5BanBnXkFtZTgwMDU2MjEyMDE@._V1._SY209_CR0,0,140,209_.jpg"))
+                .andExpect(jsonPath("$.countries[0].name").value("США"))
+                .andExpect(jsonPath("$.genres[0].name").value("криминал"));
     }
+
     @Test
     @DisplayName("Integration test for handling MovieNotFoundException with invalid movie ID")
-    void handleMovieNotFoundException_withInvalidMovieId() {
+    void handleMovieNotFoundException_withInvalidMovieId() throws Exception {
         int invalidMovieId = -1;
 
-        ResponseEntity<String> responseEntity = testRestTemplate.getForEntity(
-                URL + "/{movieId}",
-                String.class,
-                invalidMovieId);
+        mockMvc.perform(get(URL + "/{movieId}", invalidMovieId))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.error_message").value("Movie not found with ID: " + invalidMovieId));
+    }
 
-        Assertions.assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
-        Assertions.assertTrue(Objects.requireNonNull(responseEntity.getBody()).contains("Invalid movie ID: " + invalidMovieId));
+    @Test
+    @DisplayName("Find movie by ID - should return correct movie details with reviews")
+    void findById_shouldReturnCorrectMovieDetailsWithReviews() throws Exception {
+        int movieId = 1;
+        mockMvc.perform(get(URL + "/" + movieId))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.nameRussian").value("Побег из Шоушенка"))
+                .andExpect(jsonPath("$.reviews").isArray())
+                .andExpect(jsonPath("$.reviews.length()").value(2))
+                .andExpect(jsonPath("$.reviews[0].userId").exists())
+                .andExpect(jsonPath("$.reviews[0].text").value("Гениальное кино! Смотришь и думаешь «Так не бывает!», но позже понимаешь, что только так и должно быть. Начинаешь заново осмысливать значение фразы, которую постоянно используешь в своей жизни, «Надежда умирает последней». Ведь если ты не надеешься, то все в твоей жизни гаснет, не остается смысла. Фильм наполнен бесконечным числом правильных афоризмов. Я уверена, что буду пересматривать его сотни раз."))
+                .andExpect(jsonPath("$.reviews[1].userId").exists())
+                .andExpect(jsonPath("$.reviews[1].text").value("Кино это является, безусловно, «со знаком качества». Что же до первого места в рейтинге, то, думаю, здесь имело место быть выставление «десяточек» от большинства зрителей вкупе с раздутыми восторженными откликами кинокритиков. Фильм атмосферный. Он драматичный. И, конечно, заслуживает того, чтобы находиться довольно высоко в мировом кинематографе."));
     }
 
     @Test
     @DisplayName("Integration test for GET /api/v1/movies/{movieId} with currency conversion")
-    void findById_shouldReturnMovieWithCorrectlyConvertedPrice() {
+    void findById_shouldReturnMovieDetailsWithConvertedPrice() throws Exception {
         int movieId = 1;
+        String defaultCurrency = "UAH";
+        String targetCurrency = "USD";
+        double originalPrice = 123.45;
 
-        ResponseEntity<MovieDto> responseEntityWithDefaultCurrency = testRestTemplate.getForEntity(
-                URL + "/{movieId}",
-                MovieDto.class,
-                movieId);
+        mockMvc.perform(get(URL + "/" + movieId + "?currency=" + defaultCurrency))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(movieId))
+                .andExpect(jsonPath("$.price").value(originalPrice));
 
-        Assertions.assertEquals(HttpStatus.OK, responseEntityWithDefaultCurrency.getStatusCode());
-        Assertions.assertTrue(Objects.requireNonNull(responseEntityWithDefaultCurrency.getHeaders().getContentType())
-                .isCompatibleWith(MediaType.APPLICATION_JSON));
-
-        MovieDto movieWithDefaultCurrency = responseEntityWithDefaultCurrency.getBody();
-        Assertions.assertNotNull(movieWithDefaultCurrency);
-        Assertions.assertEquals(movieId, movieWithDefaultCurrency.getId());
-
-        double originalPrice = movieWithDefaultCurrency.getPrice();
-
-        String currency = "USD";
-
-        ResponseEntity<MovieDto> responseEntityWithConvertedCurrency = testRestTemplate.getForEntity(
-                URL + "/{movieId}?currency={currency}",
-                MovieDto.class,
-                movieId,
-                currency);
-
-        Assertions.assertEquals(HttpStatus.OK, responseEntityWithConvertedCurrency.getStatusCode());
-        Assertions.assertTrue(Objects.requireNonNull(responseEntityWithConvertedCurrency.getHeaders().getContentType())
-                .isCompatibleWith(MediaType.APPLICATION_JSON));
-
-        MovieDto movieWithConvertedCurrency = responseEntityWithConvertedCurrency.getBody();
-        Assertions.assertNotNull(movieWithConvertedCurrency);
-        Assertions.assertEquals(movieId, movieWithConvertedCurrency.getId());
-
-        Assertions.assertNotEquals(originalPrice, movieWithConvertedCurrency.getPrice());
-        Assertions.assertTrue(movieWithConvertedCurrency.getPrice() > 0);
-    }
-
-    @Test
-    @DisplayName("Integration test for GET /api/v1/movies/{movieId} with invalid currency")
-    void findById_shouldReturnBadRequestForInvalidCurrency() {
-        int movieId = 1;
-        String invalidCurrency = "invalid";
-
-        try {
-            ResponseEntity<MovieDto> responseEntity = testRestTemplate.getForEntity(
-                    URL + "/{movieId}?currency={currency}",
-                    MovieDto.class,
-                    movieId,
-                    invalidCurrency);
-
-        } catch (HttpClientErrorException.BadRequest e) {
-            Assertions.assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
-            Assertions.assertTrue(e.getResponseBodyAsString().contains("Unsupported currency"));
-        }
+        mockMvc.perform(get(URL + "/" + movieId + "?currency=" + targetCurrency))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(movieId))
+                .andExpect(jsonPath("$.price").isNumber())
+                .andExpect(jsonPath("$.price").value(not(equalTo(0))))
+                .andExpect(jsonPath("$.price").value(not(equalTo(originalPrice))));
     }
 
     @Test
     @DisplayName("Integration test for GET /api/v1/movies/{movieId} with unsupported currency")
-    void findById_shouldReturnBadRequestForUnsupportedCurrency() {
+    void findById_shouldReturnBadRequestForUnsupportedCurrency() throws Exception {
         int movieId = 1;
         String unsupportedCurrency = "RUB";
 
-        try {
-            ResponseEntity<MovieDto> responseEntity = testRestTemplate.getForEntity(
-                    URL + "/{movieId}?currency={currency}",
-                    MovieDto.class,
-                    movieId,
-                    unsupportedCurrency);
-
-        } catch (HttpClientErrorException.BadRequest e) {
-            Assertions.assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
-            Assertions.assertTrue(e.getResponseBodyAsString().contains("Price can be converted to USD or EUR"));
-        }
+        mockMvc.perform(get(URL + "/" + movieId + "?currency=" + unsupportedCurrency))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.error_message").value("Unsupported currency: " + unsupportedCurrency + ". Price can be converted to USD or EUR."));
     }
 }

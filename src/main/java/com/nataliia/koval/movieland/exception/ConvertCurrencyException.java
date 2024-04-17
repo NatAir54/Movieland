@@ -4,8 +4,4 @@ public class ConvertCurrencyException extends RuntimeException {
     public ConvertCurrencyException(String message) {
         super(message);
     }
-
-    public ConvertCurrencyException(String message, Throwable cause) {
-        super(message, cause);
-    }
 }

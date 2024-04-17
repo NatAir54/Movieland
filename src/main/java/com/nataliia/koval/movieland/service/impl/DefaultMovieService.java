@@ -1,5 +1,6 @@
 package com.nataliia.koval.movieland.service.impl;
 
+import com.nataliia.koval.movieland.repository.impl.MovieCustomRepositoryImpl;
 import com.nataliia.koval.movieland.service.MovieSortingService;
 import com.nataliia.koval.movieland.service.conversion.CurrencyConverter;
 import com.nataliia.koval.movieland.service.conversion.impl.CurrencySupported;
@@ -9,7 +10,7 @@ import com.nataliia.koval.movieland.exception.GenreNotFoundException;
 import com.nataliia.koval.movieland.exception.MovieNotFoundException;
 import com.nataliia.koval.movieland.mapper.MovieMapper;
 import com.nataliia.koval.movieland.repository.GenreRepository;
-import com.nataliia.koval.movieland.repository.MovieRepository;
+import com.nataliia.koval.movieland.repository.MovieBaseRepository;
 import com.nataliia.koval.movieland.service.MovieService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,24 +20,26 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service
 public class DefaultMovieService implements MovieService {
-    private final MovieRepository movieRepository;
+    private final MovieBaseRepository movieBaseRepository;
+    private final MovieCustomRepositoryImpl movieCustomRepositoryImpl;
     private final GenreRepository genreRepository;
     private final MovieMapper movieMapper;
     private final CurrencyConverter currencyConverter;
     private final MovieSortingService movieSortingService;
 
 
+
     @Override
     public List<MovieDto> findAll(String ratingOrder, String priceOrder) {
         List<Movie> movies = (ratingOrder == null && priceOrder == null) ?
-                movieRepository.findAll() :
+                movieBaseRepository.findAll() :
                 movieSortingService.findAllSortByPriceOrRating(ratingOrder, priceOrder);
         return mapToDtoList(movies);
     }
 
     @Override
     public List<MovieDto> findThreeRandom() {
-        return mapToDtoList(movieRepository.findThreeRandom());
+        return mapToDtoList(movieBaseRepository.findThreeRandom());
     }
 
     @Override
@@ -60,14 +63,14 @@ public class DefaultMovieService implements MovieService {
     }
 
     private MovieDto findById(int movieId) {
-        return movieRepository.findById(movieId)
+        return movieBaseRepository.findById(movieId)
                 .map(movieMapper::toDto)
                 .orElseThrow(() -> new MovieNotFoundException(movieId));
     }
 
     private List<Movie> findByGenre(int genreId) {
         return genreRepository.findById(genreId)
-                .map(genre -> movieRepository.findByGenre(genre.getId()))
+                .map(genre -> movieCustomRepositoryImpl.findByGenre(genre.getId()))
                 .orElseThrow(() -> new GenreNotFoundException(genreId));
     }
 

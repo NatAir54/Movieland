@@ -20,10 +20,15 @@ spring:
 cache:
   rates:
     update:
-      schedule: "0 0 16 * * *"
+      schedule: "0 0 17 * * MON-FRI"
   genres:
     update:
-      schedule: "0 0 */4 * * *"
+      schedule: 14400000
+
+nbu:
+  exchange:
+    rate:
+      url: "https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange"
 
 token:
   expiration:

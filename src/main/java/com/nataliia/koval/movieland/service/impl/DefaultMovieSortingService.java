@@ -2,7 +2,8 @@ package com.nataliia.koval.movieland.service.impl;
 
 import com.nataliia.koval.movieland.entity.Movie;
 import com.nataliia.koval.movieland.exception.InvalidSortingException;
-import com.nataliia.koval.movieland.repository.MovieRepository;
+import com.nataliia.koval.movieland.repository.MovieCustomRepository;
+import com.nataliia.koval.movieland.repository.MovieBaseRepository;
 import com.nataliia.koval.movieland.service.MovieSortingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
@@ -14,7 +15,8 @@ import java.util.List;
 @Service
 public class DefaultMovieSortingService implements MovieSortingService {
 
-    private final MovieRepository movieRepository;
+    private final MovieBaseRepository movieBaseRepository;
+    private final MovieCustomRepository movieCustomRepository;
 
 
     @Override
@@ -26,13 +28,12 @@ public class DefaultMovieSortingService implements MovieSortingService {
 
     @Override
     public List<Movie> findByGenreSortByPriceOrRating(int genreId, String ratingOrder, String priceOrder) {
-        String order = (ratingOrder == null) ? priceOrder : ratingOrder;
+        boolean sortByRating = (ratingOrder != null);
+        String order = sortByRating ? ratingOrder : priceOrder;
 
         return switch (order.toLowerCase()) {
-            case "asc" -> (ratingOrder == null) ? movieRepository.findByGenreSortByPriceAsc(genreId) :
-                    movieRepository.findByGenreSortByRatingAsc(genreId);
-            case "desc" -> (ratingOrder == null) ? movieRepository.findByGenreSortByPriceDesc(genreId) :
-                    movieRepository.findByGenreSortByRatingDesc(genreId);
+            case "asc" -> movieCustomRepository.findByGenreAndSort(genreId, sortByRating ? "rating" : "price", Sort.Direction.ASC);
+            case "desc" -> movieCustomRepository.findByGenreAndSort(genreId, sortByRating ? "rating" : "price", Sort.Direction.DESC);
             default -> throw new InvalidSortingException(order);
         };
     }
@@ -43,6 +44,6 @@ public class DefaultMovieSortingService implements MovieSortingService {
             case "desc" -> Sort.by(field).descending();
             default -> throw new InvalidSortingException(order);
         };
-        return movieRepository.findAll(sort);
+        return movieBaseRepository.findAll(sort);
     }
 }

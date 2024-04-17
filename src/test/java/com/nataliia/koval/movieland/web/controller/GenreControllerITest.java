@@ -1,49 +1,67 @@
 package com.nataliia.koval.movieland.web.controller;
 
-import com.nataliia.koval.movieland.dto.MovieDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlGroup;
+import org.springframework.test.web.servlet.MockMvc;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.util.List;
-import java.util.Objects;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest
+@Testcontainers
+@AutoConfigureMockMvc
+@SqlGroup({
+        @Sql(scripts = "classpath:db/initialize_genre_data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD),
+        @Sql(scripts = "classpath:db/remove_genre_data.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+})
 class GenreControllerITest {
+
     private static final String URL = "/api/v1/genres";
 
+    @Container
+    @ServiceConnection
+    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15.3");
+
     @Autowired
-    private TestRestTemplate testRestTemplate;
+    private MockMvc mockMvc;
+
 
     @Test
-    @DisplayName("Integration test for GET /api/v1/genres")
-    void findAll_shouldReturnStatusOkAndContentTypeApplicationJson() {
-        ResponseEntity<List<MovieDto>> responseEntity = testRestTemplate.exchange(
-                URL,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<>() {
-                });
-
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertTrue(Objects.requireNonNull(responseEntity.getHeaders().getContentType())
-                .isCompatibleWith(MediaType.APPLICATION_JSON));
-
-        List<MovieDto> genres = responseEntity.getBody();
-        assertNotNull(genres);
-        assertFalse(genres.isEmpty());
+    @DisplayName("Test findAll - should return list of all genres.")
+    void findAll_shouldReturnListOfAllGenres() throws Exception {
+        mockMvc.perform(get(URL))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(15));
     }
 
+    @Test
+    @DisplayName("Test findAll - should return correct genre details.")
+    void findAll_shouldReturnCorrectGenreDetails() throws Exception {
+        mockMvc.perform(get(URL))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$[0].name").value("драма"))
+                .andExpect(jsonPath("$[1].name").value("криминал"))
+                .andExpect(jsonPath("$[2].name").value("фэнтези"))
+                .andExpect(jsonPath("$[3].name").value("детектив"))
+                .andExpect(jsonPath("$[4].name").value("мелодрама"))
+                .andExpect(jsonPath("$[5].name").value("биография"))
+                .andExpect(jsonPath("$[6].name").value("комедия"))
+                .andExpect(jsonPath("$[7].name").value("фантастика"));
+    }
 }

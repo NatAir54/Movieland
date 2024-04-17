@@ -1,5 +1,7 @@
 package com.nataliia.koval.movieland.service.cache;
 
+import com.nataliia.koval.movieland.dto.GenreDto;
+
 import java.util.List;
 
 /**
@@ -12,5 +14,5 @@ public interface GenreCache {
      *
      * @return List of ImmutableGenre objects representing the genres retrieved from the cache.
      */
-    List<ImmutableGenre> getAll();
+    List<GenreDto> getAll();
 }
