@@ -1,5 +1,6 @@
 package com.nataliia.koval.movieland.web.interceptor;
 
+import io.micrometer.common.lang.NonNullApi;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
@@ -10,6 +11,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.util.UUID;
 
+@NonNullApi
 public class LoggingInterceptor implements HandlerInterceptor {
 
     private static final Logger logger = LoggerFactory.getLogger(LoggingInterceptor.class);
