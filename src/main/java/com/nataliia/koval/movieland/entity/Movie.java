@@ -1,12 +1,17 @@
 package com.nataliia.koval.movieland.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import jakarta.persistence.Index;
+import jakarta.persistence.NamedAttributeNode;
+import jakarta.persistence.NamedEntityGraph;
 import jakarta.persistence.Id;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Column;
 import jakarta.persistence.GenerationType;
-import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.NamedSubgraph;
+import jakarta.persistence.Column;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.OneToMany;
@@ -20,6 +25,21 @@ import java.util.Set;
 @Entity
 @Getter
 @Setter
+@Table(name = "movie", indexes = {
+        @Index(name = "idx_movie_rating", columnList = "rating"),
+        @Index(name = "idx_movie_price", columnList = "price")
+})
+@NamedEntityGraph(name = "graph.MovieGenresCountriesReviewsUser",
+        attributeNodes = {
+                @NamedAttributeNode("genres"),
+                @NamedAttributeNode("countries"),
+                @NamedAttributeNode(value = "reviews", subgraph = "subgraph.review")
+        },
+        subgraphs = {
+                @NamedSubgraph(name = "subgraph.review",
+                        attributeNodes = @NamedAttributeNode("user"))
+        }
+)
 public class Movie {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "movie_sequence")

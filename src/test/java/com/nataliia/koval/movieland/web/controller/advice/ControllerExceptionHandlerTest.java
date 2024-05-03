@@ -1,6 +1,5 @@
 package com.nataliia.koval.movieland.web.controller.advice;
 
-
 import com.nataliia.koval.movieland.exception.ConvertCurrencyException;
 import com.nataliia.koval.movieland.exception.GenreNotFoundException;
 import com.nataliia.koval.movieland.exception.InvalidSortingException;

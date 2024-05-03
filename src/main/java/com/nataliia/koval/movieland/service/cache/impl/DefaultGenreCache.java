@@ -9,7 +9,6 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 
-import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,36 +18,21 @@ public class DefaultGenreCache implements GenreCache {
 
     private final GenreRepository genreRepository;
     private final GenreMapper genreMapper;
-    private List<SoftReference<GenreDto>> genresCache = new ArrayList<>();
+    private volatile List<GenreDto> genresCache;
 
     @PostConstruct
     void initCache() {
-        List<GenreDto> fetchedGenres = fetchGenresFromRepository();
-        for (GenreDto genre : fetchedGenres) {
-            genresCache.add(new SoftReference<>(genre));
-        }
+        updateCache();
     }
 
     @Override
     public List<GenreDto> getAll() {
-        List<GenreDto> result = new ArrayList<>();
-        for (SoftReference<GenreDto> softRef : genresCache) {
-            GenreDto genre = softRef.get();
-            if (genre != null) {
-                result.add(genre);
-            }
-        }
-        return result;
+        return new ArrayList<>(genresCache);
     }
 
     @Scheduled(fixedDelayString = "${cache.genres.update.schedule}")
     void updateCache() {
-        List<GenreDto> fetchedGenres = fetchGenresFromRepository();
-        List<SoftReference<GenreDto>> genresUpdated = new ArrayList<>();
-        for (GenreDto genre : fetchedGenres) {
-            genresUpdated.add(new SoftReference<>(genre));
-        }
-        genresCache = genresUpdated;
+        genresCache = fetchGenresFromRepository();
     }
 
     private List<GenreDto> fetchGenresFromRepository() {

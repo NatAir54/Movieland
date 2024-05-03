@@ -1,11 +1,13 @@
 package com.nataliia.koval.movieland.web.controller;
 
 import com.nataliia.koval.movieland.exception.AuthException;
-import com.nataliia.koval.movieland.service.SecurityTokenService;
+import com.nataliia.koval.movieland.service.JwtSecurityTokenService;
 import com.nataliia.koval.movieland.service.UserService;
 import com.nataliia.koval.movieland.web.controller.entity.LoginRequest;
 import com.nataliia.koval.movieland.web.controller.entity.LoginResponse;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.MDC;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 @RequestMapping("/api/v1")
 public class AuthController {
     private final UserService userService;
-    private final SecurityTokenService securityTokenService;
+    private final JwtSecurityTokenService securityTokenService;
 
 
     @PostMapping("/login")
@@ -34,6 +36,7 @@ public class AuthController {
         String uuid = securityTokenService.generateAndStoreTokenInCache(email);
 
         String nickname = userService.getUserNickname(email);
+        MDC.put("userIdentifier", email);
         return ResponseEntity.ok(new LoginResponse(uuid, nickname));
     }
 
@@ -42,7 +45,12 @@ public class AuthController {
         if (uuid == null || uuid.isEmpty()) {
             throw new AuthException("UUID is required in the request header.");
         }
-        securityTokenService.invalidateToken(uuid);
-        return ResponseEntity.ok().build();
+
+        if (securityTokenService.isTokenInvalid(uuid)) {
+            throw new AuthException("Invalid token.");
+        }
+
+        String logoutMessage = securityTokenService.invalidateToken(uuid);
+        return ResponseEntity.status(HttpStatus.OK).body(logoutMessage);
     }
 }

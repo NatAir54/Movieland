@@ -25,20 +25,19 @@ public class DefaultCurrencyRateCache implements CurrencyRateCache {
         updateRates();
     }
 
+    @Override
+    public double getExchangeRate(CurrencySupported currency) {
+        return ratesCache.get(currency);
+    }
+
     @Scheduled(cron = "${cache.rates.update.schedule}")
     private void updateRates() {
         String[] currencyNames = CurrencySupported.getAllCurrencyNamesExceptUah();
         Map<String, Double> exchangeRates = exchangeRateClient.fetchRatesForCurrencies(currencyNames);
-        ratesCache.clear();
         for (String currencyName : currencyNames) {
             CurrencySupported currency = CurrencySupported.valueOf(currencyName);
             double rate = exchangeRates.get(currencyName);
             ratesCache.put(currency, rate);
         }
-    }
-
-    @Override
-    public double getExchangeRate(CurrencySupported currency) {
-        return ratesCache.get(currency);
     }
 }

@@ -13,9 +13,13 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
-    show-sql: true
+    show-sql: false
   flyway:
     enabled: false
+  data:
+    redis:
+      host: localhost
+      port: 6379
 
 cache:
   rates:
@@ -33,8 +37,6 @@ nbu:
 token:
   expiration:
     time: 7200000
-    check:
-      interval: 300000
 
 logging:
   pattern:
@@ -44,4 +46,11 @@ logging:
   logback:
     rolling-policy:
       max-file-size: "5MB"
+  level:
+    org.hibernate:
+      sql: debug
+      orm:
+        jdbc:
+          bind: trace
+          root: trace
 

@@ -1,6 +1,6 @@
 package com.nataliia.koval.movieland.service.impl;
 
-import com.nataliia.koval.movieland.repository.impl.MovieCustomRepositoryImpl;
+import com.nataliia.koval.movieland.repository.impl.DefaultMovieCustomRepository;
 import com.nataliia.koval.movieland.service.MovieSortingService;
 import com.nataliia.koval.movieland.service.conversion.CurrencyConverter;
 import com.nataliia.koval.movieland.service.conversion.impl.CurrencySupported;
@@ -15,17 +15,20 @@ import com.nataliia.koval.movieland.service.MovieService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 @RequiredArgsConstructor
 @Service
 public class DefaultMovieService implements MovieService {
+    private final MovieSortingService movieSortingService;
+    private final CurrencyConverter currencyConverter;
+
     private final MovieBaseRepository movieBaseRepository;
-    private final MovieCustomRepositoryImpl movieCustomRepositoryImpl;
+    private final DefaultMovieCustomRepository movieCustomRepositoryImpl;
     private final GenreRepository genreRepository;
     private final MovieMapper movieMapper;
-    private final CurrencyConverter currencyConverter;
-    private final MovieSortingService movieSortingService;
 
 
 
@@ -56,7 +59,8 @@ public class DefaultMovieService implements MovieService {
 
         if (currency != CurrencySupported.UAH) {
             double convertedPrice = currencyConverter.convert(movieDto.getPrice(), currency);
-            movieDto.setPrice(convertedPrice);
+            double priceRoundedToTwoDecimals = new BigDecimal(convertedPrice).setScale(2, RoundingMode.HALF_UP).doubleValue();
+            movieDto.setPrice(priceRoundedToTwoDecimals);
         }
 
         return movieDto;

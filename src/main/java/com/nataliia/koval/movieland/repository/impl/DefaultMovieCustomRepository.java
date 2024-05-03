@@ -17,7 +17,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public class MovieCustomRepositoryImpl implements MovieCustomRepository {
+public class DefaultMovieCustomRepository implements MovieCustomRepository {
 
     @PersistenceContext
     private EntityManager entityManager;

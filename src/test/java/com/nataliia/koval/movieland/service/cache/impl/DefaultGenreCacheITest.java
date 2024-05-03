@@ -35,7 +35,7 @@ class DefaultGenreCacheITest {
     private DefaultGenreCache genreCache;
 
     @Autowired
-    private GenreRepository genreRepository; // TODO I we need this?
+    private GenreRepository genreRepository; // TODO do I need this?
 
 
     @Test

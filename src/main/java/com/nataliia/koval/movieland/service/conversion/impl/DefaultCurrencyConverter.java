@@ -21,14 +21,10 @@ public class DefaultCurrencyConverter implements CurrencyConverter {
         if (isInvalidExchangeRate(exchangeRate)) {
             throw new ConvertCurrencyException("Invalid exchange rate for currency: " + currency);
         }
-        return roundToTwoDecimals(price / exchangeRate);
+        return price / exchangeRate;
     }
 
     private boolean isInvalidExchangeRate(double exchangeRate) {
         return exchangeRate <= 0;
-    }
-
-    private double roundToTwoDecimals(double value) {
-        return Math.round(value * 100.0) / 100.0;
     }
 }
