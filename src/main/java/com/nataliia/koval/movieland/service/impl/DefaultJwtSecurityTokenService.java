@@ -3,9 +3,7 @@ package com.nataliia.koval.movieland.service.impl;
 import com.nataliia.koval.movieland.entity.Token;
 import com.nataliia.koval.movieland.repository.impl.DefaultTokenRepository;
 import com.nataliia.koval.movieland.service.JwtSecurityTokenService;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,8 +45,9 @@ public class DefaultJwtSecurityTokenService implements JwtSecurityTokenService {
     public boolean isTokenInvalid(String token) {
         if (defaultTokenRepository.exists(token)) {
             try {
-                Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
-                return false;
+                JwtParser parser = Jwts.parserBuilder().setSigningKey(secretKey).build();
+                Claims claims = parser.parseClaimsJws(token).getBody();
+                return claims.getExpiration().before(new Date());
             } catch (JwtException | IllegalArgumentException e) {
                 return true;
             }
