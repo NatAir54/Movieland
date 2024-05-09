@@ -32,7 +32,6 @@ public class DefaultCurrencyRateCache implements CurrencyRateCache {
     }
 
     @Scheduled(cron = "${cache.rates.update.schedule}")
-    @Transactional
     void updateRates() {
         String[] currencyNames = CurrencySupported.getAllCurrencyNamesExceptUah();
         Map<String, Double> exchangeRates = exchangeRateClient.fetchRatesForCurrencies(currencyNames);
