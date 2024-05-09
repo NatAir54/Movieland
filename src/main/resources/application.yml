@@ -7,6 +7,7 @@ spring:
     password: postgrsql098
     url: jdbc:postgresql://localhost:5432/movieland
   jpa:
+    open-in-view: false
     hibernate:
       ddl-auto: none
     properties:

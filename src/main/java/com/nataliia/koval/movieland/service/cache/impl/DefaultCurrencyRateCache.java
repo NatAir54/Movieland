@@ -5,6 +5,7 @@ import com.nataliia.koval.movieland.service.cache.CurrencyRateCache;
 import com.nataliia.koval.movieland.service.conversion.ExchangeRateClient;
 import com.nataliia.koval.movieland.service.conversion.impl.CurrencySupported;
 import jakarta.annotation.PostConstruct;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 
@@ -31,7 +32,8 @@ public class DefaultCurrencyRateCache implements CurrencyRateCache {
     }
 
     @Scheduled(cron = "${cache.rates.update.schedule}")
-    private void updateRates() {
+    @Transactional
+    void updateRates() {
         String[] currencyNames = CurrencySupported.getAllCurrencyNamesExceptUah();
         Map<String, Double> exchangeRates = exchangeRateClient.fetchRatesForCurrencies(currencyNames);
         for (String currencyName : currencyNames) {

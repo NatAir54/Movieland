@@ -12,6 +12,7 @@ import com.nataliia.koval.movieland.mapper.MovieMapper;
 import com.nataliia.koval.movieland.repository.GenreRepository;
 import com.nataliia.koval.movieland.repository.MovieBaseRepository;
 import com.nataliia.koval.movieland.service.MovieService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -31,7 +32,7 @@ public class DefaultMovieService implements MovieService {
     private final MovieMapper movieMapper;
 
 
-
+    @Transactional
     @Override
     public List<MovieDto> findAll(String ratingOrder, String priceOrder) {
         List<Movie> movies = (ratingOrder == null && priceOrder == null) ?
@@ -40,11 +41,13 @@ public class DefaultMovieService implements MovieService {
         return mapToDtoList(movies);
     }
 
+    @Transactional
     @Override
     public List<MovieDto> findThreeRandom() {
         return mapToDtoList(movieBaseRepository.findThreeRandom());
     }
 
+    @Transactional
     @Override
     public List<MovieDto> findByGenre(int genreId, String ratingOrder, String priceOrder) {
         List<Movie> movies = (ratingOrder == null && priceOrder == null) ?
