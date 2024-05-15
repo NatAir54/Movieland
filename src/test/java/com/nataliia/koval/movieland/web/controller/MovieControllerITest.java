@@ -16,8 +16,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @SqlGroup({
-        @Sql(scripts = "classpath:db/initialize_movie_data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS),
-        @Sql(scripts = "classpath:db/remove_movie_data.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_CLASS)
+        @Sql(scripts = "classpath:db/initialize_movie_data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD),
+        @Sql(scripts = "classpath:db/remove_movie_data.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
 })
 class MovieControllerITest extends AbstractBaseITest {
     private static final String URL = "/api/v1/movies";
