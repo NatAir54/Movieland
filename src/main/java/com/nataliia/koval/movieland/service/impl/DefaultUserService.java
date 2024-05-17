@@ -3,7 +3,7 @@ package com.nataliia.koval.movieland.service.impl;
 import com.nataliia.koval.movieland.entity.User;
 import com.nataliia.koval.movieland.repository.UserRepository;
 import com.nataliia.koval.movieland.service.UserService;
-import com.nataliia.koval.movieland.service.util.PasswordValidationService;
+import com.nataliia.koval.movieland.service.security.util.PasswordValidationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

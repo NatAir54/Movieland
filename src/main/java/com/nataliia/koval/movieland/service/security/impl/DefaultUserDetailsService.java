@@ -1,4 +1,4 @@
-package com.nataliia.koval.movieland.service.impl;
+package com.nataliia.koval.movieland.service.security.impl;
 
 import com.nataliia.koval.movieland.entity.User;
 import com.nataliia.koval.movieland.service.UserService;
@@ -16,7 +16,7 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
-public class CustomUserDetailsService implements UserDetailsService {
+public class DefaultUserDetailsService implements UserDetailsService {
     private final UserService userService;
 
     @Override

@@ -1,8 +1,8 @@
-package com.nataliia.koval.movieland.repository;
+package com.nataliia.koval.movieland.service.security;
 
 import com.nataliia.koval.movieland.entity.Token;
 
-public interface TokenRepository {
+public interface TokenStorageService {
     Token save(Token token);
 
     String delete(String tokenValue);

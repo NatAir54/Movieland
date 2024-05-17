@@ -1,7 +1,7 @@
 package com.nataliia.koval.movieland.web.controller;
 
 import com.nataliia.koval.movieland.exception.AuthException;
-import com.nataliia.koval.movieland.service.JwtSecurityTokenService;
+import com.nataliia.koval.movieland.service.security.JwtSecurityTokenService;
 import com.nataliia.koval.movieland.service.UserService;
 import com.nataliia.koval.movieland.web.controller.entity.LoginRequest;
 import com.nataliia.koval.movieland.web.controller.entity.LoginResponse;

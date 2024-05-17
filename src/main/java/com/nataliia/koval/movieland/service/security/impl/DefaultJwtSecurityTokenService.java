@@ -1,11 +1,10 @@
-package com.nataliia.koval.movieland.service.impl;
+package com.nataliia.koval.movieland.service.security.impl;
 
 import com.nataliia.koval.movieland.entity.Token;
-import com.nataliia.koval.movieland.repository.impl.DefaultTokenRepository;
-import com.nataliia.koval.movieland.service.JwtSecurityTokenService;
+import com.nataliia.koval.movieland.service.security.JwtSecurityTokenService;
+import com.nataliia.koval.movieland.service.security.TokenStorageService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -18,7 +17,7 @@ import java.util.Date;
 @RequiredArgsConstructor
 @Service
 public class DefaultJwtSecurityTokenService implements JwtSecurityTokenService {
-    private final DefaultTokenRepository defaultTokenRepository;
+    private final TokenStorageService tokenStorageService;
     private SecretKey secretKey;
 
     @Value("${token.expiration.time}")
@@ -33,18 +32,18 @@ public class DefaultJwtSecurityTokenService implements JwtSecurityTokenService {
     @Override
     public String generateAndStoreTokenInCache(String email) {
         String token = generateToken(email);
-        defaultTokenRepository.save(new Token(token, email));
+        tokenStorageService.save(new Token(token, email));
         return token;
     }
 
     @Override
     public String invalidateToken(String token) {
-        return defaultTokenRepository.delete(token);
+        return tokenStorageService.delete(token);
     }
 
     @Override
     public boolean isTokenInvalid(String token) {
-        if (defaultTokenRepository.exists(token)) {
+        if (tokenStorageService.exists(token)) {
             try {
                 Claims claims = parseToken(token);
                 return claims.getExpiration().before(new Date());

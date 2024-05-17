@@ -1,5 +1,6 @@
 package com.nataliia.koval.movieland.service.impl;
 
+import com.nataliia.koval.movieland.repository.MovieCustomRepository;
 import com.nataliia.koval.movieland.repository.impl.DefaultMovieCustomRepository;
 import com.nataliia.koval.movieland.service.MovieSortingService;
 import com.nataliia.koval.movieland.service.conversion.CurrencyConverter;
@@ -27,7 +28,7 @@ public class DefaultMovieService implements MovieService {
     private final CurrencyConverter currencyConverter;
 
     private final MovieBaseRepository movieBaseRepository;
-    private final DefaultMovieCustomRepository movieCustomRepositoryImpl;
+    private final MovieCustomRepository movieCustomRepository;
     private final GenreRepository genreRepository;
     private final MovieMapper movieMapper;
 
@@ -77,7 +78,7 @@ public class DefaultMovieService implements MovieService {
 
     private List<Movie> findByGenre(int genreId) {
         return genreRepository.findById(genreId)
-                .map(genre -> movieCustomRepositoryImpl.findByGenre(genre.getId()))
+                .map(genre -> movieCustomRepository.findByGenre(genre.getId()))
                 .orElseThrow(() -> new GenreNotFoundException(genreId));
     }
 

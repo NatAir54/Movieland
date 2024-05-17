@@ -5,7 +5,6 @@ import com.nataliia.koval.movieland.service.cache.CurrencyRateCache;
 import com.nataliia.koval.movieland.service.conversion.ExchangeRateClient;
 import com.nataliia.koval.movieland.service.conversion.impl.CurrencySupported;
 import jakarta.annotation.PostConstruct;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 

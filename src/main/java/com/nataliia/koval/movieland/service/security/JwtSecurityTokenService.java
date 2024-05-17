@@ -1,6 +1,4 @@
-package com.nataliia.koval.movieland.service;
-
-import jakarta.servlet.http.HttpServletRequest;
+package com.nataliia.koval.movieland.service.security;
 
 public interface JwtSecurityTokenService {
 

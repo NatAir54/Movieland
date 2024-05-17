@@ -1,6 +1,6 @@
 package com.nataliia.koval.movieland.configuration;
 
-import com.nataliia.koval.movieland.service.impl.CustomUserDetailsService;
+import com.nataliia.koval.movieland.service.security.impl.DefaultUserDetailsService;
 import com.nataliia.koval.movieland.web.controller.filter.AuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -18,7 +18,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final AuthFilter authFilter;
-    private final CustomUserDetailsService userDetailsService;
+    private final DefaultUserDetailsService userDetailsService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {

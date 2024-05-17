@@ -1,6 +1,6 @@
-package com.nataliia.koval.movieland.service.util.impl;
+package com.nataliia.koval.movieland.service.security.util.impl;
 
-import com.nataliia.koval.movieland.service.util.PasswordValidationService;
+import com.nataliia.koval.movieland.service.security.util.PasswordValidationService;
 import org.springframework.stereotype.Component;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 

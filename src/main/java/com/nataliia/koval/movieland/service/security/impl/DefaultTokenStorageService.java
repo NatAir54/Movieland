@@ -1,14 +1,14 @@
-package com.nataliia.koval.movieland.repository.impl;
+package com.nataliia.koval.movieland.service.security.impl;
 
 import com.nataliia.koval.movieland.entity.Token;
-import com.nataliia.koval.movieland.repository.TokenRepository;
+import com.nataliia.koval.movieland.service.security.TokenStorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
-@Repository
-public class DefaultTokenRepository implements TokenRepository {
+@Service
+public class DefaultTokenStorageService implements TokenStorageService {
     public static final String HASH_KEY = "Token";
     private final RedisTemplate<String, Object> template;
 

@@ -1,6 +1,6 @@
 package com.nataliia.koval.movieland.web.controller.filter;
 
-import com.nataliia.koval.movieland.service.JwtSecurityTokenService;
+import com.nataliia.koval.movieland.service.security.JwtSecurityTokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -37,13 +37,14 @@ public class AuthFilter extends OncePerRequestFilter {
 
         if(!jwtSecurityTokenService.isTokenInvalid(token)) {
             String username = jwtSecurityTokenService.extractUsername(token);
-
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null,
                     userDetails.getAuthorities());
+
             authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         }
+
         filterChain.doFilter(request, response);
     }
 }
