@@ -1,7 +1,9 @@
 package com.nataliia.koval.movieland.service.impl;
 
+import com.nataliia.koval.movieland.entity.Country;
+import com.nataliia.koval.movieland.entity.Genre;
+import com.nataliia.koval.movieland.repository.CountryRepository;
 import com.nataliia.koval.movieland.repository.MovieCustomRepository;
-import com.nataliia.koval.movieland.repository.impl.DefaultMovieCustomRepository;
 import com.nataliia.koval.movieland.service.MovieSortingService;
 import com.nataliia.koval.movieland.service.conversion.CurrencyConverter;
 import com.nataliia.koval.movieland.service.conversion.impl.CurrencySupported;
@@ -13,13 +15,17 @@ import com.nataliia.koval.movieland.mapper.MovieMapper;
 import com.nataliia.koval.movieland.repository.GenreRepository;
 import com.nataliia.koval.movieland.repository.MovieBaseRepository;
 import com.nataliia.koval.movieland.service.MovieService;
+import com.nataliia.koval.movieland.web.controller.entity.MovieAddRequest;
+import com.nataliia.koval.movieland.web.controller.entity.MovieEditRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @RequiredArgsConstructor
 @Service
@@ -30,6 +36,7 @@ public class DefaultMovieService implements MovieService {
     private final MovieBaseRepository movieBaseRepository;
     private final MovieCustomRepository movieCustomRepository;
     private final GenreRepository genreRepository;
+    private final CountryRepository countryRepository;
     private final MovieMapper movieMapper;
 
 
@@ -76,6 +83,36 @@ public class DefaultMovieService implements MovieService {
                 .orElseThrow(() -> new MovieNotFoundException(movieId));
     }
 
+    @Override
+    public MovieDto addMovie(MovieAddRequest movieAddRequest) {
+        Movie movie = new Movie();
+        movie.setNameRussian(movieAddRequest.nameRussian());
+        movie.setNameNative(movieAddRequest.nameNative());
+        movie.setYearOfRelease(movieAddRequest.yearOfRelease());
+        movie.setDescription(movieAddRequest.description());
+        movie.setPrice(movieAddRequest.price());
+        movie.setPicturePath(movieAddRequest.picturePath());
+        movie.setCountries(getCountriesByIds(movieAddRequest.countries()));
+        movie.setGenres(getGenresByIds(movieAddRequest.genres()));
+
+        Movie savedMovie = movieBaseRepository.save(movie);
+        return movieMapper.toDto(savedMovie);
+    }
+
+    @Override
+    public MovieDto editMovie(int movieId, MovieEditRequest movieEditRequest) {
+        Movie movie = findById(movieId);
+
+        movie.setNameRussian(movieEditRequest.nameRussian());
+        movie.setNameNative(movieEditRequest.nameNative());
+        movie.setPicturePath(movieEditRequest.picturePath());
+        movie.setCountries(getCountriesByIds(movieEditRequest.countries()));
+        movie.setGenres(getGenresByIds(movieEditRequest.genres()));
+
+        Movie updatedMovie = movieBaseRepository.save(movie);
+        return movieMapper.toDto(updatedMovie);
+    }
+
     private List<Movie> findByGenre(int genreId) {
         return genreRepository.findById(genreId)
                 .map(genre -> movieCustomRepository.findByGenre(genre.getId()))
@@ -84,5 +121,13 @@ public class DefaultMovieService implements MovieService {
 
     private List<MovieDto> mapToDtoList(List<Movie> movies) {
         return movieMapper.toDtoList((movies));
+    }
+
+    private Set<Country> getCountriesByIds(List<Integer> countryIds) {
+        return new HashSet<>(countryRepository.findAllById(countryIds));
+    }
+
+    private Set<Genre> getGenresByIds(List<Integer> genreIds) {
+        return new HashSet<>(genreRepository.findAllById(genreIds));
     }
 }

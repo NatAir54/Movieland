@@ -3,12 +3,12 @@ package com.nataliia.koval.movieland.web.controller;
 import com.nataliia.koval.movieland.dto.MovieDto;
 import com.nataliia.koval.movieland.service.MovieService;
 import com.nataliia.koval.movieland.service.conversion.impl.CurrencySupported;
+import com.nataliia.koval.movieland.web.controller.entity.MovieAddRequest;
+import com.nataliia.koval.movieland.web.controller.entity.MovieEditRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -52,5 +52,17 @@ public class MovieController {
     ) {
         CurrencySupported requestedCurrency = CurrencySupported.parseCurrency(currency.toUpperCase());
         return movieService.findById(movieId, requestedCurrency);
+    }
+
+    @PostMapping
+    public ResponseEntity<MovieDto> addMovie(@RequestHeader("Authorization") String authorizationHeader, @RequestBody MovieAddRequest movieRequest) {
+        MovieDto savedMovie = movieService.addMovie(movieRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedMovie);
+    }
+
+    @PutMapping("/{movieId}")
+    public ResponseEntity<MovieDto> editMovie(@PathVariable int movieId, @RequestBody MovieEditRequest movieEditRequest, @RequestHeader("Authorization") String authorizationHeader) {
+        MovieDto updatedMovie = movieService.editMovie(movieId, movieEditRequest);
+        return ResponseEntity.ok(updatedMovie);
     }
 }

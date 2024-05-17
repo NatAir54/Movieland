@@ -5,6 +5,8 @@ import com.nataliia.koval.movieland.entity.Movie;
 import com.nataliia.koval.movieland.exception.GenreNotFoundException;
 import com.nataliia.koval.movieland.exception.MovieNotFoundException;
 import com.nataliia.koval.movieland.service.conversion.impl.CurrencySupported;
+import com.nataliia.koval.movieland.web.controller.entity.MovieAddRequest;
+import com.nataliia.koval.movieland.web.controller.entity.MovieEditRequest;
 
 import java.util.List;
 
@@ -60,4 +62,8 @@ public interface MovieService {
     MovieDto findById(int movieId, CurrencySupported currency);
 
     Movie findById(int movieId);
+
+    MovieDto addMovie(MovieAddRequest movieAddRequest);
+
+    MovieDto editMovie(int movieId, MovieEditRequest movieEditRequest);
 }

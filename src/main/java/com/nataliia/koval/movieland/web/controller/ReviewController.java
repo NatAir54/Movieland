@@ -20,7 +20,7 @@ public class ReviewController {
                                                     @RequestBody ReviewRequest reviewRequest) {
 
         Review savedReview = reviewService.addReview(reviewRequest, authorizationHeader);
-        ReviewResponse reviewResponse = new ReviewResponse(savedReview.getMovieNameRussian(), savedReview.getText());
+        ReviewResponse reviewResponse = new ReviewResponse(savedReview.getId(), savedReview.getMovieNameRussian(), savedReview.getText());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(reviewResponse);
     }

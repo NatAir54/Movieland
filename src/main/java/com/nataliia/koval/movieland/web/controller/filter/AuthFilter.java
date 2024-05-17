@@ -34,6 +34,7 @@ public class AuthFilter extends OncePerRequestFilter {
         }
 
         String token = authorizationHeader.split(" ")[0];
+        System.out.println(token);
 
         if(!jwtSecurityTokenService.isTokenInvalid(token)) {
             String username = jwtSecurityTokenService.extractUsername(token);

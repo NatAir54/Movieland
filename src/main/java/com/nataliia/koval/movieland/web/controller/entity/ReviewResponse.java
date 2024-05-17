@@ -1,4 +1,4 @@
 package com.nataliia.koval.movieland.web.controller.entity;
 
-public record ReviewResponse(String movieNameRussian, String text) {
+public record ReviewResponse(int reviewId, String movieNameRussian, String text) {
 }

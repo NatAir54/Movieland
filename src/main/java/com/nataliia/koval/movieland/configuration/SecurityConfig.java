@@ -28,6 +28,8 @@ public class SecurityConfig {
         http.authorizeHttpRequests(authorizeRequests -> authorizeRequests
                 .requestMatchers(HttpMethod.POST, "/api/v1/reviews").hasRole("USER")
                 .requestMatchers(HttpMethod.GET, "/api/v1/movies/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/v1/movies").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/v1/movies/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/v1/genres/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/v1/login").permitAll()
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/logout").permitAll()

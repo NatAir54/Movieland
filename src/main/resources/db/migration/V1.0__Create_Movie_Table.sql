@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS movie (
     name_russian VARCHAR(255) NOT NULL,
     name_native VARCHAR(255) NOT NULL,
     year_of_release VARCHAR(4) NOT NULL,
-    rating NUMERIC(4,2) NOT NULL,
+    rating NUMERIC(4,2),
     price NUMERIC(10,2) NOT NULL,
     picture_path VARCHAR(255) DEFAULT NULL
 );
