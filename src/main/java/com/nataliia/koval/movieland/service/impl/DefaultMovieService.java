@@ -99,6 +99,7 @@ public class DefaultMovieService implements MovieService {
         return movieMapper.toDto(savedMovie);
     }
 
+    @Transactional
     @Override
     public MovieDto editMovie(int movieId, MovieEditRequest movieEditRequest) {
         Movie movie = findById(movieId);
@@ -109,8 +110,7 @@ public class DefaultMovieService implements MovieService {
         movie.setCountries(getCountriesByIds(movieEditRequest.countries()));
         movie.setGenres(getGenresByIds(movieEditRequest.genres()));
 
-        Movie updatedMovie = movieBaseRepository.save(movie);
-        return movieMapper.toDto(updatedMovie);
+        return movieMapper.toDto(movie);
     }
 
     private List<Movie> findByGenre(int genreId) {

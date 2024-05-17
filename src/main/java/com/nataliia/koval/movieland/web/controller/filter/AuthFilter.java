@@ -33,11 +33,8 @@ public class AuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        String token = authorizationHeader.split(" ")[0];
-        System.out.println(token);
-
-        if(!jwtSecurityTokenService.isTokenInvalid(token)) {
-            String username = jwtSecurityTokenService.extractUsername(token);
+        if(!jwtSecurityTokenService.isTokenInvalid(authorizationHeader)) {
+            String username = jwtSecurityTokenService.extractUsername(authorizationHeader);
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null,
                     userDetails.getAuthorities());

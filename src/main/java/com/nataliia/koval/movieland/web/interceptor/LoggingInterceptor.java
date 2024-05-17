@@ -3,8 +3,7 @@ package com.nataliia.koval.movieland.web.interceptor;
 import io.micrometer.common.lang.NonNullApi;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.lang.Nullable;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -12,10 +11,9 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.util.UUID;
 
+@Slf4j
 @NonNullApi
 public class LoggingInterceptor implements HandlerInterceptor {
-
-    private static final Logger logger = LoggerFactory.getLogger(LoggingInterceptor.class);
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
@@ -31,7 +29,7 @@ public class LoggingInterceptor implements HandlerInterceptor {
 
         String email = userIdentifier != null ? userIdentifier : "guest";
 
-        logger.info(String.format("[%s] %s %s - Successful signing up for user '%s'", Thread.currentThread().getName(), requestId, request.getMethod(), email));
+        log.info(String.format("[%s] %s %s - Successful signing up for user '%s'", Thread.currentThread().getName(), requestId, request.getMethod(), email));
 
         MDC.remove("requestId");
         MDC.remove("userIdentifier");

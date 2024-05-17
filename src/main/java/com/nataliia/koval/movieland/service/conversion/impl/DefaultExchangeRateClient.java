@@ -2,7 +2,6 @@ package com.nataliia.koval.movieland.service.conversion.impl;
 
 import com.nataliia.koval.movieland.exception.ConvertCurrencyException;
 import com.nataliia.koval.movieland.service.conversion.ExchangeRateClient;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -37,7 +36,6 @@ public class DefaultExchangeRateClient implements ExchangeRateClient {
         return parseExchangeRatesFromJson(jsonArray, currencies);
     }
 
-    @Transactional
     String fetchExchangeRatesJsonResponse() {
         String formattedDate = LocalDate.now().format(formatter);
 

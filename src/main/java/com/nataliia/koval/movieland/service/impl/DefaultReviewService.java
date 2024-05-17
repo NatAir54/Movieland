@@ -21,9 +21,8 @@ public class DefaultReviewService implements ReviewService {
     private final JwtSecurityTokenService jwtSecurityTokenService;
 
     public Review addReview(ReviewRequest reviewRequest, String authorizationHeader) {
-        String token = extractToken(authorizationHeader);
-
-        User user = userService.findByEmail(jwtSecurityTokenService.extractUsername(token));
+        String userEmail = jwtSecurityTokenService.extractUsername(authorizationHeader);
+        User user = userService.findByEmail(jwtSecurityTokenService.extractUsername(userEmail));
 
         Review review = new Review();
         review.setText(reviewRequest.text());
@@ -34,9 +33,5 @@ public class DefaultReviewService implements ReviewService {
         movie.getReviews().add(review);
 
         return reviewRepository.save(review);
-    }
-
-    private String extractToken(String authorizationHeader) {
-        return authorizationHeader.split(" ")[0];
     }
 }
