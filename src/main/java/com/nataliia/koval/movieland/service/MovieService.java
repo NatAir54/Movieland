@@ -1,6 +1,7 @@
 package com.nataliia.koval.movieland.service;
 
 import com.nataliia.koval.movieland.dto.MovieDto;
+import com.nataliia.koval.movieland.entity.Movie;
 import com.nataliia.koval.movieland.exception.GenreNotFoundException;
 import com.nataliia.koval.movieland.exception.MovieNotFoundException;
 import com.nataliia.koval.movieland.service.conversion.impl.CurrencySupported;
@@ -57,4 +58,6 @@ public interface MovieService {
      * @throws MovieNotFoundException If the specified movie is not found.
      */
     MovieDto findById(int movieId, CurrencySupported currency);
+
+    Movie findById(int movieId);
 }

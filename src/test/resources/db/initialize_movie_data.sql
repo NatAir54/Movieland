@@ -189,7 +189,7 @@ CREATE INDEX idx_movie_price ON movie (price);
 
 
 ALTER TABLE IF EXISTS users
-    ADD COLUMN IF NOT EXISTS email VARCHAR(255) NOT NULL UNIQUE DEFAULT '',
+    ADD COLUMN IF NOT EXISTS email VARCHAR(255) NOT NULL DEFAULT '',
     ADD COLUMN IF NOT EXISTS password_hash VARCHAR(255) NOT NULL DEFAULT '';
 
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
@@ -220,6 +220,9 @@ SET
                         WHEN nickname = 'Джесси Паттерсон' THEN crypt('tommy', gen_salt('bf'))
                         WHEN nickname = 'Деннис Крейг' THEN crypt('coldbeer', gen_salt('bf'))
         END;
+
+ALTER TABLE IF EXISTS users
+    ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT FALSE;
 
 
 

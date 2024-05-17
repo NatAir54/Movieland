@@ -27,4 +27,11 @@ public class User {
 
     @Column(name = "password_hash")
     private String passwordHash;
+
+    @Column(name = "is_admin")
+    private boolean isAdmin;
+
+    public boolean isAdmin() {
+        return isAdmin;
+    }
 }

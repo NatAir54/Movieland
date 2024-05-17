@@ -5,6 +5,7 @@ import com.nataliia.koval.movieland.repository.impl.DefaultTokenRepository;
 import com.nataliia.koval.movieland.service.JwtSecurityTokenService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -45,14 +46,28 @@ public class DefaultJwtSecurityTokenService implements JwtSecurityTokenService {
     public boolean isTokenInvalid(String token) {
         if (defaultTokenRepository.exists(token)) {
             try {
-                JwtParser parser = Jwts.parserBuilder().setSigningKey(secretKey).build();
-                Claims claims = parser.parseClaimsJws(token).getBody();
+                Claims claims = parseToken(token);
                 return claims.getExpiration().before(new Date());
             } catch (JwtException | IllegalArgumentException e) {
                 return true;
             }
         }
         return true;
+    }
+
+    @Override
+    public String extractUsername(String token) {
+        try {
+            Claims claims = parseToken(token);
+            return claims.getSubject();
+        } catch (JwtException | IllegalArgumentException e) {
+            return null;
+        }
+    }
+
+    private Claims parseToken(String token) {
+        JwtParser parser = Jwts.parserBuilder().setSigningKey(secretKey).build();
+        return parser.parseClaimsJws(token).getBody();
     }
 
     private String generateToken(String email) {

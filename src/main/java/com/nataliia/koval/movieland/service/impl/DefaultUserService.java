@@ -33,6 +33,12 @@ public class DefaultUserService implements UserService {
         return false;
     }
 
+    @Override
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElse(null);
+    }
+
     private String getUserPasswordHashByEmail(String email) {
         return userRepository.findByEmail(email)
                 .map(User::getPasswordHash)

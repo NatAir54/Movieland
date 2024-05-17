@@ -58,7 +58,7 @@ public class DefaultMovieService implements MovieService {
 
     @Override
     public MovieDto findById(int movieId, CurrencySupported currency) {
-        MovieDto movieDto = findById(movieId);
+        MovieDto movieDto = movieMapper.toDto(findById(movieId));
 
         if (currency != CurrencySupported.UAH) {
             double convertedPrice = currencyConverter.convert(movieDto.getPrice(), currency);
@@ -69,9 +69,9 @@ public class DefaultMovieService implements MovieService {
         return movieDto;
     }
 
-    private MovieDto findById(int movieId) {
+    @Override
+    public Movie findById(int movieId) {
         return movieBaseRepository.findById(movieId)
-                .map(movieMapper::toDto)
                 .orElseThrow(() -> new MovieNotFoundException(movieId));
     }
 
