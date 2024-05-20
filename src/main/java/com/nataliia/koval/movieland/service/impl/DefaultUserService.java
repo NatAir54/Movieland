@@ -6,8 +6,9 @@ import com.nataliia.koval.movieland.service.UserService;
 import com.nataliia.koval.movieland.service.security.util.PasswordValidationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
 public class DefaultUserService implements UserService {

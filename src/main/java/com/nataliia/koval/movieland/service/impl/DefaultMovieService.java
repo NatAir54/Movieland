@@ -17,7 +17,7 @@ import com.nataliia.koval.movieland.repository.MovieBaseRepository;
 import com.nataliia.koval.movieland.service.MovieService;
 import com.nataliia.koval.movieland.web.controller.entity.MovieAddRequest;
 import com.nataliia.koval.movieland.web.controller.entity.MovieEditRequest;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
 public class DefaultMovieService implements MovieService {
@@ -40,7 +41,6 @@ public class DefaultMovieService implements MovieService {
     private final MovieMapper movieMapper;
 
 
-    @Transactional
     @Override
     public List<MovieDto> findAll(String ratingOrder, String priceOrder) {
         List<Movie> movies = (ratingOrder == null && priceOrder == null) ?
@@ -49,13 +49,11 @@ public class DefaultMovieService implements MovieService {
         return mapToDtoList(movies);
     }
 
-    @Transactional
     @Override
     public List<MovieDto> findThreeRandom() {
         return mapToDtoList(movieBaseRepository.findThreeRandom());
     }
 
-    @Transactional
     @Override
     public List<MovieDto> findByGenre(int genreId, String ratingOrder, String priceOrder) {
         List<Movie> movies = (ratingOrder == null && priceOrder == null) ?
@@ -83,6 +81,7 @@ public class DefaultMovieService implements MovieService {
                 .orElseThrow(() -> new MovieNotFoundException(movieId));
     }
 
+    @Transactional
     @Override
     public MovieDto addMovie(MovieAddRequest movieAddRequest) {
         Movie movie = new Movie();

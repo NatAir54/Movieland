@@ -1,0 +1,2 @@
+ALTER TABLE IF EXISTS movie
+    ADD COLUMN IF NOT EXISTS version integer DEFAULT 0;

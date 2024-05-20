@@ -227,6 +227,9 @@ ALTER TABLE IF EXISTS users
 INSERT INTO users (nickname, email, password_hash, is_admin) VALUES
     ('Наташа Админ', 'ruba.fish1500@gmail.com', crypt('neja', gen_salt('bf')), true);
 
+ALTER TABLE IF EXISTS movie
+    ADD COLUMN IF NOT EXISTS version integer DEFAULT 0;
+
 
 
 

@@ -1,27 +1,31 @@
 package com.nataliia.koval.movieland.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Index;
+import jakarta.persistence.Table;
 import jakarta.persistence.NamedAttributeNode;
-import jakarta.persistence.NamedEntityGraph;
-import jakarta.persistence.Id;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.NamedSubgraph;
-import jakarta.persistence.Column;
-import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.NamedEntityGraph;
+import jakarta.persistence.Id;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Column;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.DynamicUpdate;
+import jakarta.persistence.Version;
 
 import java.util.HashSet;
 import java.util.Set;
 
+@DynamicUpdate
 @Entity
 @Getter
 @Setter
@@ -67,19 +71,22 @@ public class Movie {
     @Column(name= "picture_path")
     private String picturePath;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "movie_country",
             joinColumns = @JoinColumn(name = "movie_id"),
             inverseJoinColumns = @JoinColumn(name = "country_id"))
     private Set<Country> countries = new HashSet<>();
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "movie_genre",
             joinColumns = @JoinColumn(name = "movie_id"),
             inverseJoinColumns = @JoinColumn(name = "genre_id"))
     private Set<Genre> genres = new HashSet<>();
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "movie_id")
     private Set<Review> reviews = new HashSet<>();
+
+    @Version
+    private int version;
 }
