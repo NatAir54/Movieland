@@ -1,11 +1,11 @@
 server:
-  port: ${PORT:8080}
+  port: 8080
 
 spring:
   datasource:
-    username: postgres
-    password: postgrsql098
-    url: jdbc:postgresql://localhost:5432/movieland
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    url: jdbc:postgresql://localhost:5432/${POSTGRES_DB}
   jpa:
     open-in-view: false
     hibernate:
@@ -16,7 +16,8 @@ spring:
         format_sql: true
     show-sql: false
   flyway:
-    enabled: false
+    enabled: true
+    baseline-on-migrate: true
 #  data:
 #    redis:
 #      host: localhost
