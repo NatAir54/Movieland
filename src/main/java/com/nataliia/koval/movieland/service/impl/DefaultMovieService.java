@@ -5,6 +5,7 @@ import com.nataliia.koval.movieland.entity.Genre;
 import com.nataliia.koval.movieland.entity.Review;
 import com.nataliia.koval.movieland.repository.CountryRepository;
 import com.nataliia.koval.movieland.repository.MovieCustomRepository;
+import com.nataliia.koval.movieland.service.MovieEnrichmentService;
 import com.nataliia.koval.movieland.service.MovieSortingService;
 import com.nataliia.koval.movieland.service.conversion.CurrencyConverter;
 import com.nataliia.koval.movieland.service.conversion.impl.CurrencySupported;
@@ -18,6 +19,7 @@ import com.nataliia.koval.movieland.repository.MovieBaseRepository;
 import com.nataliia.koval.movieland.service.MovieService;
 import com.nataliia.koval.movieland.web.controller.entity.MovieAddRequest;
 import com.nataliia.koval.movieland.web.controller.entity.MovieEditRequest;
+import jakarta.persistence.Cacheable;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -34,7 +36,7 @@ import java.util.concurrent.*;
 @Service
 public class DefaultMovieService implements MovieService {
     private final MovieSortingService movieSortingService;
-    private final CurrencyConverter currencyConverter;
+    private final MovieEnrichmentService movieEnrichmentService;
 
     private final MovieBaseRepository movieBaseRepository;
     private final MovieCustomRepository movieCustomRepository;
@@ -69,32 +71,7 @@ public class DefaultMovieService implements MovieService {
     @Override
     public MovieDto findById(int movieId, CurrencySupported currency) {
         Movie movie = findById(movieId);
-
-        Future<Set<Genre>> genresFuture = executorService.submit(() -> fetchGenres(movie));
-        Future<Set<Country>> countriesFuture = executorService.submit(() -> fetchCountries(movie));
-        Future<Set<Review>> reviewsFuture = executorService.submit(() -> fetchReviews(movie));
-
-        try {
-            Set<Genre> genres = genresFuture.get(5, TimeUnit.SECONDS);
-            Set<Country> countries = countriesFuture.get(5, TimeUnit.SECONDS);
-            Set<Review> reviews = reviewsFuture.get(5, TimeUnit.SECONDS);
-            MovieDto movieDto = movieMapper.toDto(movie, genres, countries, reviews);
-
-            if (currency != CurrencySupported.UAH) {
-                double convertedPrice = currencyConverter.convert(movieDto.getPrice(), currency);
-                double priceRoundedToTwoDecimals = new BigDecimal(convertedPrice).setScale(2, RoundingMode.HALF_UP).doubleValue();
-                movieDto.setPrice(priceRoundedToTwoDecimals);
-            }
-
-            return movieDto;
-        } catch (TimeoutException e) {
-            genresFuture.cancel(true);
-            countriesFuture.cancel(true);
-            reviewsFuture.cancel(true);
-            throw new RuntimeException("Timeout while fetching movie details", e);
-        } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException("Error while fetching movie details", e);
-        }
+        return movieEnrichmentService.enrichMovie(movie, currency);
     }
 
     @Override
@@ -132,18 +109,6 @@ public class DefaultMovieService implements MovieService {
         movie.setGenres(getGenresByIds(movieEditRequest.genres()));
 
         return movieMapper.toDto(movie);
-    }
-
-    private Set<Genre> fetchGenres(Movie movie) {
-        return movie.getGenres();
-    }
-
-    private Set<Country> fetchCountries(Movie movie) {
-        return movie.getCountries();
-    }
-
-    private Set<Review> fetchReviews(Movie movie) {
-        return movie.getReviews();
     }
 
     private List<Movie> findByGenre(int genreId) {
