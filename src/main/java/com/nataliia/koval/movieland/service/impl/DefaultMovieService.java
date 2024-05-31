@@ -2,12 +2,10 @@ package com.nataliia.koval.movieland.service.impl;
 
 import com.nataliia.koval.movieland.entity.Country;
 import com.nataliia.koval.movieland.entity.Genre;
-import com.nataliia.koval.movieland.entity.Review;
 import com.nataliia.koval.movieland.repository.CountryRepository;
 import com.nataliia.koval.movieland.repository.MovieCustomRepository;
 import com.nataliia.koval.movieland.service.MovieEnrichmentService;
 import com.nataliia.koval.movieland.service.MovieSortingService;
-import com.nataliia.koval.movieland.service.conversion.CurrencyConverter;
 import com.nataliia.koval.movieland.service.conversion.impl.CurrencySupported;
 import com.nataliia.koval.movieland.dto.MovieDto;
 import com.nataliia.koval.movieland.entity.Movie;
@@ -19,17 +17,13 @@ import com.nataliia.koval.movieland.repository.MovieBaseRepository;
 import com.nataliia.koval.movieland.service.MovieService;
 import com.nataliia.koval.movieland.web.controller.entity.MovieAddRequest;
 import com.nataliia.koval.movieland.web.controller.entity.MovieEditRequest;
-import jakarta.persistence.Cacheable;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.*;
 
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -43,9 +37,6 @@ public class DefaultMovieService implements MovieService {
     private final GenreRepository genreRepository;
     private final CountryRepository countryRepository;
     private final MovieMapper movieMapper;
-
-    private final ExecutorService executorService = Executors.newCachedThreadPool();
-
 
     @Override
     public List<MovieDto> findAll(String ratingOrder, String priceOrder) {
