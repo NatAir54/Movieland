@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class GenreDto {
+public final class GenreDto {
     private final Integer id;
     private final String name;
 }

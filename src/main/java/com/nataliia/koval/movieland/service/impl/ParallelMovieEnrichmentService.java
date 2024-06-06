@@ -16,7 +16,13 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Set;
-import java.util.concurrent.*;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.ExecutionException;
 
 @Primary
 @RequiredArgsConstructor
@@ -31,10 +37,13 @@ public class ParallelMovieEnrichmentService implements MovieEnrichmentService {
 
     @Override
     public MovieDto enrichMovie(Movie movie, CurrencySupported currency) {
+        Callable<Set<Genre>> genresTask = () -> fetchGenres(movie);
+        Callable<Set<Country>> countriesTask = () -> fetchCountries(movie);
+        Callable<Set<Review>> reviewsTask = () -> fetchReviews(movie);
 
-        Future<Set<Genre>> genresFuture = executorService.submit(() -> fetchGenres(movie));
-        Future<Set<Country>> countriesFuture = executorService.submit(() -> fetchCountries(movie));
-        Future<Set<Review>> reviewsFuture = executorService.submit(() -> fetchReviews(movie));
+        Future<Set<Genre>> genresFuture = executorService.submit(genresTask);
+        Future<Set<Country>> countriesFuture = executorService.submit(countriesTask);
+        Future<Set<Review>> reviewsFuture = executorService.submit(reviewsTask);
 
         try {
             Set<Genre> genres = genresFuture.get(5, TimeUnit.SECONDS);
