@@ -21,6 +21,7 @@
         <json.version>20240303</json.version>
         <jsonwebtoken.version>0.11.2</jsonwebtoken.version>
         <jakarta.persistence.version>3.1.0</jakarta.persistence.version>
+        <hibernate-ehcache.version>5.6.11.Final</hibernate-ehcache.version>
     </properties>
 
     <dependencies>
@@ -111,6 +112,12 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-config</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-ehcache</artifactId>
+            <version>${hibernate-ehcache.version}</version>
         </dependency>
 
 

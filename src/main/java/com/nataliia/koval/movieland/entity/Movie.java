@@ -22,9 +22,11 @@ import lombok.Setter;
 import org.hibernate.annotations.DynamicUpdate;
 import jakarta.persistence.Version;
 
+import javax.persistence.Cacheable;
 import java.util.HashSet;
 import java.util.Set;
 
+@Cacheable
 @DynamicUpdate
 @Entity
 @Getter

@@ -4,7 +4,7 @@ server:
 spring:
   datasource:
     driverClassName: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5438/${POSTGRES_DB}
+    url: jdbc:postgresql://localhost:5432/${POSTGRES_DB}
     username: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
   jpa:
@@ -15,6 +15,15 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
+        cache:
+          use_second_level_cache: true
+          region:
+            factory_class: org.hibernate.cache.ehcache.EhCacheRegionFactory
+          generate_statistics: true
+      javax:
+        persistence:
+          sharedCache:
+            mode: ENABLE_SELECTIVE
     show-sql: false
   flyway:
     enabled: true
@@ -56,4 +65,5 @@ logging:
         jdbc:
           bind: trace
           root: trace
+      cache: debug
 
