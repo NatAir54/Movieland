@@ -10,7 +10,7 @@ import com.nataliia.koval.movieland.service.MovieEnrichmentService;
 import com.nataliia.koval.movieland.service.conversion.CurrencyConverter;
 import com.nataliia.koval.movieland.service.conversion.impl.CurrencySupported;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -24,7 +24,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.ExecutionException;
 
-@Primary
+@Profile("parallel")
 @RequiredArgsConstructor
 @Service
 public class ParallelMovieEnrichmentService implements MovieEnrichmentService {
